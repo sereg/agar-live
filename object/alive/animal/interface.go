@@ -9,4 +9,5 @@ type Animal interface {
 	Vision(float64)
 	GetVision() float64
 	Eat(a alive.Alive)
+	Steep()
 }
