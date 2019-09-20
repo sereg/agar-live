@@ -1,6 +1,9 @@
 package animal
 
-import "agar-life/object/alive"
+import (
+	"agar-life/object/alive"
+	"agar-life/object/alive/plant"
+)
 
 type Animal interface {
 	alive.Alive
@@ -9,5 +12,5 @@ type Animal interface {
 	Vision(float64)
 	GetVision() float64
 	Eat(a alive.Alive)
-	Steep()
+	Step(animals []Animal, plants []plant.Plant)
 }

@@ -4,6 +4,7 @@ import (
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/behavior"
+	"agar-life/object/alive/plant"
 )
 
 type Beast struct {
@@ -37,10 +38,10 @@ func (b Beast) GetVision() float64 {
 	return b.vision
 }
 
-func (b *Beast) Steep() {
-
+func (b *Beast) Step(animals []animal.Animal, plants []plant.Plant) {
+	b.behavior.SetDirection(animals, plants)
 }
 
 func (b *Beast) Eat(a alive.Alive) {
-
+	
 }
