@@ -2,11 +2,18 @@ package generate
 
 import (
 	"agar-life/math"
+	"agar-life/object/alive"
 	"strconv"
 )
 
-func Generate() {
-
+func Generate(el alive.Alive, w, h float64)	 {
+	el.Color(getRandomColor())
+	el.Size(3)
+	el.Crd(
+		float64(math.Random(int(0), int(w))),
+		float64(math.Random(int(0), int(h))),
+	)
+	el.Hidden(false)
 }
 
 func getRandomColor() string {
