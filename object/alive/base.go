@@ -6,6 +6,7 @@ import "agar-life/object"
 type Base struct {
 	object.Base
 	deed bool
+	name string
 }
 
 //Die it kills the object
@@ -29,4 +30,11 @@ func (b Base) Grow() {
 }
 
 func (b Base) Decrease(){
+}
+
+func (b Base) GetName() string{
+	return b.name
+}
+func (b *Base) Name(name string) {
+	b.name = name
 }

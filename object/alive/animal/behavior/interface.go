@@ -1,10 +1,7 @@
 package behavior
 
-import (
-	"agar-life/object/alive/animal"
-	"agar-life/object/alive/plant"
-)
+import "agar-life/object/alive"
 
 type Behavior interface{
-	SetDirection(animals []animal.Animal, plants []plant.Plant)
+	SetDirection(animals []alive.Alive, plants []alive.Alive)
 }

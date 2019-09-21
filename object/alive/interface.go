@@ -9,4 +9,6 @@ type Alive interface {
 	GetDead() bool
 	Grow()
 	Decrease()
+	GetName() string
+	Name(string)
 }

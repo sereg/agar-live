@@ -38,10 +38,12 @@ func (b Beast) GetVision() float64 {
 	return b.vision
 }
 
-func (b *Beast) Step(animals []animal.Animal, plants []plant.Plant) {
+func (b *Beast) Step(animals []alive.Alive, plants []alive.Alive) {
 	b.behavior.SetDirection(animals, plants)
 }
 
 func (b *Beast) Eat(a alive.Alive) {
-	
+	if a.GetDead() {
+		return
+	}
 }

@@ -1,8 +1,7 @@
 package behavior
 
 import (
-	"agar-life/object/alive/animal"
-	"agar-life/object/alive/plant"
+	"agar-life/object/alive"
 )
 
 type aiV1 struct {
@@ -15,6 +14,6 @@ func NewAiv1() Behavior {
 	}
 }
 
-func (a *aiV1) SetDirection(animals []animal.Animal, plants []plant.Plant) {
+func (a *aiV1) SetDirection(animals []alive.Alive, plants []alive.Alive) {
 
 }

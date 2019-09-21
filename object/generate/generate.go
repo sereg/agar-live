@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func Generate(el alive.Alive, w, h float64)	 {
+func Generate(el alive.Alive, w, h float64, name string)	 {
 	el.Color(getRandomColor())
 	el.Size(3)
 	el.Crd(
@@ -14,6 +14,7 @@ func Generate(el alive.Alive, w, h float64)	 {
 		float64(math.Random(int(0), int(h))),
 	)
 	el.Hidden(false)
+	el.Name(name)
 }
 
 func getRandomColor() string {
