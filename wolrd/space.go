@@ -122,6 +122,18 @@ func (w *World) Cycle() {
 	w.cycle++
 }
 
+func (w *World) GetPlant() []alive.Alive{
+	var el []alive.Alive
+	if !w.plant.updateState {
+		return el
+	}
+	return w.plant.el[:len(w.plant.el) - w.plant.deedIndex]
+}
+
+func (w *World) GetAnimal() []alive.Alive{
+	return w.animal.el[:len( w.animal.el) - w.animal.deedIndex]
+}
+
 func getClosest(gr grid, el animal.Animal, fr frame) ([]int, []alive.Alive){
 	idInt := gr.GetObjInVision(el.GetCrd().GetX(), el.GetCrd().GetY(), el.GetVision())
 	closest := make([]alive.Alive, len(idInt))
