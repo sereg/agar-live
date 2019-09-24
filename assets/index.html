@@ -3,10 +3,9 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>WebAssembly with Golang is Fun! 🕹 by https://olso.space, Martin Olsansky (olso)</title>
-    <meta name="author" content="https://olso.space Martin Olsansky (olso)" />
+    <title>go-agario</title>
     <meta name="description"
-        content="The world's easiest introduction to WebAssembly & Golang and (some) JS by https://olso.space, Martin Olsansky (olso)" />
+        content="" />
     <meta name="theme-color" content="#000000" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <style>
@@ -29,6 +28,11 @@
 
         }
     </style>
+    <!--
+    Add the following polyfill for Microsoft Edge 17/18 support:
+    <script src="https://cdn.jsdelivr.net/npm/text-encoding@0.7.0/lib/encoding.min.js"></script>
+    (see https://caniuse.com/#feat=textencoder)
+    -->
     <script type="text/javascript" src="wasm_exec.js"></script>
     <script type="text/javascript">
         // setInterval(() => {
@@ -48,6 +52,26 @@
                 // console.log(Cycle())
             // }
         })
+        // if (!WebAssembly.instantiateStreaming) { // polyfill
+        //     WebAssembly.instantiateStreaming = async (resp, importObject) => {
+        //         const source = await (await resp).arrayBuffer();
+        //         return await WebAssembly.instantiate(source, importObject);
+        //     };
+        // }
+        // const go = new Go();
+        // let mod, inst;
+        // WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject).then((result) => {
+        //     mod = result.module;
+        //     inst = result.instance;
+        //     document.getElementById("runButton").disabled = false;
+        // }).catch((err) => {
+        //     console.error(err);
+        // });
+        // async function run() {
+        //     console.clear();
+        //     await go.run(inst);
+        //     inst = await WebAssembly.instantiate(mod, go.importObject); // reset instance
+        // }
     </script>
 </head>
 

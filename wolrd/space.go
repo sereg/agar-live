@@ -33,6 +33,7 @@ type grid struct {
 func NewGrid(size float64) grid {
 	return grid{
 		cellSize: size,
+		data: make(map[xy][]int),
 	}
 }
 

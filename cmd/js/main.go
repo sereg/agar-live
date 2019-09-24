@@ -4,19 +4,21 @@ import (
 	"agar-life/object"
 	"agar-life/object/alive/animal"
 	"agar-life/wolrd"
+	"fmt"
 	"math"
 	"math/rand"
 	"syscall/js"
 	"time"
 )
 
-//GOARCH=wasm GOOS=js go build -o lib.wasm main.go
+//GOARCH=wasm GOOS=js go build -o ../../assets/lib.wasm main.go
 //go test -cpuprofile profile.out
 //go tool pprof --web profile.out
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := newJsConnect()
 	world := wolrd.NewWorld(100, 10, jsCon.wh.h, jsCon.wh.w)
+	fmt.Println(jsCon.wh.h, jsCon.wh.w)
 	fieldPlants := jsCon.GetCanvas()
 	fieldAnimals := jsCon.GetCanvas()
 	var cycle js.Func
@@ -28,13 +30,17 @@ func main() {
 				fieldPlants.draw(v)
 			}
 		}
-		animal := world.GetAnimal()
+		animalList := world.GetAnimal()
 		fieldAnimals.refresh()
-		for _, v := range animal {
+		for _, v := range animalList {
 			fieldAnimals.draw(v)
 		}
-		jsCon.window.Call("requestAnimationFrame", cycle)
+		println("requestAnimationFrame")
+		//jsCon.window.Call("requestAnimationFrame", cycle)
+		return nil
 	})
+	jsCon.window.Call("requestAnimationFrame", cycle)
+	println("WASM Go Initialized")
 	select {}
 }
 

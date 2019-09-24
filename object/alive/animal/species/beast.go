@@ -4,7 +4,6 @@ import (
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/behavior"
-	"agar-life/object/alive/plant"
 )
 
 type Beast struct {
