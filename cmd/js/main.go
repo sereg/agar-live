@@ -4,13 +4,14 @@ import (
 	"agar-life/object"
 	"agar-life/object/alive/animal"
 	"agar-life/wolrd"
-	"fmt"
 	"math"
 	"math/rand"
 	"syscall/js"
 	"time"
 )
-
+//set GOARCH=wasm
+//set GOOS=js
+//go build -o ./assets/lib.wasm cmd/js/main.go
 //GOARCH=wasm GOOS=js go build -o ./assets/lib.wasm cmd/js/main.go
 //go test -cpuprofile profile.out
 //go tool pprof --web profile.out
@@ -18,7 +19,6 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := newJsConnect()
 	world := wolrd.NewWorld(0, 3, jsCon.wh.w, jsCon.wh.h)
-	fmt.Println(jsCon.wh.h, jsCon.wh.w)
 	fieldPlants := jsCon.GetCanvas()
 	fieldAnimals := jsCon.GetCanvas()
 	var cycle js.Func

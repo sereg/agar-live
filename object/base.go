@@ -35,7 +35,7 @@ func (p *Base) GetCrd() Crd {
 
 //Crd set coordinates
 func (p *Base) Crd(x, y float64) {
-	p.crd.x, p.crd.x = x, y
+	p.crd.x, p.crd.y = x, y
 }
 
 //GetHidden return is hidden the point
