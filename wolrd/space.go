@@ -84,7 +84,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 		plant:      frame{el: make([]alive.Alive, countPlant)},
 	}
 	for i := 0; i < countAnimal; i++ {
-		el := species.NewBeast(behavior.NewSimple())
+		el := species.NewBeast(behavior.NewSimple(w, h))
 		generate.Generate(el, w, h, "a" + strconv.Itoa(i))
 		word.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
 		word.animal.el[i] = el

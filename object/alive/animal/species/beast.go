@@ -38,7 +38,7 @@ func (b Beast) GetVision() float64 {
 }
 
 func (b *Beast) Step(animals []alive.Alive, plants []alive.Alive) {
-	b.behavior.SetDirection(animals, plants)
+	b.behavior.SetDirection(b, animals, plants)
 }
 
 func (b *Beast) Eat(a alive.Alive) {

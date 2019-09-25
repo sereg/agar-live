@@ -7,7 +7,7 @@ type Crd struct {
 
 //NewCrd return new instance of crd
 func NewCrd(x, y float64) Crd {
-	return Crd{x:x, y:y}
+	return Crd{x: x, y: y}
 }
 
 //X set x
@@ -28,6 +28,10 @@ func (c *Crd) Y(y float64) {
 //GetY it return y
 func (c Crd) GetY() float64 {
 	return c.y
+}
+
+func (c *Crd) Set(x, y float64) {
+	c.x, c.y = x, y
 }
 
 //Object the base interface for all objects

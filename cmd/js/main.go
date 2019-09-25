@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-//GOARCH=wasm GOOS=js go build -o ../../assets/lib.wasm main.go
+//GOARCH=wasm GOOS=js go build -o ./assets/lib.wasm cmd/js/main.go
 //go test -cpuprofile profile.out
 //go tool pprof --web profile.out
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := newJsConnect()
-	world := wolrd.NewWorld(100, 10, jsCon.wh.h, jsCon.wh.w)
+	world := wolrd.NewWorld(0, 3, jsCon.wh.w, jsCon.wh.h)
 	fmt.Println(jsCon.wh.h, jsCon.wh.w)
 	fieldPlants := jsCon.GetCanvas()
 	fieldAnimals := jsCon.GetCanvas()
