@@ -36,7 +36,7 @@ func main() {
 			fieldAnimals.draw(v)
 		}
 		println("requestAnimationFrame")
-		//jsCon.window.Call("requestAnimationFrame", cycle)
+		jsCon.window.Call("requestAnimationFrame", cycle)
 		return nil
 	})
 	jsCon.window.Call("requestAnimationFrame", cycle)
