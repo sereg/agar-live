@@ -4,6 +4,7 @@ import (
 	"agar-life/object"
 	"agar-life/object/alive/animal"
 	"agar-life/wolrd"
+	"fmt"
 	"math"
 	"math/rand"
 	"syscall/js"
@@ -18,7 +19,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := newJsConnect()
-	world := wolrd.NewWorld(0, 3, jsCon.wh.w, jsCon.wh.h)
+	world := wolrd.NewWorld(0, 1, jsCon.wh.w, jsCon.wh.h)
 	fieldPlants := jsCon.GetCanvas()
 	fieldAnimals := jsCon.GetCanvas()
 	var cycle js.Func
@@ -81,6 +82,7 @@ func (b *baseCanvas) draw(obj object.Object) {
 	if obj.GetHidden() {
 		return
 	}
+	fmt.Println(obj.GetCrd().GetX(), obj.GetCrd().GetY())
 	b.ctx.Call("beginPath")
 	b.ctx.Call("arc", obj.GetCrd().GetX(), obj.GetCrd().GetY(), obj.GetSize(), 0, math.Pi*2, false)
 	b.ctx.Set("fillStyle", obj.GetColor())

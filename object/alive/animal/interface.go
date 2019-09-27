@@ -4,6 +4,8 @@ import (
 	"agar-life/object/alive"
 )
 
+
+
 type Animal interface {
 	alive.Alive
 	Speed(float64)

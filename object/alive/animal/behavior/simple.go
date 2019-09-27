@@ -17,6 +17,7 @@ type simple struct {
 func NewSimple(w, h float64) Behavior {
 	return &simple{
 		w: w, h: h,
+		changeDirection: true,
 	}
 }
 
