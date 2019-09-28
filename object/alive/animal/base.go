@@ -7,20 +7,21 @@ import (
 
 type Base struct {
 	alive.Base
-	speed    float64
-	vision   float64
+	speed  float64
+	vision float64
 }
 
 func NewBase() Animal {
 	return &Base{
-		speed:    0,
-		vision:   0,
+		speed:  0,
+		vision: 0,
 	}
 }
 
 func (b *Base) Size(size float64) {
 	b.Base.Size(size)
 	b.Speed(StartSpeed - (math.Log(size * SpeedRatio)))
+	b.Vision(StartVision + b.GetSize()*(VisionRatio-math.Log(b.GetSize())))
 }
 
 func (b *Base) Speed(speed float64) {
