@@ -3,7 +3,6 @@ package world
 import (
 	"agar-life/object/alive/animal"
 	gnt "agar-life/object/generate"
-	"strconv"
 )
 
 type resurrect struct {
@@ -26,9 +25,9 @@ func (r *resurrects) resurrect(cycle int64, w, h float64) {
 		if el.cycleRevive <= cycle {
 			alv := el.frame.el[el.index]
 			if _, ok := alv.(animal.Animal); ok {
-				gnt.Generate(alv, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
+				gnt.Generate(alv, gnt.WorldWH(w, h), gnt.Size(6))
 			} else {
-				gnt.Generate(alv, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)))
+				gnt.Generate(alv, gnt.WorldWH(w, h))
 			}
 			if el.index != el.frame.deedIndex {
 				deedIndex := len(el.frame.el) - el.frame.deedIndex

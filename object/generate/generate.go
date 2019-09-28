@@ -11,15 +11,16 @@ func Generate(el alive.Alive, opts ...Option)	 {
 	for _, o := range opts {
 		o(&opt)
 	}
-
 	el.Color(getRandomColor())
 	el.Size(opt.size)
 	el.Crd(
 		float64(math.Random(int(0), int(opt.w))),
 		float64(math.Random(int(0), int(opt.h))),
 	)
-	el.Hidden(false)
-	el.Name(opt.name)
+	el.Revive()
+	if opt.name != "" {
+		el.Name(opt.name)
+	}
 }
 
 type Options struct {

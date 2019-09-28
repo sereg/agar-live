@@ -126,7 +126,7 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 			el1.Die()
 			deedIndex := len(fr.el) - 1 - fr.deedIndex
 			fr.el[index], fr.el[deedIndex] = fr.el[deedIndex], fr.el[index]
-			w.resurrect.add(fr, index, w.cycle)
+			w.resurrect.add(fr, deedIndex, w.cycle)
 			fr.deedIndex++
 			fr.updateState = true
 			closest = removeFromAlive(closest, j)
