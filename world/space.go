@@ -1,4 +1,4 @@
-package wolrd
+package world
 
 import (
 	"agar-life/math/geom"
@@ -7,7 +7,7 @@ import (
 	"agar-life/object/alive/animal/behavior"
 	"agar-life/object/alive/animal/species"
 	sp "agar-life/object/alive/plant/species"
-	"agar-life/object/generate"
+	gnt "agar-life/object/generate"
 	"strconv"
 )
 
@@ -75,30 +75,33 @@ type World struct {
 }
 
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
-	word := World{
+	world := World{
 		w:          w,
 		h:          h,
 		gridPlant:  NewGrid(gridSize),
 		gridAnimal: NewGrid(gridSize),
 		animal:     frame{el: make([]alive.Alive, countAnimal)},
-		plant:      frame{el: make([]alive.Alive, countPlant)},
+		plant:      frame{el: make([]alive.Alive, countPlant), updateState: true},
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewSimple(w, h))
-		generate.Generate(el, w, h, "a" + strconv.Itoa(i))
-		word.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
-		word.animal.el[i] = el
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a" + strconv.Itoa(i)), gnt.Size(6))
+		world.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
+		world.animal.el[i] = el
 	}
 	for i := 0; i < countPlant; i++ {
 		el := sp.NewPlant()
-		generate.Generate(el, w, h, "p" + strconv.Itoa(i))
-		word.gridPlant.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
-		word.plant.el[i] = el
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p" + strconv.Itoa(i)))
+		world.gridPlant.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
+		world.plant.el[i] = el
 	}
-	return word
+	return world
 }
 
 func (w *World) Cycle() {
+	if w.cycle > 0 {
+		w.plant.updateState = false
+	}
 	for i := 0; i < len(w.animal.el)-w.animal.deedIndex; i++ {
 		el := w.animal.el[i].(animal.Animal)
 		if el.GetDead() {

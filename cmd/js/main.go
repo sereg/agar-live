@@ -3,8 +3,7 @@ package main
 import (
 	"agar-life/object"
 	"agar-life/object/alive/animal"
-	"agar-life/wolrd"
-	"fmt"
+	"agar-life/world"
 	"math"
 	"math/rand"
 	"syscall/js"
@@ -19,13 +18,15 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := newJsConnect()
-	world := wolrd.NewWorld(0, 1, jsCon.wh.w, jsCon.wh.h)
+	world := world.NewWorld(200, 10, jsCon.wh.w, jsCon.wh.h)
 	fieldPlants := jsCon.GetCanvas()
-	fieldAnimals := jsCon.GetCanvas()
+	fieldAnimals := animalCanvas{baseCanvas: jsCon.GetCanvas()}
 	var cycle js.Func
 	cycle = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		world.Cycle()
 		plant := world.GetPlant()
 		if len(plant) > 0 {
+			println(len(plant))
 			fieldPlants.refresh()
 			for _, v := range plant {
 				fieldPlants.draw(v)
@@ -36,7 +37,6 @@ func main() {
 		for _, v := range animalList {
 			fieldAnimals.draw(v)
 		}
-		println("requestAnimationFrame")
 		jsCon.window.Call("requestAnimationFrame", cycle)
 		return nil
 	})
@@ -82,7 +82,6 @@ func (b *baseCanvas) draw(obj object.Object) {
 	if obj.GetHidden() {
 		return
 	}
-	fmt.Println(obj.GetCrd().GetX(), obj.GetCrd().GetY())
 	b.ctx.Call("beginPath")
 	b.ctx.Call("arc", obj.GetCrd().GetX(), obj.GetCrd().GetY(), obj.GetSize(), 0, math.Pi*2, false)
 	b.ctx.Set("fillStyle", obj.GetColor())
