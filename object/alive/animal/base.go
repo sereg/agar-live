@@ -43,8 +43,9 @@ func (b Base) GetVision() float64 {
 func (b *Base) Step(animals []alive.Alive, plants []alive.Alive) {
 }
 
-func (b *Base) Eat(a alive.Alive) {
-	if a.GetDead() {
+func (b *Base) Eat(el alive.Alive) {
+	if el.GetDead() {
 		return
 	}
+	b.Size(b.GetSize() + (el.GetSize() * EatIncreaseRation))
 }

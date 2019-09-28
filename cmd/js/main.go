@@ -37,7 +37,7 @@ func main() {
 		for _, v := range animalList {
 			fieldAnimals.draw(v)
 		}
-		//jsCon.window.Call("requestAnimationFrame", cycle)
+		jsCon.window.Call("requestAnimationFrame", cycle)
 		return nil
 	})
 	jsCon.window.Call("requestAnimationFrame", cycle)
