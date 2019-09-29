@@ -12,6 +12,8 @@ type plantX struct {
 }
 
 func NewPlant() plant.Plant{
+	//p := new(plantX)
+	//p.
 	return &plantX{}
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 func TestCycle(t *testing.T) {
-	world := NewWorld(100, 1, 100, 100)
+	world := NewWorld(0, 1, 100, 100)
 	for i := 0; i < 100; i++ {
 		world.Cycle()
 		animalList := world.GetAnimal()

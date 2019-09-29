@@ -8,6 +8,7 @@ import (
 	"agar-life/object/alive/animal/species"
 	sp "agar-life/object/alive/plant/species"
 	gnt "agar-life/object/generate"
+	"agar-life/world/const"
 	"strconv"
 )
 
@@ -31,13 +32,14 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	world := World{
 		w:          w,
 		h:          h,
-		gridPlant:  NewGrid(GridSize),
-		gridAnimal: NewGrid(GridSize),
+		gridPlant:  newGrid(_const.GridSize),
+		gridAnimal: newGrid(_const.GridSize),
 		animal:     frame{el: make([]alive.Alive, countAnimal)},
 		plant:      frame{el: make([]alive.Alive, countPlant), updateState: true},
 	}
 	for i := 0; i < countAnimal; i++ {
-		el := species.NewBeast(behavior.NewSimple(w, h))
+		el := species.NewBeast(behavior.NewAiv1(w, h))
+		//el := species.NewBeast(behavior.NewSimple(w, h))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		world.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
 		world.animal.el[i] = el
@@ -68,12 +70,12 @@ func (w *World) Cycle() {
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
-	w.gridAnimal = NewGrid(GridSize)
+	w.gridAnimal = newGrid(_const.GridSize)
 	for i := 0; i < len(w.animal.el)-w.animal.deedIndex; i++ {
 		el := w.animal.el[i]
 		w.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
 	}
-	w.gridPlant = NewGrid(GridSize)
+	w.gridPlant = newGrid(_const.GridSize)
 	for i := 0; i < len(w.plant.el)-w.plant.deedIndex; i++ {
 		el := w.plant.el[i]
 		w.gridPlant.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
@@ -95,7 +97,7 @@ func (w *World) fixLimit(el animal.Animal) {
 	if y > w.h {
 		y = w.h
 	}
-	el.Crd(x, y)
+	el.SetCrd(x, y)
 }
 
 func (w *World) GetPlant() []alive.Alive {
@@ -116,7 +118,7 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 		dist := func() float64 {
 			return geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
 		}
-		if el != nil && el1 != nil && !el1.GetDead() && el.GetSize()/el1.GetSize() > EatRatio && dist() < el.GetSize() {
+		if el != nil && el1 != nil && !el1.GetDead() && el.GetSize()/el1.GetSize() > _const.EatRatio && dist() < el.GetSize() {
 			index := idInt[j]
 			el.Eat(el1)
 			el1.Die()
@@ -126,7 +128,6 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 			fr.deedIndex++
 			fr.updateState = true
 			closest = removeFromAlive(closest, j)
-			//idInt = removeFromInt(idInt, j)
 			j--
 		}
 	}
@@ -134,7 +135,7 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 }
 
 func getClosest(gr grid, el animal.Animal, fr frame) ([]int, []alive.Alive) {
-	idInt := gr.GetObjInVision(el.GetCrd().GetX(), el.GetCrd().GetY(), el.GetVision())
+	idInt := gr.getObjInVision(el.GetCrd().GetX(), el.GetCrd().GetY(), el.GetVision())
 	lenClosest := len(idInt)
 	if len(fr.el) > 0 {
 		if _, ok := fr.el[0].(animal.Animal); ok {

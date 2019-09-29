@@ -16,7 +16,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	space := world.NewWorld(10, 3, jsCon.GetW(), jsCon.GetH())
+	space := world.NewWorld(60, 1, jsCon.GetW(), jsCon.GetH())
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
 	var cycle js.Func
@@ -34,6 +34,7 @@ func main() {
 		for _, v := range animalList {
 			fieldAnimals.Draw(v)
 		}
+		//println("requestAnimationFrame")
 		//jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	})

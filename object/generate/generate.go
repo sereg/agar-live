@@ -13,9 +13,9 @@ func Generate(el alive.Alive, opts ...Option)	 {
 	}
 	el.Color(getRandomColor())
 	el.Size(opt.size)
-	el.Crd(
-		float64(math.Random(int(0), int(opt.w))),
-		float64(math.Random(int(0), int(opt.h))),
+	el.SetCrd(
+		float64(math.Random(0, int(opt.w))),
+		float64(math.Random(0, int(opt.h))),
 	)
 	el.Revive()
 	if opt.name != "" {
@@ -57,9 +57,6 @@ func Size(size float64) Option {
 		o.size = size
 	}
 }
-
-
-
 
 func getRandomColor() string {
 	r := strconv.FormatInt(int64(math.Random(50, 250)), 16)

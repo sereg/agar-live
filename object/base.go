@@ -4,8 +4,8 @@ package object
 type Base struct {
 	color  string
 	size   float64
-	crd    Crd
 	hidden bool
+	Crd
 }
 
 //GetColor return color of point
@@ -26,16 +26,6 @@ func (p Base) GetSize() float64 {
 //Size sets a size for the point
 func (p *Base) Size(size float64) {
 	p.size = size
-}
-
-//GetCrd return coordinates
-func (p *Base) GetCrd() Crd {
-	return p.crd
-}
-
-//Crd set coordinates
-func (p *Base) Crd(x, y float64) {
-	p.crd.x, p.crd.y = x, y
 }
 
 //GetHidden return is hidden the point

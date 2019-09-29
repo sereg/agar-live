@@ -3,6 +3,7 @@ package world
 import (
 	"agar-life/object/alive/animal"
 	gnt "agar-life/object/generate"
+	"agar-life/world/const"
 )
 
 type resurrect struct {
@@ -16,7 +17,7 @@ type resurrects struct {
 }
 
 func (r *resurrects) add(frame *frame, index int, cycle int64) {
-	r.r = append(r.r, resurrect{frame: frame, index: index, cycleRevive: cycle + ResurrectTime})
+	r.r = append(r.r, resurrect{frame: frame, index: index, cycleRevive: cycle + _const.ResurrectTime})
 }
 
 func (r *resurrects) resurrect(cycle int64, w, h float64) {

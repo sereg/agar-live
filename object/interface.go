@@ -30,7 +30,12 @@ func (c Crd) GetY() float64 {
 	return c.y
 }
 
-func (c *Crd) Set(x, y float64) {
+//GetCrd it return crd
+func (c Crd) GetCrd() Crd {
+	return c
+}
+
+func (c *Crd) SetCrd(x, y float64) {
 	c.x, c.y = x, y
 }
 
@@ -41,7 +46,9 @@ type Object interface {
 	GetSize() float64
 	Size(size float64)
 	GetCrd() Crd
-	Crd(x, y float64)
+	SetCrd(x, y float64)
+	GetX() float64
+	GetY() float64
 	GetHidden() bool
 	Hidden(bool)
 }

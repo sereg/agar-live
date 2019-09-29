@@ -32,7 +32,7 @@ func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
 }
 
 func (s *simple) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive) {
-	if s.direction.GetX() == self.GetCrd().GetX() && s.direction.GetY() == self.GetCrd().GetY() {
+	if s.direction.GetX() == self.GetX() && s.direction.GetY() == self.GetY() {
 		return
 	}
 	l := self.GetCrd()
@@ -52,11 +52,15 @@ func (s *simple) SetDirection(self animal.Animal, animals []alive.Alive, plants 
 	if oldDirection != s.direction {
 		s.changeDirection = true
 	}
-	if s.changeDirection {
-		s.chCrd.Set(getXYWithLength(l.GetX(), l.GetY(), s.direction.GetX(), s.direction.GetY(), self.GetSpeed()))
+	s.setCrdByDirection(self, oldDirection)
+}
+
+func (s *simple) setCrdByDirection(a animal.Animal, oldDirection object.Crd) {
+	if s.changeDirection || s.direction != oldDirection {
+		s.chCrd.SetCrd(getXYWithLength(a.GetX(), a.GetY(), s.direction.GetX(), s.direction.GetY(), a.GetSpeed()))
 		s.changeDirection = false
 	}
-	newX := l.GetX() + s.chCrd.GetX()
-	newY := l.GetY() + s.chCrd.GetY()
-	self.Crd(newX, newY)
+	newX := a.GetX() + s.chCrd.GetX()
+	newY := a.GetY() + s.chCrd.GetY()
+	a.SetCrd(newX, newY)
 }

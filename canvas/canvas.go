@@ -3,7 +3,7 @@ package canvas
 import (
 	"agar-life/object"
 	"agar-life/object/alive/animal"
-	"agar-life/world"
+	"agar-life/world/const"
 	"math"
 	"syscall/js"
 )
@@ -67,7 +67,7 @@ func (b *Base) Draw(obj object.Object) {
 func (b *Base) Refresh() {
 	b.ctx.Set("fillStyle", "rgb(255, 255, 255)")
 	b.ctx.Call("fillRect", 0, 0, b.wh.w, b.wh.h)
-	b.Grid(world.GridSize)
+	b.Grid(_const.GridSize)
 }
 
 func (b *Base) Grid(step float64) {
