@@ -3,6 +3,7 @@ package behavior
 import (
 	"agar-life/object/alive/animal"
 	"agar-life/object/generate"
+	gnt "agar-life/object/generate"
 	"testing"
 )
 
@@ -12,9 +13,9 @@ var (
 
 func TestSetDirection(t *testing.T) {
 	sb := NewSimple(w, h)
-	animal := animal.NewBase()
-	generate.Generate(animal, w, h, "1")
-	animal.Crd(50, 50)
-	sb.SetDirection(animal, nil, nil)
+	animal2 := animal.NewBase()
+	generate.Generate(animal2, gnt.WorldWH(w, h), gnt.Name("a"), gnt.Size(6))
+	animal2.Crd(50, 50)
+	sb.SetDirection(animal2, nil, nil)
 	_ = 4
 }

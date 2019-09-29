@@ -3,6 +3,7 @@ package canvas
 import (
 	"agar-life/object"
 	"agar-life/object/alive/animal"
+	"agar-life/world"
 	"math"
 	"syscall/js"
 )
@@ -66,6 +67,23 @@ func (b *Base) Draw(obj object.Object) {
 func (b *Base) Refresh() {
 	b.ctx.Set("fillStyle", "rgb(255, 255, 255)")
 	b.ctx.Call("fillRect", 0, 0, b.wh.w, b.wh.h)
+	b.Grid(world.GridSize)
+}
+
+func (b *Base) Grid(step float64) {
+	b.ctx.Set("strokeStyle", "#cecaca")
+	for i := step; i < b.wh.w; i += step {
+		b.ctx.Call("beginPath")
+		b.ctx.Call("moveTo", i, 0)
+		b.ctx.Call("lineTo", i, b.wh.h)
+		b.ctx.Call("stroke")
+	}
+	for i := step; i < b.wh.h; i += step {
+		b.ctx.Call("beginPath")
+		b.ctx.Call("moveTo", 0, i)
+		b.ctx.Call("lineTo", b.wh.w, i)
+		b.ctx.Call("stroke")
+	}
 }
 
 type Animal struct {

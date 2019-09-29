@@ -11,10 +11,6 @@ import (
 	"strconv"
 )
 
-const (
-	gridSize = 20
-)
-
 type frame struct {
 	deedIndex   int
 	updateState bool
@@ -35,8 +31,8 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	world := World{
 		w:          w,
 		h:          h,
-		gridPlant:  NewGrid(gridSize),
-		gridAnimal: NewGrid(gridSize),
+		gridPlant:  NewGrid(GridSize),
+		gridAnimal: NewGrid(GridSize),
 		animal:     frame{el: make([]alive.Alive, countAnimal)},
 		plant:      frame{el: make([]alive.Alive, countPlant), updateState: true},
 	}
@@ -66,18 +62,18 @@ func (w *World) Cycle() {
 		}
 		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal)
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant)
-		idCA, closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal)
-		idCP, closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant)
+		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal)
+		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant)
 		el.Step(closestAnimal, closestPlant)
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
-	w.gridAnimal = NewGrid(gridSize)
+	w.gridAnimal = NewGrid(GridSize)
 	for i := 0; i < len(w.animal.el)-w.animal.deedIndex; i++ {
 		el := w.animal.el[i]
 		w.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
 	}
-	w.gridPlant = NewGrid(gridSize)
+	w.gridPlant = NewGrid(GridSize)
 	for i := 0; i < len(w.plant.el)-w.plant.deedIndex; i++ {
 		el := w.plant.el[i]
 		w.gridPlant.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
@@ -114,7 +110,7 @@ func (w *World) GetAnimal() []alive.Alive {
 	return w.animal.el[:len(w.animal.el)-w.animal.deedIndex]
 }
 
-func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []int, fr *frame) ([]int, []alive.Alive) {
+func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []int, fr *frame) []alive.Alive {
 	for j := 0; j < len(closest); j++ {
 		el1 := closest[j]
 		dist := func() float64 {
@@ -130,11 +126,11 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 			fr.deedIndex++
 			fr.updateState = true
 			closest = removeFromAlive(closest, j)
-			idInt = removeFromInt(idInt, j)
+			//idInt = removeFromInt(idInt, j)
 			j--
 		}
 	}
-	return idInt, closest
+	return closest
 }
 
 func getClosest(gr grid, el animal.Animal, fr frame) ([]int, []alive.Alive) {
@@ -158,25 +154,9 @@ func getClosest(gr grid, el animal.Animal, fr frame) ([]int, []alive.Alive) {
 	return idInt, closest
 }
 
-func removeFromInt(a []int, i int) []int {
-	a[i] = a[len(a)-1] // Copy last element to index i.
-	a[len(a)-1] = 0    // Erase last element (write zero value).
-	a = a[:len(a)-1]
-	return a
-}
-
 func removeFromAlive(a []alive.Alive, i int) []alive.Alive {
 	a[i] = a[len(a)-1] // Copy last element to index i.
 	a[len(a)-1] = nil  // Erase last element (write zero value).
 	a = a[:len(a)-1]
 	return a
-}
-
-func getIDByName(a []alive.Alive, name string) int {
-	for i, v := range a {
-		if v.GetName() == name {
-			return i
-		}
-	}
-	return -1
 }

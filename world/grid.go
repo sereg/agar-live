@@ -16,10 +16,6 @@ func NewGrid(size float64) grid {
 	}
 }
 
-func (g *grid) reset() {
-	g.data = make(map[xy][]int)
-}
-
 func (g *grid) set(x, y float64, i int) {
 	xInt := int(x / g.cellSize)
 	yInt := int(y / g.cellSize)
