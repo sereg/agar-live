@@ -20,11 +20,18 @@ func NewBase() Animal {
 
 func (b *Base) Size(size float64) {
 	b.Base.Size(size)
-	b.Speed(StartSpeed - (math.Log(size * SpeedRatio)))
+	b.Speed(reduce(size))
 	b.Vision(StartVision + b.GetSize()*(VisionRatio-math.Log(b.GetSize())))
 }
 
+func reduce(i float64) float64{
+	return (StartSpeed - math.Log(i * SpeedRatio)) / 10
+}
+
 func (b *Base) Speed(speed float64) {
+	if speed <= 0 {
+		panic("speed less than 0")
+	}
 	b.speed = speed
 }
 

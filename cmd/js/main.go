@@ -16,14 +16,14 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	space := world.NewWorld(60, 1, jsCon.GetW(), jsCon.GetH())
+	space := world.NewWorld(100, 10, jsCon.GetW(), jsCon.GetH())
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
 	var cycle js.Func
 	cycle = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		space.Cycle()
 		plant := space.GetPlant()
-		if len(plant) > 0 {//TODO rewrite method, return special marker
+		if len(plant) > 0 {//TODO rewrite method, return special marker of not update
 			fieldPlants.Refresh()
 			for _, v := range plant {
 				fieldPlants.Draw(v)

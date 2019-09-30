@@ -6,31 +6,32 @@ import (
 	"strconv"
 )
 
-func Generate(el alive.Alive, opts ...Option)	 {
+func Generate(el alive.Alive, opts ...Option) {
 	opt := DefaultOptions()
 	for _, o := range opts {
 		o(&opt)
 	}
 	el.Color(getRandomColor())
 	el.Size(opt.size)
-	el.SetCrd(
-		float64(math.Random(0, int(opt.w))),
-		float64(math.Random(0, int(opt.h))),
-	)
+	el.SetCrd(opt.crdFn(opt.w, opt.h))
 	el.Revive()
 	if opt.name != "" {
 		el.Name(opt.name)
 	}
 }
 
+type crdFunc func(x, y float64) (float64, float64)
+
 type Options struct {
 	w, h, size float64
-	name string
+	name       string
+	crdFn      crdFunc
 }
 
-func DefaultOptions() Options{
+func DefaultOptions() Options {
 	return Options{
-		size: 3,
+		size:  3,
+		crdFn: RandomCrd,
 	}
 }
 
@@ -41,6 +42,23 @@ type Option func(*Options)
 func Name(name string) Option {
 	return func(o *Options) {
 		o.name = name
+	}
+}
+
+// Crd sets function for setting crdFn
+func Crd(crdFn crdFunc) Option {
+	return func(o *Options) {
+		o.crdFn = crdFn
+	}
+}
+
+func RandomCrd(x, y float64) (float64, float64) {
+	return float64(math.Random(0, int(x))), float64(math.Random(0, int(y)))
+}
+
+func FixCrd(x, y float64) crdFunc {
+	return func(float64, float64) (float64, float64) {
+		return x, y
 	}
 }
 

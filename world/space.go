@@ -40,6 +40,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
+		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		world.gridAnimal.set(el.GetCrd().GetX(), el.GetCrd().GetY(), i)
 		world.animal.el[i] = el
@@ -137,17 +138,20 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 func getClosest(gr grid, el animal.Animal, fr frame) ([]int, []alive.Alive) {
 	idInt := gr.getObjInVision(el.GetCrd().GetX(), el.GetCrd().GetY(), el.GetVision())
 	lenClosest := len(idInt)
+	if lenClosest == 0 {
+		return idInt, nil
+	}
 	if len(fr.el) > 0 {
 		if _, ok := fr.el[0].(animal.Animal); ok {
 			lenClosest--
 		}
 	}
 	closest := make([]alive.Alive, lenClosest)
-	left := 0
 	for i := 0; i < lenClosest; i++ {
-		id := idInt[i-left]
+		id := idInt[i]
 		if el.GetName() == fr.el[id].GetName() {
-			left = 1
+			idInt = removeFromInt(idInt, i)
+			i--
 			continue
 		}
 		closest[i] = fr.el[id]
@@ -158,6 +162,13 @@ func getClosest(gr grid, el animal.Animal, fr frame) ([]int, []alive.Alive) {
 func removeFromAlive(a []alive.Alive, i int) []alive.Alive {
 	a[i] = a[len(a)-1] // Copy last element to index i.
 	a[len(a)-1] = nil  // Erase last element (write zero value).
+	a = a[:len(a)-1]
+	return a
+}
+
+func removeFromInt(a []int, i int) []int {
+	a[i] = a[len(a)-1] // Copy last element to index i.
+	a[len(a)-1] = 0  // Erase last element (write zero value).
 	a = a[:len(a)-1]
 	return a
 }

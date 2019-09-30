@@ -1,7 +1,5 @@
 package world
 
-import "fmt"
-
 type xy struct {
 	x, y int
 }
@@ -31,15 +29,15 @@ func (g *grid) set(x, y float64, i int) {
 func (g *grid) getObjInVision(x, y, vision float64) []int {
 	ltx, lty := int((x-vision)/g.cellSize), int((y-vision)/g.cellSize)
 	rdx, rdy := int((x+vision)/g.cellSize), int((y+vision)/g.cellSize)
-	fmt.Printf("point ltx - %d, lty - %d, rdx - %d, rdy -%d\r\n", ltx, lty, rdx, rdy)
+	//fmt.Printf("point ltx - %d, lty - %d, rdx - %d, rdy -%d\r\n", ltx, lty, rdx, rdy)
 	var obj []int
-	for cx := ltx; cx < rdx; cx++ {
-		for cy := lty; cy < rdy; cy++ {
+	for cx := ltx; cx <= rdx; cx++ {
+		for cy := lty; cy <= rdy; cy++ {
 			if ob, ok := g.data[xy{cx, cy}]; ok {
 				obj = append(obj, ob...)
 			}
 		}
 	}
-	fmt.Printf("count - %d\r\n", len(obj))
+	//fmt.Printf("count - %d\r\n", len(obj))
 	return obj
 }

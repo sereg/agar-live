@@ -1,6 +1,7 @@
 package behavior
 
 import (
+	"agar-life/math"
 	"agar-life/math/vector"
 	"agar-life/object"
 	"agar-life/object/alive"
@@ -32,27 +33,31 @@ func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
 }
 
 func (s *simple) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive) {
-	if s.direction.GetX() == self.GetX() && s.direction.GetY() == self.GetY() {
-		return
-	}
+	//if s.direction.GetX() == self.GetX() && s.direction.GetY() == self.GetY() {
+	//	return
+	//}
 	l := self.GetCrd()
 	oldDirection := s.direction
-	if l.GetX()+(self.GetSize()) >= s.w {
+	if change() || l.GetX()+(self.GetSize()) >= s.w {
 		s.direction.X(0)
 	}
-	if l.GetX()-(self.GetSize()) <= 0 {
+	if change() || l.GetX()-(self.GetSize()) <= 0 {
 		s.direction.X(s.w)
 	}
-	if l.GetY()+(self.GetSize()) >= s.h {
+	if change() || l.GetY()+(self.GetSize()) >= s.h {
 		s.direction.Y( 0)
 	}
-	if l.GetY()-(self.GetSize()) <= 0 {
+	if change() || l.GetY()-(self.GetSize()) <= 0 {
 		s.direction.Y(s.h)
 	}
 	if oldDirection != s.direction {
 		s.changeDirection = true
 	}
 	s.setCrdByDirection(self, oldDirection)
+}
+
+func change() bool{
+	return math.Random(0, 10000) > 9990
 }
 
 func (s *simple) setCrdByDirection(a animal.Animal, oldDirection object.Crd) {
