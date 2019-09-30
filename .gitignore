@@ -2,3 +2,4 @@
 vendor
 *.wasm
 .history
+*.out

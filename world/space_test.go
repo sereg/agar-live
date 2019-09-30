@@ -7,17 +7,18 @@ import (
 )
 
 func TestCycle(t *testing.T) {
-	world := NewWorld(1, 1, 100, 100)
-	for i := 0; i < 100; i++ {
+	world := NewWorld(1000, 10, 1000, 1000)
+	for i := 0; i < 10000; i++ {
 		world.Cycle()
 		animalList := world.GetAnimal()
 		for _, v := range animalList {
-			fmt.Println(v)
+			_ = v
+			//fmt.Println(v)
 		}
 	}
 }
 
-func TestLog(t *testing.T) {
+func Tes1tLog(t *testing.T) {
 	for i:= 0; i < 100; i +=2{
 		fmt.Printf("%d - %f\r\n", i, reduce(float64(i)))
 	}
@@ -26,5 +27,5 @@ func TestLog(t *testing.T) {
 	}
 }
 func reduce(i float64) float64{
-	return (20 - math.Log(i * 0.25)) / 10
+	return (8 - math.Log(i * 0.25)) / 10
 }

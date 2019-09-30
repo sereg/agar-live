@@ -29,22 +29,22 @@ func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []
 		}
 		a.direction.SetCrd(sum.GetPointFromVector(self.GetX(), self.GetY()))
 		a.setCrdByDirection(self, oldDirection)
-		println("dangerous")
+		//println("dangerous")
 		return
 	}
 	var closest alive.Alive
-	closestFn := func () alive.Alive{
+	closestFn := func() alive.Alive {
 		closest = getClosest(self, append(animals, plants...))
 		return closest
 	}
 	if (len(animals) == 0 && len(plants) == 0) || closestFn() == nil {
 		a.simple.SetDirection(self, nil, nil)
-		println("simple", len(animals), len(plants), closest)
+		//println("simple", len(animals), len(plants), closest)
 		return
 	}
 	a.direction.SetCrd(closest.GetX(), closest.GetY())
 	a.setCrdByDirection(self, oldDirection)
-	println("pursue")
+	//println("pursue")
 }
 
 type dangerObj struct {
@@ -55,16 +55,12 @@ func (d *dangerObj) add(x1, y1, x2, y2, vision float64) {
 	x2, y2 = getXYWithLength(x1, y1, x2, y2, vision)
 	x2, y2 = x1+x2, y1+y2
 	vec := vector.GetVectorByPoint(x2, y2, x1, y1)
-	noExist := true
 	for _, v := range d.obj {
 		if vector.Compare(v, vec) {
-			noExist = false
-			break
+			return
 		}
 	}
-	if noExist {
-		d.obj = append(d.obj, vec)
-	}
+	d.obj = append(d.obj, vec)
 }
 
 func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
@@ -80,18 +76,20 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 
 func getClosest(el animal.Animal, animals []alive.Alive) alive.Alive {
 	var elRes alive.Alive
-	dist := 99999.0
+	dist := 9e+5
 	mass := 0.0
 	for i := 0; i < len(animals); i++ {
 		el1 := animals[i]
+		var distRes float64
 		distFn := func() float64 {
-			return geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
+			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
+			return distRes
 		}
 		if el != nil && el1 != nil && !el1.GetDead() &&
 			el.GetSize()/el1.GetSize() > _const.EatRatio &&
-			mass <= el1.GetSize() && distFn() < dist {
+			mass <= el1.GetSize() && distFn() < dist && distRes < el.GetVision() {
 			elRes = el1
-			dist = distFn()
+			dist = distRes
 			mass = el1.GetSize()
 		}
 	}
