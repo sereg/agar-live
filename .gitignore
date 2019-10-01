@@ -3,3 +3,4 @@ vendor
 *.wasm
 .history
 *.out
+*.test
