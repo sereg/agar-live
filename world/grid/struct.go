@@ -16,8 +16,12 @@ func NewStruct(size float64, cap int) Grid {
 	}
 }
 
-func (g *structGrid) Len() int {
+func (g structGrid) Len() int {
 	return len(g.data)
+}
+
+func (g *structGrid) Reset() {
+
 }
 
 func (g *structGrid) Set(x, y float64, i int) {
@@ -35,7 +39,7 @@ func structGridKey(xInt, yInt int) xy {
 	return xy{x: xInt, y: yInt}
 }
 
-func (g *structGrid) GetObjInRadius(x, y, vision float64) []int {
+func (g structGrid) GetObjInRadius(x, y, vision float64, exclude int) []int {
 	ltx, lty := int((x-vision)/g.cellSize), int((y-vision)/g.cellSize)
 	rdx, rdy := int((x+vision)/g.cellSize), int((y+vision)/g.cellSize)
 	var obj []int

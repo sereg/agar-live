@@ -12,6 +12,7 @@ import (
 //go build -o ./assets/lib.wasm cmd/js/main.go
 //GOARCH=wasm GOOS=js go build -o ./assets/lib.wasm cmd/js/main.go
 //go test -cpuprofile profile.out
+//go test -memprofile profile.out
 //go tool pprof --web profile.out
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())

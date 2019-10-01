@@ -64,20 +64,20 @@ func (w *World) Cycle() {
 		if el.GetDead() {
 			continue
 		}
-		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal)
-		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant)
+		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
+		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, i)
 		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal)
 		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant)
 		el.Step(closestAnimal, closestPlant)
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
-	w.gridAnimal = grid.NewArray(_const.GridSize, w.w, w.h)
+	w.gridAnimal.Reset()
 	for i := 0; i < len(w.animal.el)-w.animal.deedIndex; i++ {
 		el := w.animal.el[i]
 		w.gridAnimal.Set(el.GetX(), el.GetY(), i)
 	}
-	w.gridPlant = grid.NewArray(_const.GridSize, w.w, w.h)
+	w.gridPlant.Reset()
 	for i := 0; i < len(w.plant.el)-w.plant.deedIndex; i++ {
 		el := w.plant.el[i]
 		w.gridPlant.Set(el.GetX(), el.GetY(), i)
@@ -136,25 +136,11 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 	return closest
 }
 
-func getClosest(gr grid.Grid, el animal.Animal, fr frame) ([]int, []alive.Alive) {
-	idInt := gr.GetObjInRadius(el.GetX(), el.GetY(), el.GetVision())
-	lenClosest := len(idInt)
-	if lenClosest == 0 {
-		return idInt, nil
-	}
-	if len(fr.el) > 0 {
-		if _, ok := fr.el[0].(animal.Animal); ok {
-			lenClosest--
-		}
-	}
-	closest := make([]alive.Alive, lenClosest)
-	for i := 0; i < lenClosest; i++ {
+func getClosest(gr grid.Grid, el animal.Animal, fr frame, ind int) ([]int, []alive.Alive) {
+	idInt := gr.GetObjInRadius(el.GetX(), el.GetY(), el.GetVision(), ind)
+	closest := make([]alive.Alive, len(idInt))
+	for i := 0; i < len(idInt); i++ {
 		id := idInt[i]
-		if el.GetName() == fr.el[id].GetName() {
-			idInt = removeFromInt(idInt, i)
-			i--
-			continue
-		}
 		closest[i] = fr.el[id]
 	}
 	return idInt, closest

@@ -80,6 +80,9 @@ func getClosest(el animal.Animal, animals []alive.Alive) alive.Alive {
 	mass := 0.0
 	for i := 0; i < len(animals); i++ {
 		el1 := animals[i]
+		if el1.GetSize() < mass {
+			break
+		}
 		var distRes float64
 		distFn := func() float64 {
 			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())

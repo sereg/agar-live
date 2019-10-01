@@ -16,6 +16,10 @@ func (g *multiply) Len() int {
 	return len(g.data)
 }
 
+func (g *multiply) Reset() {
+
+}
+
 func (g *multiply) Set(x, y float64, i int) {
 	xInt := int(x / g.cellSize)
 	yInt := int(y / g.cellSize)
@@ -31,7 +35,7 @@ func multiplyKey(xInt, yInt int) int {
 	return (xInt + 1) * 10000 + yInt
 }
 
-func (g *multiply) GetObjInRadius(x, y, vision float64) []int {
+func (g *multiply) GetObjInRadius(x, y, vision float64, exclude int) []int {
 	ltx, lty := int((x-vision)/g.cellSize), int((y-vision)/g.cellSize)
 	rdx, rdy := int((x+vision)/g.cellSize), int((y+vision)/g.cellSize)
 	var obj []int

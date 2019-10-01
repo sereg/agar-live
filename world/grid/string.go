@@ -18,6 +18,10 @@ func (g *stringGrid) Len() int {
 	return len(g.data)
 }
 
+func (g *stringGrid) Reset() {
+
+}
+
 func (g *stringGrid) Set(x, y float64, i int) {
 	xInt := int(x / g.cellSize)
 	yInt := int(y / g.cellSize)
@@ -33,7 +37,7 @@ func stringKey(xInt, yInt int) string {
 	return strconv.Itoa(xInt) +"x:"+ strconv.Itoa(yInt)+"y"
 }
 
-func (g *stringGrid) GetObjInRadius(x, y, vision float64) []int {
+func (g *stringGrid) GetObjInRadius(x, y, vision float64, exclude int) []int {
 	ltx, lty := int((x-vision)/g.cellSize), int((y-vision)/g.cellSize)
 	rdx, rdy := int((x+vision)/g.cellSize), int((y+vision)/g.cellSize)
 	var obj []int
