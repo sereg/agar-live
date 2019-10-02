@@ -8,6 +8,7 @@ import (
 	"agar-life/object/alive/animal"
 	"agar-life/world/const"
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -46,7 +47,7 @@ func (m *memory) check(pr uint8, cycle uint64) (bool, object.Crd) {
 }
 
 func (m *memory) checkByReason(pr uint8, cycle uint64, reason string) (bool, object.Crd) {
-	if m.valid && m.validTime < cycle && m.priority >= pr && m.reason == reason {
+	if m.valid && m.validTime > cycle && m.priority >= pr && m.reason == reason {
 		return true, m.crd
 	}
 	m.reset()
@@ -72,39 +73,54 @@ func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []
 	oldDirection := a.direction
 	dangerous := dangerous(self, animals)
 	if len(dangerous.obj) > 0 {
-		//reason := dangerous.Names()
-		//if valid, crd := a.mem.checkByReason(running, cycle, reason); valid {
-		//	a.direction.SetCrd(crd.GetX(), crd.GetY())
-		//	a.setCrdByDirection(self, oldDirection)
-		//	return
-		//}
+		reason := dangerous.Names()
+		if valid, crd := a.mem.checkByReason(running, cycle, reason); valid {
+			a.direction.SetCrd(crd.GetX(), crd.GetY())
+			a.setCrdByDirection(self, oldDirection)
+			return
+		}
 		sum := vector.GetVectorByPoint(self.GetX(), self.GetY(), self.GetX(), self.GetY())
 		for _, v := range dangerous.obj {
 			sum = vector.Add(sum, v.vec)
 		}
 		sum = checkEdge2(sum, self.GetX(), self.GetY(), a.w, a.h, self.GetVision())
 		x, y := sum.GetPointFromVector(self.GetX(), self.GetY())
-		//a.mem.set(running, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(x, y))
+		a.mem.set(running, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(x, y))
 		a.direction.SetCrd(x, y)
 		a.setCrdByDirection(self, oldDirection)
 		return
 	}
-	//if valid, crd := a.mem.check(eating, cycle); valid {
-	//	a.direction.SetCrd(crd.GetX(), crd.GetY())
-	//	a.setCrdByDirection(self, oldDirection)
-	//	return
-	//}
+	if valid, crd := a.mem.check(eating, cycle); valid {
+		a.direction.SetCrd(crd.GetX(), crd.GetY())
+		a.setCrdByDirection(self, oldDirection)
+		return
+	}
 	var closest alive.Alive
 	closestFn := func() alive.Alive {
 		closest = closestFn(self, animals, plants)
 		return closest
 	}
+	reason := strconv.Itoa(len(animals))+"-"+strconv.Itoa(len(plants))
+	if valid, crd := a.mem.checkByReason(eating, cycle, reason); valid {
+		a.direction.SetCrd(crd.GetX(), crd.GetY())
+		a.setCrdByDirection(self, oldDirection)
+		return
+	}
 	if (len(animals) == 0 && len(plants) == 0) || closestFn() == nil {
 		a.simple.SetDirection(self, nil, nil, 0)
 		return
 	}
+	a.mem.set(eating, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(closest.GetX(), closest.GetY()))
 	a.direction.SetCrd(closest.GetX(), closest.GetY())
 	a.setCrdByDirection(self, oldDirection)
+}
+
+func nameAlive(al []alive.Alive) string {
+	names := make([]string, len(al))
+	for k, v := range al {
+		names[k] = v.GetName()
+	}
+	return strings.Join(names, "")
 }
 
 func checkEdge2(sum vector.Vector, xobj, yobj, w, h, vision float64) vector.Vector {
@@ -146,7 +162,7 @@ func checkEdge2(sum vector.Vector, xobj, yobj, w, h, vision float64) vector.Vect
 	point1 := geom.NewPoint(xobj, yobj)
 	point2 := geom.NewPoint(xn, yn)
 	resPoints := geom.Point{}
-	diff := 99999.0
+	diff := 9e+6
 	checkLeng := func(point1, point2 geom.Point) {
 		len := geom.LengthLine(point1, point2)
 		if len < diff {
@@ -200,9 +216,9 @@ func getSide(len, lenb, angle float64) float64 {
 	angleB := lenb * math.Sin(angle) / len
 	angleC := math.Pi - (angle + angleB)
 
-	lenC1 := (lenb * lenb)
-	lenC2 := (len * len)
-	lenC3 := (2 * len * lenb * math.Cos(angleC))
+	lenC1 := lenb * lenb
+	lenC2 := len * len
+	lenC3 := 2 * len * lenb * math.Cos(angleC)
 	return math.Sqrt(lenC1 + lenC2 - lenC3)
 }
 
@@ -260,12 +276,12 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 	return danObj
 }
 
-func getClosest(el animal.Animal, animals []alive.Alive) alive.Alive {
+func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
 	var elRes alive.Alive
 	dist := 9e+5
 	mass := 0.0
-	for i := 0; i < len(animals); i++ {
-		el1 := animals[i]
+	for i := 0; i < len(els); i++ {
+		el1 := els[i]
 		var distRes float64
 		distFn := func() float64 {
 			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())

@@ -29,6 +29,33 @@ type World struct {
 	resurrect  resurrects
 }
 
+func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
+	world := World{
+		w:          w,
+		h:          h,
+		gridPlant:  grid.NewArray(_const.GridSize, w, h),
+		gridAnimal: grid.NewArray(_const.GridSize, w, h),
+		animal:     frame{el: make([]alive.Alive, countAnimal)},
+		plant:      frame{el: make([]alive.Alive, countPlant), updateState: true},
+	}
+	crAnimal := func(i int, x, y float64) {
+		el := species.NewBeast(behavior.NewAiv1(w, h))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y)))
+		world.gridAnimal.Set(el.GetX(), el.GetY(), i)
+		world.animal.el[0] = el
+	}
+	crPlant := func(i int, x, y float64) {
+		el := sp.NewPlant()
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
+		world.gridPlant.Set(el.GetX(), el.GetY(), i)
+		world.plant.el[i] = el
+	}
+	crAnimal(0, 50, 50)
+	crPlant(0, 30, 50)
+	crPlant(1, 70, 50)
+	return world
+}
+
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	world := World{
 		w:          w,
@@ -65,7 +92,7 @@ func (w *World) Cycle() {
 			continue
 		}
 		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
-		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, i)
+		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
 		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal)
 		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant)
 		el.Step(closestAnimal, closestPlant, w.cycle)

@@ -66,7 +66,7 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 			if len(g.data) > cx{
 				d := g.data[cx]
 				if len(d) > cy {
-					if xO == cx && yO == cy {
+					if exclude != -1 && xO == cx && yO == cy {
 						obj = append(obj, excludeByID(d[cy], exclude)...)
 					} else {
 						obj = append(obj, d[cy]...)
