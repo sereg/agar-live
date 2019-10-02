@@ -23,7 +23,7 @@ type World struct {
 	w, h       float64
 	animal     frame
 	plant      frame
-	cycle      int64
+	cycle      uint64
 	gridPlant  grid.Grid
 	gridAnimal grid.Grid
 	resurrect  resurrects
@@ -68,7 +68,7 @@ func (w *World) Cycle() {
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, i)
 		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal)
 		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant)
-		el.Step(closestAnimal, closestPlant)
+		el.Step(closestAnimal, closestPlant, w.cycle)
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)

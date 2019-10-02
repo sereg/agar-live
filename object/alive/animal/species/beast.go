@@ -17,6 +17,6 @@ func NewBeast(behavior behavior.Behavior) animal.Animal {
 	}
 }
 
-func (b *beast) Step(animals []alive.Alive, plants []alive.Alive) {
-	b.behavior.SetDirection(animal.Animal(b), animals, plants)
+func (b *beast) Step(animals []alive.Alive, plants []alive.Alive, cycle uint64) {
+	b.behavior.SetDirection(animal.Animal(b), animals, plants, cycle)
 }

@@ -47,7 +47,7 @@ func (b Base) GetVision() float64 {
 	return b.vision
 }
 
-func (b *Base) Step(animals []alive.Alive, plants []alive.Alive) {
+func (b *Base) Step(animals []alive.Alive, plants []alive.Alive, cycle uint64) {
 }
 
 func (b *Base) Eat(el alive.Alive) {

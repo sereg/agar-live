@@ -14,6 +14,14 @@ func NewPoint(x, y float64) Point {
 	return Point{x:x, y:y}
 }
 
+func (l Point) X() float64 {
+	return l.x
+}
+
+func (l Point) Y() float64 {
+	return l.y
+}
+
 type Line struct {
 	slope float64
 	y     float64

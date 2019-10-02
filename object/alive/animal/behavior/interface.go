@@ -6,5 +6,5 @@ import (
 )
 
 type Behavior interface{
-	SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive)
+	SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64)
 }

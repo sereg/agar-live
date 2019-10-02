@@ -9,18 +9,18 @@ import (
 type resurrect struct {
 	frame       *frame
 	index       int
-	cycleRevive int64
+	cycleRevive uint64
 }
 
 type resurrects struct {
 	r []resurrect
 }
 
-func (r *resurrects) add(frame *frame, index int, cycle int64) {
+func (r *resurrects) add(frame *frame, index int, cycle uint64) {
 	r.r = append(r.r, resurrect{frame: frame, index: index, cycleRevive: cycle + _const.ResurrectTime})
 }
 
-func (r *resurrects) resurrect(cycle int64, w, h float64) {
+func (r *resurrects) resurrect(cycle uint64, w, h float64) {
 	for i := 0; i < len(r.r); i++ {
 		el := r.r[i]
 		if el.cycleRevive <= cycle {

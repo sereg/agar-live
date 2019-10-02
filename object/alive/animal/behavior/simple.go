@@ -32,7 +32,7 @@ func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
 	return
 }
 
-func (s *simple) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive) {
+func (s *simple) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) {
 	//if s.direction.GetX() == self.GetX() && s.direction.GetY() == self.GetY() {
 	//	return
 	//}
