@@ -24,7 +24,7 @@ func (r *resurrects) resurrect(cycle uint64, w, h float64) {
 	for i := 0; i < len(r.r); i++ {
 		el := r.r[i]
 		if el.cycleRevive <= cycle {
-			alv := el.frame.el[el.index]
+			alv := el.frame.el[el.index][0]
 			if _, ok := alv.(animal.Animal); ok {
 				gnt.Generate(alv, gnt.WorldWH(w, h), gnt.Size(6))
 			} else {

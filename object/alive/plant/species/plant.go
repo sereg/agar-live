@@ -1,25 +1,18 @@
 package species
 
 import (
-	"agar-life/object/alive"
 	"agar-life/object/alive/plant"
 )
 
 type plantX struct {
-	alive.Base
-	danger bool
-	edible bool
+	Base
 }
 
 func NewPlant() plant.Plant{
-	//p := new(plantX)
-	//p.
-	return &plantX{}
-}
-
-func (p plantX)GetDanger() bool{
-	return p.danger
-}
-func (p plantX) GetEdible() bool{
-	return p.edible
+	return &plantX{
+		Base: Base{
+			danger: false,
+			edible: true,
+		},
+	}
 }

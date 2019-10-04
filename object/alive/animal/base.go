@@ -2,6 +2,7 @@ package animal
 
 import (
 	"agar-life/object/alive"
+	_const "agar-life/world/const"
 	"math"
 )
 
@@ -21,11 +22,11 @@ func NewBase() Animal {
 func (b *Base) Size(size float64) {
 	b.Base.Size(size)
 	b.Speed(reduce(size))
-	b.Vision(StartVision + b.GetSize()*(VisionRatio-math.Log(b.GetSize())))
+	b.Vision(_const.StartVision + b.GetSize()*(_const.VisionRatio-math.Log(b.GetSize())))
 }
 
 func reduce(i float64) float64{
-	return (StartSpeed - math.Log(i * SpeedRatio)) / 10
+	return (_const.StartSpeed - math.Log(i * _const.SpeedRatio)) / 10
 }
 
 func (b *Base) Speed(speed float64) {
@@ -54,5 +55,5 @@ func (b *Base) Eat(el alive.Alive) {
 	if el.GetDead() {
 		return
 	}
-	b.Size(b.GetSize() + (el.GetSize() * EatIncreaseRation))
+	b.Size(b.GetSize() + (el.GetSize() * _const.EatIncreaseRation))
 }
