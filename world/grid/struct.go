@@ -24,7 +24,7 @@ func (g *structGrid) Reset() {
 
 }
 
-func (g *structGrid) Set(x, y float64, i int) {
+func (g *structGrid) Set(x, y, size float64, i int) {
 	xInt := int(x / g.cellSize)
 	yInt := int(y / g.cellSize)
 	key := structGridKey(xInt, yInt)

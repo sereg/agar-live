@@ -41,13 +41,13 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	crAnimal := func(i int, x, y float64) {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y)))
-		world.gridAnimal.Set(el.GetX(), el.GetY(), i)
+		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.animal.el[0] = el
 	}
 	crPlant := func(i int, x, y float64) {
 		el := sp.NewPlant()
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
-		world.gridPlant.Set(el.GetX(), el.GetY(), i)
+		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.plant.el[i] = el
 	}
 	crAnimal(0, 50, 50)
@@ -70,13 +70,13 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
-		world.gridAnimal.Set(el.GetX(), el.GetY(), i)
+		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.animal.el[i] = el
 	}
 	for i := 0; i < countPlant; i++ {
 		el := sp.NewPlant()
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)))
-		world.gridPlant.Set(el.GetX(), el.GetY(), i)
+		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.plant.el[i] = el
 	}
 	return world
@@ -102,12 +102,12 @@ func (w *World) Cycle() {
 	w.gridAnimal.Reset()
 	for i := 0; i < len(w.animal.el)-w.animal.deedIndex; i++ {
 		el := w.animal.el[i]
-		w.gridAnimal.Set(el.GetX(), el.GetY(), i)
+		w.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 	}
 	w.gridPlant.Reset()
 	for i := 0; i < len(w.plant.el)-w.plant.deedIndex; i++ {
 		el := w.plant.el[i]
-		w.gridPlant.Set(el.GetX(), el.GetY(), i)
+		w.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 	}
 	w.cycle++
 }

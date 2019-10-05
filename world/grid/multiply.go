@@ -20,7 +20,7 @@ func (g *multiply) Reset() {
 
 }
 
-func (g *multiply) Set(x, y float64, i int) {
+func (g *multiply) Set(x, y, size float64, i int) {
 	xInt := int(x / g.cellSize)
 	yInt := int(y / g.cellSize)
 	key := multiplyKey(xInt, yInt)

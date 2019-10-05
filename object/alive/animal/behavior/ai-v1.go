@@ -284,7 +284,7 @@ func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
 		el1 := els[i]
 		var distRes float64
 		distFn := func() float64 {
-			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
+			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.GetSize()
 			return distRes
 		}
 		if el != nil && el1 != nil && !el1.GetDead() &&

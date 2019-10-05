@@ -1,22 +1,20 @@
 package grid
 
-import "fmt"
-
 type array struct {
-	cellSize     float64
-	data [][][]int
+	cellSize float64
+	data     [][][]int
 }
 
 func NewArray(size, w, h float64) Grid {
-	rows := int(w / size) + 1
-	columns := int(h / size) + 1
+	rows := int(w/size) + 1
+	columns := int(h/size) + 1
 	data := make([][][]int, rows)
 	for i := range data {
 		data[i] = make([][]int, columns)
 	}
 	return &array{
-		cellSize:     size,
-		data: data,
+		cellSize: size,
+		data:     data,
 	}
 }
 
@@ -42,17 +40,20 @@ func (g *array) Reset() {
 	}
 }
 
-func (g *array) Set(x, y float64, i int) {
-	xInt := toInt(x / g.cellSize)
-	yInt := toInt(y / g.cellSize)
-	if len(g.data) > xInt{
-		d := g.data[xInt]
-		if len(d) > yInt {
-			d[yInt] = append(d[yInt] , i)
-			return
+func (g *array) Set(x, y, size float64, i int) {
+	ltx, lty := toInt((x-size)/g.cellSize), toInt((y-size)/g.cellSize)
+	rdx, rdy := toInt((x+size)/g.cellSize), toInt((y+size)/g.cellSize)
+	for cx := ltx; cx <= rdx; cx++ {
+		for cy := lty; cy <= rdy; cy++ {
+			if len(g.data) > cx {
+				d := g.data[cx]
+				if len(d) > cy {
+					d[cy] = append(d[cy], i)
+					continue
+				}
+			}
 		}
 	}
-	panic(fmt.Sprintf("inner array has not enough count of element, x - %d, y - %d", xInt, yInt))
 }
 
 func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
@@ -63,7 +64,7 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 	var obj []int
 	for cx := ltx; cx <= rdx; cx++ {
 		for cy := lty; cy <= rdy; cy++ {
-			if len(g.data) > cx{
+			if len(g.data) > cx {
 				d := g.data[cx]
 				if len(d) > cy {
 					if exclude != -1 && xO == cx && yO == cy {
@@ -78,10 +79,10 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 	return obj
 }
 
-func excludeByID(a []int, id int) []int{
+func excludeByID(a []int, id int) []int {
 	for k, v := range a {
 		if v == k {
-			return removeFromInt(a, k)
+			a = removeFromInt(a, k)
 		}
 	}
 	return a
@@ -89,12 +90,12 @@ func excludeByID(a []int, id int) []int{
 
 func removeFromInt(a []int, i int) []int {
 	a[i] = a[len(a)-1] // Copy last element to index i.
-	a[len(a)-1] = 0  // Erase last element (write zero value).
+	a[len(a)-1] = 0    // Erase last element (write zero value).
 	a = a[:len(a)-1]
 	return a
 }
 
-func toInt(f float64) int{
+func toInt(f float64) int {
 	if f < 0 {
 		return 0
 	}

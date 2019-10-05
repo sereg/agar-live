@@ -22,7 +22,7 @@ func (g *stringGrid) Reset() {
 
 }
 
-func (g *stringGrid) Set(x, y float64, i int) {
+func (g *stringGrid) Set(x, y, size float64, i int) {
 	xInt := int(x / g.cellSize)
 	yInt := int(y / g.cellSize)
 	key := stringKey(xInt, yInt)
