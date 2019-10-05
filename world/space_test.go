@@ -1,6 +1,7 @@
 package world
 
 import (
+	_const "agar-life/world/const"
 	"fmt"
 	"math"
 	"testing"
@@ -19,14 +20,14 @@ func TestCycle(t *testing.T) {
 	}
 }
 
-func Tes1tLog(t *testing.T) {
-	for i := 0; i < 100; i += 2 {
+func Te1stLog(t *testing.T) {
+	for i := 1; i < 100; i += 2 {
 		fmt.Printf("%d - %f\r\n", i, reduce(float64(i)))
 	}
-	for i := 0; i < 1000; i += 10 {
+	for i := 1; i < 1000; i += 10 {
 		fmt.Printf("%d - %f\r\n", i, reduce(float64(i)))
 	}
 }
 func reduce(i float64) float64 {
-	return (8 - math.Log(i*0.25)) / 10
+	return (_const.StartSpeed - math.Log(i * _const.SpeedRatio)) / 10
 }
