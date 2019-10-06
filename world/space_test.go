@@ -31,3 +31,21 @@ func Te1stLog(t *testing.T) {
 func reduce(i float64) float64 {
 	return (_const.StartSpeed - math.Log(i * _const.SpeedRatio)) / 10
 }
+
+//s= v0*t * 0.5*a*t^2
+func TestReduceSpeed(t *testing.T){
+	dist := 200.0
+	tt := 60
+	v0 := 40.0
+	a := getAcceleration(v0, float64(tt), dist)
+	for i:= 0; i < tt; i++{
+		v0 -=a
+	}
+	fmt.Println(a)
+	fmt.Println(v0)
+}
+
+//a=(s-v0*t)/(0.5*t*t)
+func getAcceleration(v0, t, s float64) float64 {
+	return math.Abs((s-v0*t) / (t*t))
+}
