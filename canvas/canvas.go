@@ -55,6 +55,7 @@ type Base struct {
 
 func (b *Base) Draw(obj object.Object) {
 	if obj.GetHidden() {
+		println("hidden")
 		return
 	}
 	b.ctx.Call("beginPath")

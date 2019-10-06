@@ -17,7 +17,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	space := world.NewWorld(100, 10, jsCon.GetW(), jsCon.GetH())
+	space := world.NewWorld(8, 2, jsCon.GetW(), jsCon.GetH())
 	//space := world.NewWorldTest(2, 1, jsCon.GetW(), jsCon.GetH())
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
@@ -26,6 +26,7 @@ func main() {
 		space.Cycle()
 		plant := space.GetPlant()
 		if len(plant) > 0 {//TODO rewrite method, return special marker of not update
+			println(len(plant))
 			fieldPlants.Refresh()
 			for _, v := range plant {
 				fieldPlants.Draw(v)

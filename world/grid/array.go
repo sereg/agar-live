@@ -1,5 +1,7 @@
 package grid
 
+import "fmt"
+
 type array struct {
 	cellSize float64
 	data     [][][]int
@@ -43,8 +45,15 @@ func (g *array) Reset() {
 func (g *array) Set(x, y, size float64, i int) {
 	ltx, lty := toInt((x-size)/g.cellSize), toInt((y-size)/g.cellSize)
 	rdx, rdy := toInt((x+size)/g.cellSize), toInt((y+size)/g.cellSize)
-	for cx := ltx; cx <= rdx; cx++ {
-		for cy := lty; cy <= rdy; cy++ {
+	cx, cy := 0, 0
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(cx, cy, ltx, lty, rdx, rdy, x, y, size)
+			panic(err)
+		}
+	}()
+	for cx = ltx; cx <= rdx; cx++ {
+		for cy = lty; cy <= rdy; cy++ {
 			if len(g.data) > cx {
 				d := g.data[cx]
 				if len(d) > cy {

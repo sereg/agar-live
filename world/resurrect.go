@@ -1,6 +1,7 @@
 package world
 
 import (
+	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	gnt "agar-life/object/generate"
 	"agar-life/world/const"
@@ -8,7 +9,7 @@ import (
 
 type resurrect struct {
 	frame       *frame
-	index       int
+	el          alive.Alive
 	cycleRevive uint64
 }
 
@@ -16,25 +17,21 @@ type resurrects struct {
 	r []resurrect
 }
 
-func (r *resurrects) add(frame *frame, index int, cycle uint64) {
-	r.r = append(r.r, resurrect{frame: frame, index: index, cycleRevive: cycle + _const.ResurrectTime})
+func (r *resurrects) add(frame *frame, el alive.Alive, cycle uint64) {
+	r.r = append(r.r, resurrect{frame: frame, el: el, cycleRevive: cycle + _const.ResurrectTime})
 }
 
 func (r *resurrects) resurrect(cycle uint64, w, h float64) {
 	for i := 0; i < len(r.r); i++ {
 		el := r.r[i]
 		if el.cycleRevive <= cycle {
-			alv := el.frame.el[el.index][0]
+			alv := el.el
 			if _, ok := alv.(animal.Animal); ok {
 				gnt.Generate(alv, gnt.WorldWH(w, h), gnt.Size(6))
 			} else {
 				gnt.Generate(alv, gnt.WorldWH(w, h))
 			}
-			if el.index != el.frame.deedIndex {
-				deedIndex := len(el.frame.el) - el.frame.deedIndex
-				el.frame.el[el.index], el.frame.el[deedIndex] = el.frame.el[deedIndex], el.frame.el[el.index]
-			}
-			el.frame.deedIndex--
+			el.frame.el = append(el.frame.el, []alive.Alive{alv})
 			el.frame.updateState = true
 			r.r = removeFromResurrect(r.r, i)
 			i--
