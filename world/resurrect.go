@@ -8,7 +8,7 @@ import (
 )
 
 type resurrect struct {
-	frame       *frame
+	frame       *Frame
 	el          alive.Alive
 	cycleRevive uint64
 }
@@ -17,7 +17,7 @@ type resurrects struct {
 	r []resurrect
 }
 
-func (r *resurrects) add(frame *frame, el alive.Alive, cycle uint64) {
+func (r *resurrects) add(frame *Frame, el alive.Alive, cycle uint64) {
 	r.r = append(r.r, resurrect{frame: frame, el: el, cycleRevive: cycle + _const.ResurrectTime})
 }
 

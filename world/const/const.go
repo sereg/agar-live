@@ -13,4 +13,6 @@ const (
 
 	VisionRatio = 7
 	StartVision = 10
+
+	SplitRation = 0.8
 )
