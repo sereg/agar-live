@@ -44,6 +44,8 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	}
 	crAnimal := func(i int, x, y float64) {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
+		//el := species.NewBeast(behavior.NewSimple(w, h))
+		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.animal.el[0] = []alive.Alive{el}
@@ -71,8 +73,6 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
-		//el := species.NewBeast(behavior.NewSimple(w, h))
-		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
 		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.animal.el[i] = []alive.Alive{el}
@@ -90,7 +90,7 @@ func (w *World) Cycle() {
 	if w.cycle > 0 {
 		w.plant.updateState = false
 	}
-	killList:= make(map[int]*Frame)
+	removeList := make(map[int]*Frame)
 	for i := 0; i < len(w.animal.el); i++ {
 		el := w.animal.el[i][0].(animal.Animal)
 		if el.GetDead() {
@@ -100,14 +100,14 @@ func (w *World) Cycle() {
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
 		for _, an := range w.animal.el[i] {
 			el = an.(animal.Animal)
-			closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, killList)
-			closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, killList)
+			closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
+			closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
 		}
 		el.Step(closestAnimal, closestPlant, w.cycle)
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
-	w.kill(killList)
+	w.remove(removeList)
 	w.gridAnimal.Reset()
 	for i := 0; i < len(w.animal.el); i++ {
 		el := w.animal.el[i]
@@ -158,7 +158,7 @@ func (w *World) GetAnimal() []alive.Alive {
 	return al
 }
 
-func (w *World) kill(m map[int]*Frame) {
+func (w *World) remove(m map[int]*Frame) {
 	for _, v := range mapKeyToArray(m){
 		index, fr := v, m[v]
 		w.resurrect.add(fr, fr.el[index][0], w.cycle)
@@ -183,7 +183,7 @@ func (p intSlice) Len() int           { return len(p) }
 func (p intSlice) Less(i, j int) bool { return p[i] > p[j] }
 func (p intSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
-func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []int, fr *Frame, killList map[int]*Frame) []alive.Alive {
+func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []int, fr *Frame, removeList map[int]*Frame) []alive.Alive {
 	prev := -1
 	indexEl := 0
 	for j := 0; j < len(closest); j++ {
@@ -202,7 +202,7 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 			el.Eat(el1)
 			if len(fr.el[index]) == 1 {
 				el1.Die()
-				killList[index] = fr
+				removeList[index] = fr
 			} else {
 				fr.el[index] = removeFromAlive(fr.el[index], indexEl)
 				indexEl--
