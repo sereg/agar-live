@@ -1,15 +1,18 @@
 package split
 
 import (
-	"agar-life/object/alive"
+	"agar-life/object/alive/animal/behavior"
+	"agar-life/object/alive/animal/species"
+
 	//"agar-life/object/alive/animal"
-	//gnt "agar-life/object/generate"
+	gnt "agar-life/object/generate"
+	"agar-life/object/alive/animal"
 	"agar-life/world"
 )
 
 type split struct {
-	Frame       *world.Frame
-	el          alive.Alive
+	Frame     *world.Frame
+	index     int
 	cycleGlue uint64
 }
 
@@ -18,8 +21,15 @@ type splits struct {
 }
 
 func (r *splits) split(fr *world.Frame, index int, cycle uint64) {
+	el := fr.El()[index][0]
+	if _, ok := el.(animal.Animal); ok {
+		alv := species.NewBeast(behavior.NewAiv1(w, h))
+		gnt.Generate(alv, gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y))
+	} else {
+		gnt.Generate(alv, gnt.WorldWH(w, h))
+	}
 	for _, v := range fr.El()[index] {
-		_ = v
+
 	}
 	//r.r = append(r.r, split{Frame: world.Frame, el: el, cycleRevive: cycle + _const.splitTime})
 }

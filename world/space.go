@@ -98,13 +98,17 @@ func (w *World) Cycle() {
 		}
 		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
-		for _, an := range w.animal.el[i] {
+		for k, an := range w.animal.el[i] {
 			el = an.(animal.Animal)
 			closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
 			closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
+			if k == 0 {
+				el.Step(closestAnimal, closestPlant, w.cycle)
+			} else {
+				el.Step([]alive.Alive{w.animal.el[i][0]}, nil, w.cycle)
+			}
+			w.fixLimit(el)
 		}
-		el.Step(closestAnimal, closestPlant, w.cycle)
-		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
 	w.remove(removeList)
