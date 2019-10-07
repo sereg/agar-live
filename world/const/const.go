@@ -15,4 +15,5 @@ const (
 	StartVision = 10
 
 	SplitRation = 0.8
+	Half = 0.5
 )

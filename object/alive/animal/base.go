@@ -1,13 +1,16 @@
 package animal
 
 import (
+	"agar-life/object"
 	"agar-life/object/alive"
+	"agar-life/object/alive/animal/move"
 	_const "agar-life/world/const"
 	"math"
 )
 
 type Base struct {
 	alive.Base
+	move.Move
 	speed  float64
 	vision float64
 }
@@ -48,7 +51,8 @@ func (b Base) GetVision() float64 {
 	return b.vision
 }
 
-func (b *Base) Step(animals []alive.Alive, plants []alive.Alive, cycle uint64) {
+func (b *Base) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
+	return object.Crd{}
 }
 
 func (b *Base) Eat(el alive.Alive) {

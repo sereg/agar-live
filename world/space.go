@@ -2,6 +2,7 @@ package world
 
 import (
 	"agar-life/math/geom"
+	"agar-life/object"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/behavior"
@@ -33,35 +34,6 @@ type World struct {
 	resurrect  resurrects
 }
 
-func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
-	world := World{
-		w:          w,
-		h:          h,
-		gridPlant:  grid.NewArray(_const.GridSize, w, h),
-		gridAnimal: grid.NewArray(_const.GridSize, w, h),
-		animal:     Frame{el: make([][]alive.Alive, countAnimal)},
-		plant:      Frame{el: make([][]alive.Alive, countPlant), updateState: true},
-	}
-	crAnimal := func(i int, x, y float64) {
-		el := species.NewBeast(behavior.NewAiv1(w, h))
-		//el := species.NewBeast(behavior.NewSimple(w, h))
-		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y)))
-		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
-		world.animal.el[0] = []alive.Alive{el}
-	}
-	crPlant := func(i int, x, y float64) {
-		el := sp.NewPlant()
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
-		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
-		world.plant.el[i] = []alive.Alive{el}
-	}
-	crAnimal(0, 50, 50)
-	crPlant(0, 30, 50)
-	crPlant(1, 70, 50)
-	return world
-}
-
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	world := World{
 		w:          w,
@@ -87,7 +59,9 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 }
 
 func (w *World) Cycle() {
+	first := true
 	if w.cycle > 0 {
+		first = false
 		w.plant.updateState = false
 	}
 	removeList := make(map[int]*Frame)
@@ -100,13 +74,19 @@ func (w *World) Cycle() {
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
 		for k, an := range w.animal.el[i] {
 			el = an.(animal.Animal)
-			closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
-			closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
 			if k == 0 {
-				el.Step(closestAnimal, closestPlant, w.cycle)
+				closestAnimal = w.forIntersect(el, append(closestAnimal, w.animal.el[i][1:]...), idCA, &w.animal, removeList)
 			} else {
-				el.Step([]alive.Alive{w.animal.el[i][0]}, nil, w.cycle)
+				closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
 			}
+			closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
+			var direction object.Crd
+			if k == 0 {
+				direction = el.GetDirection(closestAnimal, closestPlant, w.cycle)
+			} else {
+				direction= el.GetDirection([]alive.Alive{w.animal.el[i][0]}, nil, w.cycle)
+			}
+			el.SetCrdByDirection(el, direction, el.GetSpeed(), first)
 			w.fixLimit(el)
 		}
 	}
@@ -202,7 +182,9 @@ func (w *World) forIntersect(el animal.Animal, closest []alive.Alive, idInt []in
 			indexEl++
 		}
 		prev = index
-		if el != nil && el1 != nil && !el1.GetDead() && el.GetSize()/el1.GetSize() > _const.EatRatio && dist() < el.GetSize() {
+		if el != nil && el1 != nil && !el1.GetDead() &&
+			(el.GetSize()/el1.GetSize() > _const.EatRatio || el.GetName() == el1.GetName()) &&
+			dist() < el.GetSize() {
 			el.Eat(el1)
 			if len(fr.el[index]) == 1 {
 				el1.Die()
@@ -248,4 +230,33 @@ func removeFromInt(a []int, i int) []int {
 	a[len(a)-1] = 0    // Erase last element (write zero value).
 	a = a[:len(a)-1]
 	return a
+}
+
+func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
+	world := World{
+		w:          w,
+		h:          h,
+		gridPlant:  grid.NewArray(_const.GridSize, w, h),
+		gridAnimal: grid.NewArray(_const.GridSize, w, h),
+		animal:     Frame{el: make([][]alive.Alive, countAnimal)},
+		plant:      Frame{el: make([][]alive.Alive, countPlant), updateState: true},
+	}
+	crAnimal := func(i int, x, y float64) {
+		el := species.NewBeast(behavior.NewAiv1(w, h))
+		//el := species.NewBeast(behavior.NewSimple(w, h))
+		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y)))
+		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
+		world.animal.el[0] = []alive.Alive{el}
+	}
+	crPlant := func(i int, x, y float64) {
+		el := sp.NewPlant()
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
+		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
+		world.plant.el[i] = []alive.Alive{el}
+	}
+	crAnimal(0, 50, 50)
+	crPlant(0, 30, 50)
+	crPlant(1, 70, 50)
+	return world
 }

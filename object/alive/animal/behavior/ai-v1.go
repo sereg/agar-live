@@ -69,15 +69,13 @@ func tD(speed, distance float64, cycle uint64) uint64{
 	return uint64(distance/speed*1.1) + cycle
 }
 
-func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) {
-	oldDirection := a.direction
+func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
 	dangerous := dangerous(self, animals)
 	if len(dangerous.obj) > 0 {
 		reason := dangerous.Names()
 		if valid, crd := a.mem.checkByReason(running, cycle, reason); valid {
 			a.direction.SetCrd(crd.GetX(), crd.GetY())
-			a.setCrdByDirection(self, oldDirection)
-			return
+			return a.direction
 		}
 		sum := vector.GetVectorByPoint(self.GetX(), self.GetY(), self.GetX(), self.GetY())
 		for _, v := range dangerous.obj {
@@ -87,13 +85,11 @@ func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []
 		x, y := sum.GetPointFromVector(self.GetX(), self.GetY())
 		a.mem.set(running, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(x, y))
 		a.direction.SetCrd(x, y)
-		a.setCrdByDirection(self, oldDirection)
-		return
+		return a.direction
 	}
 	if valid, crd := a.mem.check(eating, cycle); valid {
 		a.direction.SetCrd(crd.GetX(), crd.GetY())
-		a.setCrdByDirection(self, oldDirection)
-		return
+		return a.direction
 	}
 	var closest alive.Alive
 	closestFn := func() alive.Alive {
@@ -103,16 +99,14 @@ func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []
 	reason := strconv.Itoa(len(animals))+"-"+strconv.Itoa(len(plants))
 	if valid, crd := a.mem.checkByReason(eating, cycle, reason); valid {
 		a.direction.SetCrd(crd.GetX(), crd.GetY())
-		a.setCrdByDirection(self, oldDirection)
-		return
+		return a.direction
 	}
 	if (len(animals) == 0 && len(plants) == 0) || closestFn() == nil {
-		a.simple.SetDirection(self, nil, nil, 0)
-		return
+		return a.simple.Direction(self, nil, nil, 0)
 	}
 	a.mem.set(eating, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(closest.GetX(), closest.GetY()))
 	a.direction.SetCrd(closest.GetX(), closest.GetY())
-	a.setCrdByDirection(self, oldDirection)
+	return a.direction
 }
 
 func nameAlive(al []alive.Alive) string {
@@ -263,6 +257,16 @@ func (d *dangerObj) add(x1, y1, x2, y2, vision float64, name string) {
 		}
 	}
 	d.obj = append(d.obj, dp{vec: vec, name: name})
+}
+
+func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
+	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
+	length := vec.Len()
+	ratio := dist / length
+	vec.MultiplyByScalar(ratio)
+	x, y = vec.GetPointFromVector(x2, y2)
+	x, y = x-x2, y-y2
+	return
 }
 
 func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {

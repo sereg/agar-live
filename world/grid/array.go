@@ -77,7 +77,7 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 				d := g.data[cx]
 				if len(d) > cy {
 					if exclude != -1 && xO == cx && yO == cy {
-						obj = append(obj, excludeByID(d[cy], exclude)...)
+						obj = append(obj, d[cy]...)
 					} else {
 						obj = append(obj, d[cy]...)
 					}
@@ -85,13 +85,15 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 			}
 		}
 	}
-	return obj
+	return excludeByID(obj, exclude)
 }
 
 func excludeByID(a []int, id int) []int {
-	for k, v := range a {
-		if v == k {
+	for k :=0 ; k < len(a); k++ {
+		v := a[k]
+		if v == id {
 			a = removeFromInt(a, k)
+			k--
 		}
 	}
 	return a

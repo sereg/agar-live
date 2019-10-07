@@ -16,6 +16,6 @@ func TestSetDirection(t *testing.T) {
 	animal2 := animal.NewBase()
 	generate.Generate(animal2, gnt.WorldWH(w, h), gnt.Name("a"), gnt.Size(6))
 	animal2.SetCrd(0, 0)
-	sb.SetDirection(animal2, nil, nil)
+	sb.Direction(animal2, nil, nil)
 	_ = 4
 }
