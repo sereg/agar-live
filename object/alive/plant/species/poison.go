@@ -1,7 +1,7 @@
 package species
 
 import (
-	"agar-life/object/alive/animal/behavior"
+	"agar-life/object/alive/animal"
 	"agar-life/object/alive/plant"
 )
 
@@ -9,7 +9,7 @@ type poison struct {
 	Base
 }
 
-func NewBeast(behavior behavior.Behavior) plant.Plant {
+func NewBeast(behavior animal.Behavior) plant.Plant {
 	return &poison{
 		Base: Base{
 			danger: true,

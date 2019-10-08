@@ -1,28 +1,49 @@
 package frame
 
-import "agar-life/object/alive"
+import (
+	"agar-life/object/alive"
+	"agar-life/object/alive/animal"
+	"agar-life/object/alive/animal/behavior"
+)
 
 type Frame struct {
+	w, h        float64
 	updateState bool
+	secID       int
 	el          []alive.Alive
 }
 
-func NewFrame(count int) Frame {
+func NewFrame(count int, w, h float64) Frame {
 	return Frame{
-		el: make([]alive.Alive, count),
+		el:          make([]alive.Alive, count),
+		w: w, h: h,
 		updateState: true,
 	}
 }
 
-func (f *Frame) Delete(index int){
-	f.el = removeFromAlive(f.el, index)
+func (f *Frame) Delete(index int) {
+	if el, ok := f.el[index].(animal.Animal); ok {
+		if parent := el.Parent(); parent != nil {
+			parent.DeleteChild(el.ID())
+		}
+		if children := el.Children(); children != nil && len(children) > 0 {
+			parent := el.Child(0)
+			parent.SetParent(nil)
+			parent.SetBehaviour(behavior.NewAiv1(f.w, f.h))
+			for i := 1; i < len(children); i++ {
+				el.Child(i).SetParent(parent)
+			}
+		}
+	}
+	f.el = alive.Remove(f.el, index)
 }
 
-func (f Frame) Get(index int) alive.Alive{
+func (f Frame) Get(index int) alive.Alive {
 	return f.el[index]
 }
 
-func (f *Frame) Set(index int, el alive.Alive){
+func (f *Frame) Set(index int, el alive.Alive) {
+	el.SetID(f.sec())
 	f.el[index] = el
 }
 
@@ -39,12 +60,12 @@ func (f Frame) UpdateState() bool {
 }
 
 func (f *Frame) Add(el alive.Alive) {
+	el.SetID(f.sec())
 	f.el = append(f.el, el)
 }
 
-func removeFromAlive(a []alive.Alive, i int) []alive.Alive {
-	a[i] = a[len(a)-1] // Copy last element to index i.
-	a[len(a)-1] = nil  // Erase last element (write zero value).
-	a = a[:len(a)-1]
-	return a
+func (f *Frame) sec() (id int) {
+	id = f.secID
+	f.secID++
+	return
 }

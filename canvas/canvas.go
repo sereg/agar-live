@@ -54,13 +54,13 @@ type Base struct {
 }
 
 func (b *Base) Draw(obj object.Object) {
-	if obj.GetHidden() {
+	if obj.Hidden() {
 		println("hidden")
 		return
 	}
 	b.ctx.Call("beginPath")
-	b.ctx.Call("arc", obj.GetCrd().GetX(), obj.GetCrd().GetY(), obj.GetSize(), 0, math.Pi*2, false)
-	b.ctx.Set("fillStyle", obj.GetColor())
+	b.ctx.Call("arc", obj.GetCrd().GetX(), obj.GetCrd().GetY(), obj.Size(), 0, math.Pi*2, false)
+	b.ctx.Set("fillStyle", obj.Color())
 	b.ctx.Call("fill")
 	b.ctx.Call("closePath")
 }
@@ -92,13 +92,13 @@ type Animal struct {
 }
 
 func (a *Animal) Draw(obj1 object.Object) {
-	if obj1.GetHidden() {
+	if obj1.Hidden() {
 		return
 	}
 	obj := obj1.(animal.Animal)
 	a.Base.Draw(obj)
 	a.ctx.Call("beginPath")
-	a.ctx.Call("rect", obj.GetCrd().GetX()-obj.GetVision(), obj.GetCrd().GetY()-obj.GetVision(), 2*obj.GetVision(), 2*obj.GetVision())
+	a.ctx.Call("rect", obj.GetCrd().GetX()-obj.Vision(), obj.GetCrd().GetY()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
 	a.ctx.Set("strokeStyle", "#335dbb")
 	a.ctx.Call("stroke")
 	a.ctx.Set("setLineDash", "[5, 5]")

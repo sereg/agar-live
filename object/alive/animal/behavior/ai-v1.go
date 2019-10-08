@@ -58,7 +58,7 @@ func (m *memory) reset() {
 	m.valid = false
 }
 
-func NewAiv1(w, h float64) Behavior {
+func NewAiv1(w, h float64) animal.Behavior {
 	simple := simple{w: w, h: h, changeDirection: true}
 	return &aiV1{
 		simple: simple,
@@ -81,9 +81,9 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 		for _, v := range dangerous.obj {
 			sum = vector.Add(sum, v.vec)
 		}
-		sum = checkEdge2(sum, self.GetX(), self.GetY(), a.w, a.h, self.GetVision())
+		sum = checkEdge2(sum, self.GetX(), self.GetY(), a.w, a.h, self.Vision())
 		x, y := sum.GetPointFromVector(self.GetX(), self.GetY())
-		a.mem.set(running, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(x, y))
+		a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, object.NewCrd(x, y))
 		a.direction.SetCrd(x, y)
 		return a.direction
 	}
@@ -104,7 +104,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 	if (len(animals) == 0 && len(plants) == 0) || closestFn() == nil {
 		return a.simple.Direction(self, nil, nil, 0)
 	}
-	a.mem.set(eating, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(closest.GetX(), closest.GetY()))
+	a.mem.set(eating, tD(self.Speed(), self.Vision(), cycle), reason, object.NewCrd(closest.GetX(), closest.GetY()))
 	a.direction.SetCrd(closest.GetX(), closest.GetY())
 	return a.direction
 }
@@ -112,7 +112,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 func nameAlive(al []alive.Alive) string {
 	names := make([]string, len(al))
 	for k, v := range al {
-		names[k] = v.GetName()
+		names[k] = v.Group()
 	}
 	return strings.Join(names, "")
 }
@@ -273,8 +273,8 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 	danObj := dangerObj{}
 	for i := 0; i < len(animals); i++ {
 		el1 := animals[i]
-		if el != nil && el1 != nil && !el1.GetDead() && el1.GetSize()/el.GetSize() > _const.EatRatio {
-			danObj.add(el.GetX(), el.GetY(), el1.GetX(), el1.GetY(), el.GetVision(), el1.GetName())
+		if el != nil && el1 != nil && !el1.GetDead() && el1.Size()/el.Size() > _const.EatRatio {
+			danObj.add(el.GetX(), el.GetY(), el1.GetX(), el1.GetY(), el.Vision(), el1.Group())
 		}
 	}
 	return danObj
@@ -288,15 +288,15 @@ func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
 		el1 := els[i]
 		var distRes float64
 		distFn := func() float64 {
-			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.GetSize()
+			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.Size()
 			return distRes
 		}
 		if el != nil && el1 != nil && !el1.GetDead() &&
-			el.GetSize()/el1.GetSize() > _const.EatRatio &&
-			mass <= el1.GetSize() && distFn() < dist && distRes < el.GetVision() {
+			el.Size()/el1.Size() > _const.EatRatio &&
+			mass <= el1.Size() && distFn() < dist && distRes < el.Vision() {
 			elRes = el1
 			dist = distRes
-			mass = el1.GetSize()
+			mass = el1.Size()
 		}
 	}
 	return elRes

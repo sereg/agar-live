@@ -20,8 +20,8 @@ import (
 
 func Split(fr *frame.Frame, cur int, direction object.Crd) {
 	el := fr.Get(cur)
-	size := math2.ToFixed(el.GetSize() / _const.Half, 2)
-	el.Size(size)
+	size := math2.ToFixed(el.Size() / _const.Half, 2)
+	el.SetSize(size)
 	var alv alive.Alive
 	if _, ok := el.(animal.Animal); ok {
 		alv = species.NewBeast(behavior.NewFollower())
@@ -33,18 +33,34 @@ func Split(fr *frame.Frame, cur int, direction object.Crd) {
 	fr.Add(alv)
 }
 
-func Burst(fr *frame.Frame, cur int) {
+func Burst(fr *frame.Frame, cur int, cycle uint64) {
 	el := fr.Get(cur).(animal.Animal)
-	size := math2.ToFixed(el.GetSize() / _const.BurstCount, 2)
-	el.Size(size)
+	size := math2.ToFixed(el.Size() / _const.BurstCount, 2)
+	el.SetSize(size)
 	addAngel := 2.0 * math.Pi / _const.BurstCount
-	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist, el.GetY())
+	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist + 100, el.GetY())
 	el.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
+	el.SetGlueTime(cycle)
+	var parent animal.Animal
+	if p := el.Parent(); p != nil {
+		parent = p
+	} else {
+		parent = el
+	}
 	for i := 0; i < _const.BurstCount; i++ {
 		alv := species.NewBeast(behavior.NewFollower())
-		gnt.Generate(alv, gnt.Size(size), gnt.Crd(gnt.FixCrd(el.GetX(), el.GetY())))
+		alv.SetParent(parent)
+		alv.SetGlueTime(cycle)
+		parent.AddChild(alv)
+		gnt.Generate(
+			alv,
+			gnt.Size(size),
+			gnt.Name(el.Group()),
+			gnt.Color(el.Color()),
+			gnt.Crd(gnt.FixCrd(el.GetX(), el.GetY())),
+		)
 		vec.AddAngle(addAngel)
-		el.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
+		alv.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
 		fr.Add(alv)
 	}
 }
