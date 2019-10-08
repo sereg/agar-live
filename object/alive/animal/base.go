@@ -11,8 +11,9 @@ import (
 type Base struct {
 	alive.Base
 	move.Move
-	speed  float64
-	vision float64
+	speed     float64
+	vision    float64
+	cycleGlue uint64
 }
 
 func NewBase() Animal {
@@ -28,8 +29,8 @@ func (b *Base) Size(size float64) {
 	b.Vision(_const.StartVision + b.GetSize()*(_const.VisionRatio-math.Log(b.GetSize())))
 }
 
-func reduce(i float64) float64{
-	return (_const.StartSpeed - math.Log(i * _const.SpeedRatio)) / 10
+func reduce(i float64) float64 {
+	return (_const.StartSpeed - math.Log(i*_const.SpeedRatio)) / 10
 }
 
 func (b *Base) Speed(speed float64) {
@@ -59,5 +60,9 @@ func (b *Base) Eat(el alive.Alive) {
 	if el.GetDead() {
 		return
 	}
-	b.Size(b.GetSize() + (el.GetSize() * _const.EatIncreaseRation))
+	eatRation := _const.EatIncreaseRation
+	if b.GetName() == el.GetName() {
+		eatRation = _const.EatSelfIncreaseRation
+	}
+	b.Size(b.GetSize() + (el.GetSize() * eatRation))
 }

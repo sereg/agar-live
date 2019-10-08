@@ -19,6 +19,34 @@ func (vec *Vector) MultiplyByScalar(s float64) {
 	vec.y *= s
 }
 
+func (vec *Vector) AddAngle(angle float64) {
+	len := vec.Len()
+	y := math.Cos(vec.GetAngle() + angle) * len
+	x := math.Sin(vec.GetAngle() + angle) * len
+	if x == len {
+		y = 0
+	}
+	if y == len {
+		x = 0
+	}
+	vec.x = x
+	vec.y = y
+}
+
+func (vec *Vector) SetAngle(angle float64) {
+	len := vec.Len()
+	y := math.Cos(angle) * len
+	x := math.Sin(angle) * len
+	if x == len {
+		y = 0
+	}
+	if y == len {
+		x = 0
+	}
+	vec.x = x
+	vec.y = y
+}
+
 func GetVectorByPoint(x, y, x2, y2 float64) Vector {
 	vec := Vector{}
 	vec.x = x2 - x

@@ -5,10 +5,11 @@ import (
 	"agar-life/object/alive/animal"
 	gnt "agar-life/object/generate"
 	"agar-life/world/const"
+	"agar-life/world/frame"
 )
 
 type resurrect struct {
-	frame       *Frame
+	frame       *frame.Frame
 	el          alive.Alive
 	cycleRevive uint64
 }
@@ -17,7 +18,7 @@ type resurrects struct {
 	r []resurrect
 }
 
-func (r *resurrects) add(frame *Frame, el alive.Alive, cycle uint64) {
+func (r *resurrects) add(frame *frame.Frame, el alive.Alive, cycle uint64) {
 	r.r = append(r.r, resurrect{frame: frame, el: el, cycleRevive: cycle + _const.ResurrectTime})
 }
 
@@ -31,8 +32,8 @@ func (r *resurrects) resurrect(cycle uint64, w, h float64) {
 			} else {
 				gnt.Generate(alv, gnt.WorldWH(w, h))
 			}
-			el.frame.el = append(el.frame.el, []alive.Alive{alv})
-			el.frame.updateState = true
+			el.frame.Add(alv)
+			el.frame.SetUpdateState(true)
 			r.r = removeFromResurrect(r.r, i)
 			i--
 		}

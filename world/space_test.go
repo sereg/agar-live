@@ -33,7 +33,7 @@ func reduce(i float64) float64 {
 }
 
 //s= v0*t * 0.5*a*t^2
-func TestReduceSpeed(t *testing.T){
+func Tes1tReduceSpeed(t *testing.T){
 	dist := 200.0
 	tt := 60
 	v0 := 40.0

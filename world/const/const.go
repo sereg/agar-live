@@ -2,8 +2,9 @@ package _const
 
 //EatRatio ratio when one object can eat another
 const (
-	EatIncreaseRation = 0.1
-	EatRatio          = 1.3
+	EatIncreaseRation     = 0.1
+	EatSelfIncreaseRation = 0.9
+	EatRatio              = 1.3
 
 	ResurrectTime = 80
 	GridSize      = 80
@@ -14,6 +15,11 @@ const (
 	VisionRatio = 7
 	StartVision = 10
 
-	SplitRation = 0.8
-	Half = 0.5
+	MinSizeSplit = 20
+	SplitRation  = 0.8
+	SplitSpeed   = 100
+	SplitDist    = 50
+	SplitTime    = 60
+	Half         = 0.5
+	BurstCount   = 10
 )
