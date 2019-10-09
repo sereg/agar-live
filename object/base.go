@@ -8,32 +8,34 @@ type Base struct {
 	Crd
 }
 
-//GetColor return color of point
-func (p Base) GetColor() string {
+//Color return color of point
+func (p Base) Color() string {
 	return p.color
 }
 
-//Color sets a color for the point
-func (p *Base) Color(color string) {
+//SetColor sets a color for the point
+func (p *Base) SetColor(color string) {
 	p.color = color
 }
 
-//GetSize return size of point
-func (p Base) GetSize() float64 {
+//Size return size of point
+func (p Base) Size() float64 {
 	return p.size
 }
 
-//Size sets a size for the point
-func (p *Base) Size(size float64) {
+//SetSize sets a size for the point
+func (p *Base) SetSize(size float64) {
 	p.size = size
 }
 
-//GetHidden return is hidden the point
-func (p *Base) GetHidden() bool {
+//Hidden return is hidden the point
+func (p *Base) Hidden() bool {
 	return p.hidden
 }
 
-//Hidden set hidden property
-func (p *Base) Hidden(isHidden bool) {
+//SetHidden set hidden property
+func (p *Base) SetHidden(isHidden bool) {
 	p.hidden = isHidden
 }
+
+

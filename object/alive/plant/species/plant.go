@@ -9,10 +9,8 @@ type plantX struct {
 }
 
 func NewPlant() plant.Plant{
-	return &plantX{
-		Base: Base{
-			danger: false,
-			edible: true,
-		},
-	}
+	p := plantX{}
+	p.SetDanger(false)
+	p.SetEdible(true)
+	return &p
 }

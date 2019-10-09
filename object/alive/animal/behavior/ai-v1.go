@@ -58,7 +58,7 @@ func (m *memory) reset() {
 	m.valid = false
 }
 
-func NewAiv1(w, h float64) Behavior {
+func NewAiv1(w, h float64) animal.Behavior {
 	simple := simple{w: w, h: h, changeDirection: true}
 	return &aiV1{
 		simple: simple,
@@ -69,31 +69,27 @@ func tD(speed, distance float64, cycle uint64) uint64{
 	return uint64(distance/speed*1.1) + cycle
 }
 
-func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) {
-	oldDirection := a.direction
+func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
 	dangerous := dangerous(self, animals)
 	if len(dangerous.obj) > 0 {
 		reason := dangerous.Names()
 		if valid, crd := a.mem.checkByReason(running, cycle, reason); valid {
 			a.direction.SetCrd(crd.GetX(), crd.GetY())
-			a.setCrdByDirection(self, oldDirection)
-			return
+			return a.direction
 		}
 		sum := vector.GetVectorByPoint(self.GetX(), self.GetY(), self.GetX(), self.GetY())
 		for _, v := range dangerous.obj {
 			sum = vector.Add(sum, v.vec)
 		}
-		sum = checkEdge2(sum, self.GetX(), self.GetY(), a.w, a.h, self.GetVision())
+		sum = checkEdge2(sum, self.GetX(), self.GetY(), a.w, a.h, self.Vision())
 		x, y := sum.GetPointFromVector(self.GetX(), self.GetY())
-		a.mem.set(running, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(x, y))
+		a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, object.NewCrd(x, y))
 		a.direction.SetCrd(x, y)
-		a.setCrdByDirection(self, oldDirection)
-		return
+		return a.direction
 	}
 	if valid, crd := a.mem.check(eating, cycle); valid {
 		a.direction.SetCrd(crd.GetX(), crd.GetY())
-		a.setCrdByDirection(self, oldDirection)
-		return
+		return a.direction
 	}
 	var closest alive.Alive
 	closestFn := func() alive.Alive {
@@ -103,22 +99,20 @@ func (a *aiV1) SetDirection(self animal.Animal, animals []alive.Alive, plants []
 	reason := strconv.Itoa(len(animals))+"-"+strconv.Itoa(len(plants))
 	if valid, crd := a.mem.checkByReason(eating, cycle, reason); valid {
 		a.direction.SetCrd(crd.GetX(), crd.GetY())
-		a.setCrdByDirection(self, oldDirection)
-		return
+		return a.direction
 	}
 	if (len(animals) == 0 && len(plants) == 0) || closestFn() == nil {
-		a.simple.SetDirection(self, nil, nil, 0)
-		return
+		return a.simple.Direction(self, nil, nil, 0)
 	}
-	a.mem.set(eating, tD(self.GetSpeed(), self.GetVision(), cycle), reason, object.NewCrd(closest.GetX(), closest.GetY()))
+	a.mem.set(eating, tD(self.Speed(), self.Vision(), cycle), reason, object.NewCrd(closest.GetX(), closest.GetY()))
 	a.direction.SetCrd(closest.GetX(), closest.GetY())
-	a.setCrdByDirection(self, oldDirection)
+	return a.direction
 }
 
 func nameAlive(al []alive.Alive) string {
 	names := make([]string, len(al))
 	for k, v := range al {
-		names[k] = v.GetName()
+		names[k] = v.Group()
 	}
 	return strings.Join(names, "")
 }
@@ -265,12 +259,22 @@ func (d *dangerObj) add(x1, y1, x2, y2, vision float64, name string) {
 	d.obj = append(d.obj, dp{vec: vec, name: name})
 }
 
+func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
+	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
+	length := vec.Len()
+	ratio := dist / length
+	vec.MultiplyByScalar(ratio)
+	x, y = vec.GetPointFromVector(x2, y2)
+	x, y = x-x2, y-y2
+	return
+}
+
 func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 	danObj := dangerObj{}
 	for i := 0; i < len(animals); i++ {
 		el1 := animals[i]
-		if el != nil && el1 != nil && !el1.GetDead() && el1.GetSize()/el.GetSize() > _const.EatRatio {
-			danObj.add(el.GetX(), el.GetY(), el1.GetX(), el1.GetY(), el.GetVision(), el1.GetName())
+		if el != nil && el1 != nil && !el1.GetDead() && el1.Size()/el.Size() > _const.EatRatio {
+			danObj.add(el.GetX(), el.GetY(), el1.GetX(), el1.GetY(), el.Vision(), el1.Group())
 		}
 	}
 	return danObj
@@ -284,15 +288,15 @@ func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
 		el1 := els[i]
 		var distRes float64
 		distFn := func() float64 {
-			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.GetSize()
+			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.Size()
 			return distRes
 		}
-		if el != nil && el1 != nil && !el1.GetDead() &&
-			el.GetSize()/el1.GetSize() > _const.EatRatio &&
-			mass <= el1.GetSize() && distFn() < dist && distRes < el.GetVision() {
+		if el != nil && el1 != nil && !el1.GetDead() && !el1.Danger() &&
+			el.Size()/el1.Size() > _const.EatRatio &&
+			mass <= el1.Size() && distFn() < dist && distRes < el.Vision() {
 			elRes = el1
 			dist = distRes
-			mass = el1.GetSize()
+			mass = el1.Size()
 		}
 	}
 	return elRes

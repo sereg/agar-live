@@ -32,20 +32,32 @@ func reduce(i float64) float64 {
 	return (_const.StartSpeed - math.Log(i * _const.SpeedRatio)) / 10
 }
 
-//s= v0*t * 0.5*a*t^2
-func TestReduceSpeed(t *testing.T){
-	dist := 200.0
-	tt := 60
-	v0 := 40.0
-	a := getAcceleration(v0, float64(tt), dist)
-	for i:= 0; i < tt; i++{
-		v0 -=a
+//s= v0*t + 0.5*a*t^2
+func Tes1tReduceSpeed(t *testing.T){
+	dist := 0.0
+	tt := 60.0
+	v := 5.0
+	//a := getAcceleration(v, tt, dist)
+	a := 0.1
+	for i:= 0.0; i < tt; i++{
+		dist += v
+		v -=a
+		fmt.Println(i)
+		fmt.Println(v)
+		fmt.Println(dist)
+		if v <= 0 {
+			break
+		}
 	}
-	fmt.Println(a)
-	fmt.Println(v0)
+	//fmt.Println(a)
+	//fmt.Println(getDist(5.0, tt, a))
 }
 
 //a=(s-v0*t)/(0.5*t*t)
 func getAcceleration(v0, t, s float64) float64 {
-	return math.Abs((s-v0*t) / (t*t))
+	return math.Abs((s-v0*t) / (0.5*t*t))
+}
+
+func getDist(v0, t, a float64) float64{
+	return v0*t + 0.5*a*t*t
 }

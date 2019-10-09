@@ -2,7 +2,6 @@ package behavior
 
 import (
 	"agar-life/math"
-	"agar-life/math/vector"
 	"agar-life/object"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
@@ -15,57 +14,30 @@ type simple struct {
 	changeDirection bool
 }
 
-func NewSimple(w, h float64) Behavior {
+func NewSimple(w, h float64) animal.Behavior {
 	return &simple{
 		w: w, h: h,
 		changeDirection: true,
 	}
 }
 
-func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
-	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
-	length := vec.Len()
-	ratio := dist / length
-	vec.MultiplyByScalar(ratio)
-	x, y = vec.GetPointFromVector(x2, y2)
-	x, y = x-x2, y-y2
-	return
-}
-
-func (s *simple) SetDirection(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) {
-	//if s.direction.GetX() == self.GetX() && s.direction.GetY() == self.GetY() {
-	//	return
-	//}
+func (s *simple) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
 	l := self.GetCrd()
-	oldDirection := s.direction
-	if change() || l.GetX()+(self.GetSize()) >= s.w {
+	if change() || l.GetX()+(self.Size()) >= s.w {
 		s.direction.X(0)
 	}
-	if change() || l.GetX()-(self.GetSize()) <= 0 {
+	if change() || l.GetX()-(self.Size()) <= 0 {
 		s.direction.X(s.w)
 	}
-	if change() || l.GetY()+(self.GetSize()) >= s.h {
+	if change() || l.GetY()+(self.Size()) >= s.h {
 		s.direction.Y( 0)
 	}
-	if change() || l.GetY()-(self.GetSize()) <= 0 {
+	if change() || l.GetY()-(self.Size()) <= 0 {
 		s.direction.Y(s.h)
 	}
-	if oldDirection != s.direction {
-		s.changeDirection = true
-	}
-	s.setCrdByDirection(self, oldDirection)
+	return s.direction
 }
 
 func change() bool{
 	return math.Random(0, 10000) > 9990
-}
-
-func (s *simple) setCrdByDirection(a animal.Animal, oldDirection object.Crd) {
-	if s.changeDirection || s.direction != oldDirection {
-		s.chCrd.SetCrd(getXYWithLength(a.GetX(), a.GetY(), s.direction.GetX(), s.direction.GetY(), a.GetSpeed()))
-		s.changeDirection = false
-	}
-	newX := a.GetX() + s.chCrd.GetX()
-	newY := a.GetY() + s.chCrd.GetY()
-	a.SetCrd(newX, newY)
 }
