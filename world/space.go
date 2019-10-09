@@ -46,7 +46,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	for i := 0; i < countPlant; i++ {
 		var el plant.Plant
 		if poison() {
-			el = sp.NewP()
+			el = sp.NewPoison()
 		} else {
 			el = sp.NewPlant()
 		}
@@ -57,7 +57,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	return world
 }
 
-func poison() bool{
+func poison() bool {
 	return math.Random(0, 10) == 9
 }
 
@@ -75,8 +75,8 @@ func (w *World) Cycle() {
 		}
 		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
-		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
-		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
+		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList, i)
+		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList, i)
 		var direction object.Crd
 		dist := el.Speed()
 		if directionL, speed := el.GetInertia(); speed > 0 {
@@ -168,6 +168,7 @@ func (w *World) forIntersect(
 	idInt []int,
 	fr *frame.Frame,
 	removeList map[int]*frame.Frame,
+	elIndex int,
 ) []alive.Alive {
 	for j := 0; j < len(closest); j++ {
 		el1 := closest[j]
@@ -175,19 +176,23 @@ func (w *World) forIntersect(
 			return geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
 		}
 		index := idInt[j]
-		if el != nil && el1 != nil && !el1.GetDead() &&
-			(el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() >= w.cycle)) &&
-			dist() < el.Size() {
-			if el1.Danger() {
-				Burst(fr, index, w.cycle)
-			} else {
+		if el != nil && el1 != nil && !el1.GetDead() && dist() < el.Size() {
+			died := false
+			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() >= w.cycle)) && !el1.Danger() {
 				el.Eat(el1)
+				died = true
 			}
-			el1.Die()
-			removeList[index] = fr
-			fr.SetUpdateState(true)
-			closest = alive.Remove(closest, j)
-			j--
+			if el1.Danger() {
+				Burst(&w.animal, elIndex, w.cycle)
+				died = true
+			}
+			if died {
+				el1.Die()
+				removeList[index] = fr
+				fr.SetUpdateState(true)
+				closest = alive.Remove(closest, j)
+				j--
+			}
 		}
 	}
 	return closest

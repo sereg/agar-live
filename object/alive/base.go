@@ -22,11 +22,11 @@ func (b Base) Edible() bool{
 	return b.edible
 }
 //SetDanger set danger
-func (b Base)SetDanger(st bool) {
+func (b *Base)SetDanger(st bool) {
 	b.danger = st
 }
 //SetEdible set edible
-func (b Base) SetEdible(st bool) {
+func (b *Base) SetEdible(st bool) {
 	b.edible = st
 }
 

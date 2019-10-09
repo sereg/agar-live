@@ -291,7 +291,7 @@ func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
 			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.Size()
 			return distRes
 		}
-		if el != nil && el1 != nil && !el1.GetDead() &&
+		if el != nil && el1 != nil && !el1.GetDead() && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
 			mass <= el1.Size() && distFn() < dist && distRes < el.Vision() {
 			elRes = el1

@@ -8,7 +8,7 @@ type poison struct {
 	Base
 }
 
-func NewBeast() plant.Plant {
+func NewPoison() plant.Plant {
 	p := poison{}
 	p.SetDanger(true)
 	p.SetEdible(false)
