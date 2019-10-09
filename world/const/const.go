@@ -15,12 +15,16 @@ const (
 	VisionRatio = 7
 	StartVision = 10
 
-	GlueTime     = 60
+	GlueTime     = 600
 	MinSizeSplit = 20
 	SplitRation  = 0.8
-	SplitSpeed   = 20
-	SplitDist    = 50
+	SplitSpeed   = 4
+	SplitDeceleration   = 0.15
+	SplitDist    = 200
 	SplitTime    = 60
 	Half         = 0.5
 	BurstCount   = 10
+
+	PoisonColor = "#8eb021"
+	PoisonSize = 10
 )

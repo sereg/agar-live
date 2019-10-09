@@ -22,21 +22,29 @@ type inertia struct{
 
 func (i *inertia) SetInertia(direction object.Crd) {
 	i.direction = direction
-	i.acceleration = getAcceleration(_const.SplitSpeed, _const.SplitTime, _const.SplitDist)
+	i.acceleration = _const.SplitDeceleration
 	i.speed = _const.SplitSpeed
 }
 
 func (m *Move) GetInertia() (direction object.Crd, speed float64){
 	direction = m.direction
 	speed = m.speed
-	m.speed -= m.acceleration
+	if m.speed > 0 {
+		m.speed -= m.acceleration
+	}
+	if m.speed < 0 {
+		m.speed = 0
+	}
 	return
 }
 
 func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
 	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
 	length := vec.Len()
-	ratio := dist / length
+	ratio := dist
+	if length > 0 {
+		ratio = dist / length
+	}
 	vec.MultiplyByScalar(ratio)
 	x, y = vec.GetPointFromVector(x2, y2)
 	x, y = x-x2, y-y2

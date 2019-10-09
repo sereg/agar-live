@@ -3,6 +3,7 @@ package generate
 import (
 	"agar-life/math"
 	"agar-life/object/alive"
+	_const "agar-life/world/const"
 	"strconv"
 )
 
@@ -11,12 +12,17 @@ func Generate(el alive.Alive, opts ...Option) {
 	for _, o := range opts {
 		o(&opt)
 	}
-	if opt.color == nil {
-		el.SetColor(getRandomColor())
+	if el.Danger() {
+		el.SetColor(_const.PoisonColor)
+		el.SetSize(_const.PoisonSize)
 	} else {
-		el.SetColor(*opt.color)
+		if opt.color == nil {
+			el.SetColor(getRandomColor())
+		} else {
+			el.SetColor(*opt.color)
+		}
+		el.SetSize(opt.size)
 	}
-	el.SetSize(opt.size)
 	el.SetCrd(opt.crdFn(opt.w, opt.h))
 	el.Revive()
 	if opt.name != "" {

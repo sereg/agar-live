@@ -38,7 +38,7 @@ func Burst(fr *frame.Frame, cur int, cycle uint64) {
 	size := math2.ToFixed(el.Size() / _const.BurstCount, 2)
 	el.SetSize(size)
 	addAngel := 2.0 * math.Pi / _const.BurstCount
-	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist + 100, el.GetY())
+	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist, el.GetY())
 	el.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
 	el.SetGlueTime(cycle)
 	var parent animal.Animal
@@ -47,7 +47,7 @@ func Burst(fr *frame.Frame, cur int, cycle uint64) {
 	} else {
 		parent = el
 	}
-	for i := 0; i < _const.BurstCount; i++ {
+	for i := 1; i < _const.BurstCount; i++ {
 		alv := species.NewBeast(behavior.NewFollower())
 		alv.SetParent(parent)
 		alv.SetGlueTime(cycle)

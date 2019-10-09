@@ -1,12 +1,14 @@
 package world
 
 import (
+	"agar-life/math"
 	"agar-life/math/geom"
 	"agar-life/object"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/behavior"
 	"agar-life/object/alive/animal/species"
+	"agar-life/object/alive/plant"
 	sp "agar-life/object/alive/plant/species"
 	gnt "agar-life/object/generate"
 	"agar-life/world/const"
@@ -37,17 +39,26 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(38))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10))
 		world.gridAnimal.Set(el.GetX(), el.GetY(), el.Size(), i)
 		world.animal.Set(i, el)
 	}
 	for i := 0; i < countPlant; i++ {
-		el := sp.NewPlant()
+		var el plant.Plant
+		if poison() {
+			el = sp.NewP()
+		} else {
+			el = sp.NewPlant()
+		}
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)))
 		world.gridPlant.Set(el.GetX(), el.GetY(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
 	return world
+}
+
+func poison() bool{
+	return math.Random(0, 10) == 9
 }
 
 func (w *World) Cycle() {
@@ -74,9 +85,6 @@ func (w *World) Cycle() {
 			direction = el.GetDirection(closestAnimal, closestPlant, w.cycle)
 		}
 		el.SetCrdByDirection(el, direction, dist, first)
-		if el.Size() > 40 {
-			Burst(&w.animal, i, w.cycle)
-		}
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
@@ -161,7 +169,6 @@ func (w *World) forIntersect(
 	fr *frame.Frame,
 	removeList map[int]*frame.Frame,
 ) []alive.Alive {
-
 	for j := 0; j < len(closest); j++ {
 		el1 := closest[j]
 		dist := func() float64 {
@@ -171,7 +178,11 @@ func (w *World) forIntersect(
 		if el != nil && el1 != nil && !el1.GetDead() &&
 			(el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() >= w.cycle)) &&
 			dist() < el.Size() {
-			el.Eat(el1)
+			if el1.Danger() {
+				Burst(fr, index, w.cycle)
+			} else {
+				el.Eat(el1)
+			}
 			el1.Die()
 			removeList[index] = fr
 			fr.SetUpdateState(true)
@@ -205,7 +216,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(6), gnt.Crd(gnt.FixCrd(x, y)))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(41), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridAnimal.Set(el.GetX(), el.GetY(), el.Size(), i)
 		world.animal.Set(0, el)
 	}
@@ -215,7 +226,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		world.gridPlant.Set(el.GetX(), el.GetY(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
-	crAnimal(0, 50, 50)
+	crAnimal(0, 200, 200)
 	crPlant(0, 30, 50)
 	crPlant(1, 70, 50)
 	return world

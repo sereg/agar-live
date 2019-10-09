@@ -15,6 +15,10 @@ type Alive interface {
 	SetID(int)
 	GlueTime() uint64
 	SetGlueTime(uint64)
+	Danger() bool
+	SetDanger(bool)
+	Edible() bool
+	SetEdible(bool)
 }
 
 func Remove(a []Alive, i int) []Alive {

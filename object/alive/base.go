@@ -10,6 +10,24 @@ type Base struct {
 	deed bool
 	name string
 	id int
+	danger bool
+	edible bool
+}
+//Danger it returns is danger of the object
+func (b Base)Danger() bool{
+	return b.danger
+}
+//Edible it returns is edibility
+func (b Base) Edible() bool{
+	return b.edible
+}
+//SetDanger set danger
+func (b Base)SetDanger(st bool) {
+	b.danger = st
+}
+//SetEdible set edible
+func (b Base) SetEdible(st bool) {
+	b.edible = st
 }
 
 //ID it gets id
