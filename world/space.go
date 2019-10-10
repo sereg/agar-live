@@ -23,7 +23,7 @@ type World struct {
 	animal     frame.Frame
 	plant      frame.Frame
 	cycle      uint64
-	gridPlant  grid.Grid
+	gridPlant  grid.Grid //TODO move grid index to frame
 	gridAnimal grid.Grid
 	resurrect  resurrects
 }
@@ -75,14 +75,15 @@ func (w *World) Cycle() {
 		}
 		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
-		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList, i)
-		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList, i)
+		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
+		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
 		var direction object.Crd
 		dist := el.Speed()
 		if directionL, speed := el.GetInertia(); speed > 0 {
 			direction, dist = directionL, speed
 		} else {
-			direction = el.GetDirection(closestAnimal, closestPlant, w.cycle)
+			direction = el.GetDirection(closestAnimal, closestPlant, w.cycle)//TODO dont send objects in poisonous plants
+			//TODO get split signal and if it possible call split action
 		}
 		el.SetCrdByDirection(el, direction, dist, first)
 		w.fixLimit(el)
@@ -168,7 +169,6 @@ func (w *World) forIntersect(
 	idInt []int,
 	fr *frame.Frame,
 	removeList map[int]*frame.Frame,
-	elIndex int,
 ) []alive.Alive {
 	for j := 0; j < len(closest); j++ {
 		el1 := closest[j]
@@ -182,8 +182,8 @@ func (w *World) forIntersect(
 				el.Eat(el1)
 				died = true
 			}
-			if el1.Danger() {
-				Burst(&w.animal, elIndex, w.cycle)
+			if el1.Danger() && el1.Size() < el.Size() && el.Count() < _const.SplitMaxCount {//TODO dont burst if count of objects more than _const.SplitMaxCount
+				Burst(&w.animal, el, w.cycle)
 				died = true
 			}
 			if died {

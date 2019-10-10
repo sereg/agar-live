@@ -58,7 +58,7 @@ func (b *Base) Draw(obj object.Object) {
 		println("hidden")
 		return
 	}
-	b.ctx.Call("beginPath")
+	b.ctx.Call("beginPath")//TODO make special view for poison plants
 	b.ctx.Call("arc", obj.GetCrd().GetX(), obj.GetCrd().GetY(), obj.Size(), 0, math.Pi*2, false)
 	b.ctx.Set("fillStyle", obj.Color())
 	b.ctx.Call("fill")

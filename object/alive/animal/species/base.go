@@ -50,7 +50,17 @@ func (b Base) GlueTime() uint64 {
 	return b.cycleGlue
 }
 
-func (b Base) SetGlueTime(cycle uint64) {
+func (b Base) Count() int {
+	if len(b.Children()) > 0 {
+		return len(b.Children()) + 1
+	}
+	if parent := b.Parent(); parent != nil {
+		return len(parent.Children()) + 1
+	}
+	return 1
+}
+
+func (b *Base) SetGlueTime(cycle uint64) {
 	b.cycleGlue = cycle + _const.GlueTime
 }
 

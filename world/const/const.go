@@ -15,13 +15,17 @@ const (
 	VisionRatio = 7
 	StartVision = 10
 
+	MinSizeAlive = 6
+
 	GlueTime     = 600
 	MinSizeSplit = 20
-	SplitRation  = 0.8
+	SplitRation  = 0.9
 	SplitSpeed   = 4
 	SplitDeceleration   = 0.15
 	SplitDist    = 200
 	SplitTime    = 60
+	SplitMaxCount = 10
+
 	Half         = 0.5
 	BurstCount   = 4
 

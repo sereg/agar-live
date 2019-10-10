@@ -32,6 +32,7 @@ type Animal interface {
 	SetCrdByDirection(a alive.Alive, direction object.Crd, dist float64, changeDirection bool)
 	GetInertia() (direction object.Crd, speed float64)
 	SetInertia(direction object.Crd)
+	Count() int
 }
 
 func Remove(a []Animal, i int) []Animal {

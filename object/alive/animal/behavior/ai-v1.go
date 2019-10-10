@@ -71,7 +71,8 @@ func tD(speed, distance float64, cycle uint64) uint64{
 
 func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
 	dangerous := dangerous(self, animals)
-	if len(dangerous.obj) > 0 {
+	//TODO bypass obstacles
+	if len(dangerous.obj) > 0 { //TODO hide in poison plant if size of them more then object
 		reason := dangerous.Names()
 		if valid, crd := a.mem.checkByReason(running, cycle, reason); valid {
 			a.direction.SetCrd(crd.GetX(), crd.GetY())
@@ -98,6 +99,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 	}
 	reason := strconv.Itoa(len(animals))+"-"+strconv.Itoa(len(plants))
 	if valid, crd := a.mem.checkByReason(eating, cycle, reason); valid {
+		//TODO send split signal if size more than ration and target is alive
 		a.direction.SetCrd(crd.GetX(), crd.GetY())
 		return a.direction
 	}

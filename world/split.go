@@ -19,6 +19,7 @@ import (
 
 
 func Split(fr *frame.Frame, cur int, direction object.Crd) {
+	//TODO dont split if size less than _const.MinSizeSplit
 	el := fr.Get(cur)
 	size := math2.ToFixed(el.Size() / _const.Half, 2)
 	el.SetSize(size)
@@ -33,11 +34,24 @@ func Split(fr *frame.Frame, cur int, direction object.Crd) {
 	fr.Add(alv)
 }
 
-func Burst(fr *frame.Frame, cur int, cycle uint64) {
-	el := fr.Get(cur).(animal.Animal)
-	size := math2.ToFixed(el.Size() / _const.BurstCount, 2)
-	el.SetSize(size)
-	addAngel := 2.0 * math.Pi / _const.BurstCount
+func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) {
+	burstCount := _const.BurstCount
+	if _const.SplitMaxCount < (el.Count()+int(burstCount)-1) {
+		burstCount = _const.SplitMaxCount - el.Count()
+		if burstCount < 2 {
+			return
+		}
+	}
+	size := math2.ToFixed(el.Size() / float64(burstCount), 2)
+	if size < _const.MinSizeAlive {
+		burstCount = int(el.Size() / _const.MinSizeAlive)
+		if burstCount < 2 {
+			return
+		}
+		size = math2.ToFixed(el.Size() / float64(burstCount), 2)
+	}
+	el.SetSize(size) //TODO choose size and count of element based on _const.MinSizeAlive
+	addAngel := 2.0 * math.Pi / float64(burstCount)
 	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist, el.GetY())
 	el.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
 	el.SetGlueTime(cycle)
@@ -47,7 +61,7 @@ func Burst(fr *frame.Frame, cur int, cycle uint64) {
 	} else {
 		parent = el
 	}
-	for i := 1; i < _const.BurstCount; i++ {
+	for i := 1; i < burstCount; i++ {
 		alv := species.NewBeast(behavior.NewFollower())
 		alv.SetParent(parent)
 		alv.SetGlueTime(cycle)
