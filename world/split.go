@@ -61,6 +61,7 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) {
 	} else {
 		parent = el
 	}
+	//println(burstCount)
 	for i := 1; i < burstCount; i++ {
 		alv := species.NewBeast(behavior.NewFollower())
 		alv.SetParent(parent)
@@ -76,6 +77,7 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) {
 		vec.AddAngle(addAngel)
 		alv.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
 		fr.Add(alv)
+		//println("added")
 	}
 }
 

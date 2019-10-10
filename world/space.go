@@ -172,17 +172,21 @@ func (w *World) forIntersect(
 ) []alive.Alive {
 	for j := 0; j < len(closest); j++ {
 		el1 := closest[j]
+		dis := -1.0
 		dist := func() float64 {
-			return geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
+			if dis == -1.0 {
+				dis = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
+			}
+			return dis
 		}
 		index := idInt[j]
-		if el != nil && el1 != nil && !el1.GetDead() && dist() < el.Size() {
+		if el != nil && el1 != nil && !el1.GetDead() {
 			died := false
-			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() >= w.cycle)) && !el1.Danger() {
-				el.Eat(el1)
+			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
+				el.Eat(el1)
 			}
-			if el1.Danger() && el1.Size() < el.Size() && el.Count() < _const.SplitMaxCount {//TODO dont burst if count of objects more than _const.SplitMaxCount
+			if el1.Danger() && el1.Size() < el.Size() && el.Count() < _const.SplitMaxCount && dist() < el.Size() {//TODO dont burst if count of objects more than _const.SplitMaxCount
 				Burst(&w.animal, el, w.cycle)
 				died = true
 			}
