@@ -5,6 +5,7 @@ import (
 	"agar-life/object/alive/animal"
 	"agar-life/world/const"
 	"math"
+	"strconv"
 	"syscall/js"
 )
 
@@ -59,7 +60,7 @@ func (b *Base) Draw(obj object.Object) {
 		return
 	}
 	b.ctx.Call("beginPath")//TODO make special view for poison plants
-	b.ctx.Call("arc", obj.GetCrd().GetX(), obj.GetCrd().GetY(), obj.Size(), 0, math.Pi*2, false)
+	b.ctx.Call("arc", obj.GetX(), obj.GetY(), obj.Size(), 0, math.Pi*2, false)
 	b.ctx.Set("fillStyle", obj.Color())
 	b.ctx.Call("fill")
 	b.ctx.Call("closePath")
@@ -98,11 +99,15 @@ func (a *Animal) Draw(obj1 object.Object) {
 	obj := obj1.(animal.Animal)
 	a.Base.Draw(obj)
 	a.ctx.Call("beginPath")
-	a.ctx.Call("rect", obj.GetCrd().GetX()-obj.Vision(), obj.GetCrd().GetY()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
+	a.ctx.Call("rect", obj.GetX()-obj.Vision(), obj.GetY()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
 	a.ctx.Set("strokeStyle", "#335dbb")
 	a.ctx.Call("stroke")
 	a.ctx.Set("setLineDash", "[5, 5]")
 	a.ctx.Call("closePath")
+
+	a.ctx.Set("fillStyle", "#000")
+	a.ctx.Set("font", "bold 12px Arial")
+	a.ctx.Call("fillText", strconv.Itoa(obj.Count()) + "/" + strconv.Itoa(int(obj.Size())), obj.GetX()-obj.Size(), obj.GetY())
 }
 
 func (a *Animal) Refresh() {
