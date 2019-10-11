@@ -13,6 +13,7 @@ type Parent interface {
 type Children interface {
 	Child(int) Animal
 	AddChild(Animal)
+	SetCountChildren(int)
 	DeleteChild(int)
 	Children() []Animal
 }

@@ -14,6 +14,7 @@ import (
 	"agar-life/world/const"
 	"agar-life/world/frame"
 	"agar-life/world/grid"
+	"fmt"
 	"sort"
 	"strconv"
 )
@@ -67,7 +68,7 @@ func (w *World) Cycle() {
 		first = false
 		w.plant.SetUpdateState(false)
 	}
-	removeList := make(map[int]*frame.Frame)
+	removeList := rmList{}
 	for i := 0; i < len(w.animal.All()); i++ {
 		el := w.animal.Get(i).(animal.Animal)
 		if el.GetDead() {
@@ -75,8 +76,8 @@ func (w *World) Cycle() {
 		}
 		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
 		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
-		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, removeList)
-		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, removeList)
+		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, &removeList)
+		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, &removeList)
 		var direction object.Crd
 		dist := el.Speed()
 		if directionL, speed := el.GetInertia(); speed > 0 {
@@ -132,11 +133,46 @@ func (w *World) GetAnimal() []alive.Alive {
 	return w.animal.All()
 }
 
-func (w *World) remove(m map[int]*frame.Frame) {
-	for _, v := range mapKeyToArray(m) {
-		index, fr := v, m[v]
+type remove struct {
+	index int
+	fr *frame.Frame
+}
+
+type rmList struct{
+	list []remove
+}
+
+func (r *rmList) add(index int, fr *frame.Frame) {
+	r.list = append(r.list, remove{
+		index: index,
+		fr:    fr,
+	})
+}
+
+func (r *rmList) check(index int) bool {
+	for _, v := range r.list {
+		if v.index == index {
+			return true
+		}
+	}
+	return false
+}
+
+func (r rmList) Len() int           { return len(r.list) }
+func (r rmList) Less(i, j int) bool { return r.list[i].index > r.list[j].index }
+func (r rmList) Swap(i, j int)      { r.list[i], r.list[j] = r.list[j], r.list[i] }
+
+func (w *World) remove(m rmList) {
+	if len(m.list) > 1 {
+		sort.Sort(m)
+	}
+	for _, v := range m.list {
+		index, fr := v.index, v.fr
+		if len(fr.All()) <= index {
+			fmt.Println(index)
+		}
 		if el, ok := fr.Get(index).(animal.Animal); ok {
-			if el.Parent() == nil {
+			if el.Parent() == nil && len(el.Children()) == 0 {
 				w.resurrect.add(fr, fr.Get(index), w.cycle)
 			}
 		} else {
@@ -146,31 +182,16 @@ func (w *World) remove(m map[int]*frame.Frame) {
 	}
 }
 
-func mapKeyToArray(m map[int]*frame.Frame) []int {
-	a := make([]int, len(m))
-	ind := 0
-	for index, _ := range m {
-		a[ind] = index
-		ind++
-	}
-	sort.Sort(intSlice(a))
-	return a
-}
-
-type intSlice []int
-
-func (p intSlice) Len() int           { return len(p) }
-func (p intSlice) Less(i, j int) bool { return p[i] > p[j] }
-func (p intSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-
 func (w *World) forIntersect(
 	el animal.Animal,
 	closest []alive.Alive,
 	idInt []int,
 	fr *frame.Frame,
-	removeList map[int]*frame.Frame,
+	removeList *rmList,
 ) []alive.Alive {
+	removedId := map[int]struct{}{}
 	for j := 0; j < len(closest); j++ {
+		index := idInt[j]
 		el1 := closest[j]
 		dis := -1.0
 		dist := func() float64 {
@@ -179,7 +200,6 @@ func (w *World) forIntersect(
 			}
 			return dis
 		}
-		index := idInt[j]
 		if el != nil && el1 != nil && !el1.GetDead() {
 			died := false
 			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
@@ -192,14 +212,25 @@ func (w *World) forIntersect(
 			}
 			if died {
 				el1.Die()
-				removeList[index] = fr
+				if _, ok := removedId[index]; !ok {
+					removeList.add(index, fr)
+					removedId[index] = struct{}{}
+				}
 				fr.SetUpdateState(true)
 				closest = alive.Remove(closest, j)
+				idInt = removeFromInt(idInt, j)
 				j--
 			}
 		}
 	}
 	return closest
+}
+
+func removeFromInt(a []int, i int) []int {
+	a[i] = a[len(a)-1] // Copy last element to index i.
+	a[len(a)-1] = 0    // Erase last element (write zero value).
+	a = a[:len(a)-1]
+	return a
 }
 
 func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, []alive.Alive) {

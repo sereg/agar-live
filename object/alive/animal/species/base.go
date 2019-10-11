@@ -38,6 +38,10 @@ func (b *Base) AddChild(child animal.Animal) {
 	b.children = append(b.children, child)
 }
 
+func (b *Base) SetCountChildren(count int) {
+	b.children = make([]animal.Animal, 0, count)
+}
+
 func (b *Base) SetBehaviour(behavior animal.Behavior){
 	b.behavior = behavior
 }
