@@ -34,23 +34,23 @@ func Split(fr *frame.Frame, cur int, direction object.Crd) {
 	fr.Add(alv)
 }
 
-func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) {
+func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 	burstCount := _const.BurstCount
 	if _const.SplitMaxCount < (el.Count()+int(burstCount)-1) {
 		burstCount = _const.SplitMaxCount - el.Count()
 		if burstCount < 2 {
-			return
+			return true
 		}
 	}
 	size := math2.ToFixed(el.Size() / float64(burstCount), 2)
 	if size < _const.MinSizeAlive {
 		burstCount = int(el.Size() / _const.MinSizeAlive)
 		if burstCount < 2 {
-			return
+			return false
 		}
 		size = math2.ToFixed(el.Size() / float64(burstCount), 2)
 	}
-	el.SetSize(size) //TODO choose size and count of element based on _const.MinSizeAlive
+	el.SetSize(size)
 	addAngel := 2.0 * math.Pi / float64(burstCount)
 	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist, el.GetY())
 	el.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
@@ -61,7 +61,6 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) {
 	} else {
 		parent = el
 	}
-	//println(burstCount)
 	for i := 1; i < burstCount; i++ {
 		alv := species.NewBeast(behavior.NewFollower())
 		alv.SetParent(parent)
@@ -77,8 +76,8 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) {
 		vec.AddAngle(addAngel)
 		alv.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
 		fr.Add(alv)
-		//println("added")
 	}
+	return true
 }
 
 
