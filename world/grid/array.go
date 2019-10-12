@@ -60,19 +60,13 @@ func (g *array) Set(x, y, size float64, i int) {
 func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 	ltx, lty := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
 	rdx, rdy := toInt((x+radius)/g.cellSize), toInt((y+radius)/g.cellSize)
-	xO := toInt(x/g.cellSize)
-	yO := toInt(y/g.cellSize)
-	var obj []int
+	obj := make([]int, 0, 20)
 	for cx := ltx; cx <= rdx; cx++ {
 		for cy := lty; cy <= rdy; cy++ {
 			if len(g.data) > cx {
 				d := g.data[cx]
 				if len(d) > cy {
-					if exclude != -1 && xO == cx && yO == cy {
-						obj = append(obj, d[cy]...)
-					} else {
-						obj = append(obj, d[cy]...)
-					}
+					obj = append(obj, d[cy]...)
 				}
 			}
 		}
@@ -81,7 +75,7 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 }
 
 func excludeByID(a []int, id int) []int {
-	for k :=0 ; k < len(a); k++ {
+	for k := 0; k < len(a); k++ {
 		v := a[k]
 		if v == id {
 			a = removeFromInt(a, k)

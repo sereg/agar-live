@@ -1,8 +1,9 @@
 package world
 
 import (
-	"agar-life/math"
+	math2 "agar-life/math"
 	"agar-life/math/geom"
+	"agar-life/math/vector"
 	"agar-life/object"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
@@ -15,6 +16,7 @@ import (
 	"agar-life/world/frame"
 	"agar-life/world/grid"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 )
@@ -59,7 +61,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 }
 
 func poison() bool {
-	return math.Random(0, 10) == 9
+	return math2.Random(0, 10) == 9
 }
 
 func (w *World) Cycle() {
@@ -82,11 +84,13 @@ func (w *World) Cycle() {
 		dist := el.Speed()
 		if directionL, speed := el.GetInertia(); speed > 0 {
 			direction, dist = directionL, speed
+			el.SetCrdByDirection(el, direction, dist, first)
 		} else {
 			direction = el.GetDirection(closestAnimal, closestPlant, w.cycle)//TODO dont send objects in poisonous plants
 			//TODO get split signal and if it possible call split action
+			el.SetCrdByDirection(el, direction, dist, first)
+			w.fixNeighborhood(el)
 		}
-		el.SetCrdByDirection(el, direction, dist, first)
 		w.fixLimit(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
@@ -102,6 +106,32 @@ func (w *World) Cycle() {
 		w.gridPlant.Set(el.GetX(), el.GetY(), el.Size(), i)
 	}
 	w.cycle++
+}
+
+func (w *World) fixNeighborhood(el animal.Animal) {
+	var parent animal.Animal
+	if parent = el.Parent(); parent == nil{
+		return
+	}
+	for _, v := range parent.Children() {
+		var el1 animal.Animal
+		if v.ID() == el.ID() {
+			el1 = parent
+		} else {
+			el1 = v
+		}
+		if el.GlueTime() <= w.cycle && el1.GlueTime() <= w.cycle {
+			continue
+		}
+		dis := geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
+		if dis < el.Size() + el1.Size() {
+			dist := el.Size() + el1.Size() - dis
+			vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el1.GetX(), el1.GetY())
+			vec.AddAngle(math.Pi)
+			direction := object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY()))
+			el.SetCrdByDirection(el, direction, dist, true)
+		}
+	}
 }
 
 func (w *World) fixLimit(el animal.Animal) {
@@ -209,7 +239,7 @@ func (w *World) forIntersect(
 				died = true
 				el.Eat(el1)
 			}
-			if !died && el1.Danger() && el1.Size() < el.Size() && el.Count() < _const.SplitMaxCount && dist() < el.Size() {
+			if !died && el1.Danger() && el1.Size() < el.Size() && dist() < el.Size() {
 				if Burst(&w.animal, el, w.cycle) {
 					died = true
 				}
@@ -239,10 +269,12 @@ func removeFromInt(a []int, i int) []int {
 
 func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, []alive.Alive) {
 	idInt := gr.GetObjInRadius(el.GetX(), el.GetY(), el.Vision(), ind)
-	closest := make([]alive.Alive, 0, len(idInt))
+	closest := make([]alive.Alive, len(idInt))
+	j := 0
 	for i := 0; i < len(idInt); i++ {
 		id := idInt[i]
-		closest = append(closest, fr.Get(id))
+		closest[j] = fr.Get(id)
+		j++
 	}
 	return idInt, closest
 }
