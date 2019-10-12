@@ -12,10 +12,10 @@ var (
 	listen = flag.String("listen", ":8080", "listen address")
 )
 
-type MyHandler struct {
+type staticHandler struct {
 }
 
-func (m *MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (m *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	prefix := "../../assets"
 	path := r.URL.Path
 	if path == "/" {
@@ -36,6 +36,6 @@ func (m *MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 	log.Printf("listening on %q...", *listen)
-	http.Handle("/", gziphandler.GzipHandler(new(MyHandler)))
+	http.Handle("/", gziphandler.GzipHandler(new(staticHandler)))
 	log.Fatal(http.ListenAndServe(*listen, nil))
 }
