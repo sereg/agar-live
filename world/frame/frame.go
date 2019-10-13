@@ -4,7 +4,6 @@ import (
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/behavior"
-	"fmt"
 )
 
 type Frame struct {
@@ -25,23 +24,14 @@ func NewFrame(count int, w, h float64) Frame {
 func (f *Frame) Delete(index int) {
 	if el, ok := f.el[index].(animal.Animal); ok {
 		if parent := el.Parent(); parent != nil {
-			if parent.Group() != el.Group() {
-				fmt.Println("not int group")
-			}
 			parent.DeleteChild(el.ID())
 		}
 		if children := el.Children(); len(children) > 0 {
 			parent := el.Child(0)
-			if parent.Group() != el.Group() {
-				fmt.Println("not int group")
-			}
 			parent.SetParent(nil)
 			parent.SetBehaviour(behavior.NewAiv1(f.w, f.h))
 			parent.SetCountChildren(len(children))
 			for i := 1; i < len(children); i++ {
-				if parent.Group() != el.Child(i).Group() {
-					fmt.Println("not int group")
-				}
 				el.Child(i).SetParent(parent)
 				parent.AddChild(el.Child(i))
 			}

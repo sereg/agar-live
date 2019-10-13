@@ -5,7 +5,6 @@ import (
 	"agar-life/object"
 	"agar-life/object/alive"
 	_const "agar-life/world/const"
-	"math"
 )
 
 type Move struct {
@@ -51,6 +50,10 @@ func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
 	return
 }
 
+func (m *Move) GetDirection() object.Crd {
+	return m.oldDirection
+}
+
 func (m *Move) SetCrdByDirection(a alive.Alive, direction object.Crd, dist float64, changeDirection bool) {
 	if changeDirection || direction != m.oldDirection || m.oldDist != dist{
 		m.chCrd.SetCrd(getXYWithLength(a.GetX(), a.GetY(), direction.GetX(), direction.GetY(), dist))
@@ -60,9 +63,4 @@ func (m *Move) SetCrdByDirection(a alive.Alive, direction object.Crd, dist float
 	newX := a.GetX() + m.chCrd.GetX()
 	newY := a.GetY() + m.chCrd.GetY()
 	a.SetCrd(newX, newY)
-}
-
-//a=(s-v0*t)/(0.5*t*t)
-func getAcceleration(v0, t, s float64) float64 {
-	return math.Abs((s-v0*t) / (t*t))
 }

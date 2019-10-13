@@ -128,6 +128,10 @@ func (b *Base) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle u
 	return object.Crd{}
 }
 
+func (b *Base) Direction() object.Crd {
+	return b.Move.GetDirection()
+}
+
 func (b *Base) Eat(el alive.Alive) {
 	if el.GetDead() {
 		return

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/NYTimes/gziphandler"
 	"io/ioutil"
 	"log"
@@ -24,7 +25,7 @@ func (m *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		path = prefix + path
 	}
 	data, err := ioutil.ReadFile(path)
-
+	fmt.Println(path)
 	if err == nil {
 		_, _ = w.Write(data)
 	} else {

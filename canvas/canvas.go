@@ -2,6 +2,7 @@ package canvas
 
 import (
 	"agar-life/object"
+	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/world/const"
 	"math"
@@ -46,24 +47,49 @@ func (j *JS) NewCanvas() Base {
 	canvas.Set("width", j.wh.w)
 	j.body.Call("appendChild", canvas)
 	ctx := canvas.Call("getContext", "2d")
-	return Base{canvas: canvas, ctx:ctx, wh:j.wh}
+	//img := j.doc.Call("getElementById", "thorn")
+	img := j.window.Call("eval", "new Image()")
+	img.Set("src", "/img/thorn1.png")
+	wait := make(chan struct{})
+	addImg := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		println("imag loaded")
+		wait <-struct{}{}
+		return nil
+	})
+	img.Call("addEventListener", "load", addImg)
+	<-wait
+	return Base{canvas: canvas, ctx: ctx, img: img, wh: j.wh}
 }
 
 type Base struct {
-	canvas, ctx js.Value
-	wh          WH
+	canvas, ctx, img js.Value
+	wh               WH
 }
 
-func (b *Base) Draw(obj object.Object) {
-	if obj.Hidden() {
+func (b *Base) Save() {
+	b.ctx.Call("save")
+}
+
+func (b *Base) Restore() {
+	b.ctx.Call("restore")
+}
+
+func (b *Base) Draw(obj1 object.Object) {
+	if obj1.Hidden() {
 		println("hidden")
 		return
 	}
-	b.ctx.Call("beginPath")//TODO make special view for poison plants
-	b.ctx.Call("arc", obj.GetX(), obj.GetY(), obj.Size(), 0, math.Pi*2, false)
-	b.ctx.Set("fillStyle", obj.Color())
-	b.ctx.Call("fill")
-	b.ctx.Call("closePath")
+	obj := obj1.(alive.Alive)
+	if obj.Danger() {
+		size := obj.Size() * 2
+		b.ctx.Call("drawImage", b.img, obj.GetX(), obj.GetY(), size, size)
+	} else {
+		b.ctx.Call("beginPath") //TODO make special view for poison plants
+		b.ctx.Call("arc", obj.GetX(), obj.GetY(), obj.Size(), 0, math.Pi*2, false)
+		b.ctx.Set("fillStyle", obj.Color())
+		b.ctx.Call("fill")
+		b.ctx.Call("closePath")
+	}
 }
 
 func (b *Base) Refresh() {
@@ -105,9 +131,14 @@ func (a *Animal) Draw(obj1 object.Object) {
 	a.ctx.Set("setLineDash", "[5, 5]")
 	a.ctx.Call("closePath")
 
+	a.ctx.Call("beginPath")
+	a.ctx.Call("moveTo", obj.GetX(), obj.GetY())
+	a.ctx.Call("lineTo", obj.Direction().GetX(), obj.Direction().GetY())
+	a.ctx.Call("stroke")
+
 	a.ctx.Set("fillStyle", "#000")
 	a.ctx.Set("font", "bold 12px Arial")
-	a.ctx.Call("fillText", strconv.Itoa(obj.Count()) + "/" + strconv.Itoa(int(obj.Size())), obj.GetX()-obj.Size(), obj.GetY())
+	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.GetX()-obj.Size(), obj.GetY())
 }
 
 func (a *Animal) Refresh() {

@@ -26,17 +26,21 @@ func main() {
 		space.Cycle()
 		plant := space.GetPlant()
 		if len(plant) > 0 {//TODO rewrite method, return special marker of not update
+			fieldPlants.Save()
 			//println(len(plant))
 			fieldPlants.Refresh()
 			for _, v := range plant {
 				fieldPlants.Draw(v)
 			}
+			fieldPlants.Restore()
 		}
 		animalList := space.GetAnimal()
+		fieldAnimals.Save()
 		fieldAnimals.Refresh()
 		for _, v := range animalList {
 			fieldAnimals.Draw(v)
 		}
+		fieldAnimals.Restore()
 		//println("requestAnimationFrame")
 		//jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil

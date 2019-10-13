@@ -21,6 +21,11 @@ func NewSimple(w, h float64) animal.Behavior {
 	}
 }
 
+
+func (a *simple) GetDirection() object.Crd {
+	return a.direction
+}
+
 func (s *simple) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
 	l := self.GetCrd()
 	if change() || l.GetX()+(self.Size()) >= s.w {

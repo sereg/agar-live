@@ -15,7 +15,6 @@ import (
 	"agar-life/world/const"
 	"agar-life/world/frame"
 	"agar-life/world/grid"
-	"fmt"
 	"math"
 	"sort"
 	"strconv"
@@ -198,9 +197,6 @@ func (w *World) remove(m rmList) {
 	}
 	for _, v := range m.list {
 		index, fr := v.index, v.fr
-		if len(fr.All()) <= index {
-			fmt.Println(index)
-		}
 		if el, ok := fr.Get(index).(animal.Animal); ok {
 			if el.Parent() == nil && len(el.Children()) == 0 {
 				w.resurrect.add(fr, fr.Get(index), w.cycle)
@@ -237,7 +233,7 @@ func (w *World) forIntersect(
 			}
 			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
-				el.Eat(el1)
+				el.Eat(el1)//TODO change size in 30 cycle
 			}
 			if !died && el1.Danger() && el1.Size() < el.Size() && dist() < el.Size() {
 				if Burst(&w.animal, el, w.cycle) {

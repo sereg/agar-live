@@ -77,6 +77,10 @@ type strategy struct{
 	action func() object.Crd
 }
 
+func (a *aiV1) GetDirection() object.Crd {
+	return a.direction
+}
+
 func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
 	dangerous := dangerous(self, animals)
 	plants, poisons := poisons(self, plants)
