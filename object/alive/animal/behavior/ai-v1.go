@@ -20,6 +20,7 @@ type aiV1 struct {
 const (
 	running = 100
 	eating = 50
+	nothing = 9
 )
 
 type memory struct {
@@ -141,6 +142,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 			},
 		},
 		strategy{//default
+			priority:nothing,
 			mem: false,
 			condition: func() bool {
 				return true
@@ -169,6 +171,13 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 		}
 	}
 	return a.direction
+}
+
+func bypass(el animal.Animal, poisons []alive.Alive) {
+	if len(poisons) == 0 {
+		return
+	}
+
 }
 
 func closestFn(self animal.Animal, animals []alive.Alive, plants []alive.Alive) alive.Alive {

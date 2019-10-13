@@ -133,23 +133,6 @@ func (w *World) fixNeighborhood(el animal.Animal) {
 	}
 }
 
-func (w *World) fixLimit(el animal.Animal) {
-	x, y := el.GetX(), el.GetY()
-	if x < 0 {
-		x = 0
-	}
-	if x > w.w {
-		x = w.w
-	}
-	if y < 0 {
-		y = 0
-	}
-	if y > w.h {
-		y = w.h
-	}
-	el.SetCrd(x, y)
-}
-
 func (w *World) GetPlant() []alive.Alive {
 	var el []alive.Alive
 	if !w.plant.UpdateState() {
@@ -233,7 +216,7 @@ func (w *World) forIntersect(
 			}
 			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
-				el.Eat(el1)//TODO change size in 30 cycle
+				el.Eat(el1)//TODO change size in 30 cycles
 			}
 			if !died && el1.Danger() && el1.Size() < el.Size() && dist() < el.Size() {
 				if Burst(&w.animal, el, w.cycle) {
@@ -274,6 +257,25 @@ func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int,
 	}
 	return idInt, closest
 }
+
+
+func (w *World) fixLimit(el animal.Animal) {
+	x, y := el.GetX(), el.GetY()
+	if x < 0 {
+		x = 0
+	}
+	if x > w.w {
+		x = w.w
+	}
+	if y < 0 {
+		y = 0
+	}
+	if y > w.h {
+		y = w.h
+	}
+	el.SetCrd(x, y)
+}
+
 
 func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	world := World{

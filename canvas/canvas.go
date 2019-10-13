@@ -73,7 +73,7 @@ func (b *Base) Save() {
 func (b *Base) Restore() {
 	b.ctx.Call("restore")
 }
-
+//js.Global().Set("add", js.NewCallback(add))
 func (b *Base) Draw(obj1 object.Object) {
 	if obj1.Hidden() {
 		println("hidden")
@@ -84,7 +84,7 @@ func (b *Base) Draw(obj1 object.Object) {
 		size := obj.Size() * 2
 		b.ctx.Call("drawImage", b.img, obj.GetX(), obj.GetY(), size, size)
 	} else {
-		b.ctx.Call("beginPath") //TODO make special view for poison plants
+		b.ctx.Call("beginPath")
 		b.ctx.Call("arc", obj.GetX(), obj.GetY(), obj.Size(), 0, math.Pi*2, false)
 		b.ctx.Set("fillStyle", obj.Color())
 		b.ctx.Call("fill")
