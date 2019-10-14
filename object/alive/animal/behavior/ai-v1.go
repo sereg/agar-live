@@ -173,7 +173,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 	return a.direction
 }
 
-func bypass(el animal.Animal, poisons []alive.Alive) {
+func bypass(el animal.Animal, direction object.Crd, poisons []alive.Alive) {
 	if len(poisons) == 0 {
 		return
 	}
