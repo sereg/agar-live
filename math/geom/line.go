@@ -1,6 +1,7 @@
 package geom
 
 import (
+	"agar-life/object"
 	"errors"
 	"math"
 )
@@ -34,6 +35,17 @@ func NewLine(a, b Point) Line {
 	}
 	slope = (b.y - a.y) / (b.x - a.x)
 	y := a.y - slope*a.x
+	return Line{slope, y}
+}
+
+func NewLineCrd(a, b object.Crd) Line {
+	var slope float64
+	ax, ay, bx, by := a.GetX(), a.GetY(), b.GetX(), b.GetY()
+	if (bx - ax) == 0 {
+		bx += 0.01
+	}
+	slope = (by - ay) / (bx - ax)
+	y := ay - slope*ax
 	return Line{slope, y}
 }
 

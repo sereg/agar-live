@@ -14,7 +14,7 @@ var ()
 
 func TestBypass(t *testing.T) {
 	el := species.NewBase()
-	gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(1)), gnt.Size(41), gnt.Crd(gnt.FixCrd(100, 100)))
+	gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(1)), gnt.Size(10), gnt.Crd(gnt.FixCrd(100, 100)))
 	direction := object.NewCrd(200, 100)
 	poisons := make([]alive.Alive, 1)
 	el1 := sp.NewPoison()

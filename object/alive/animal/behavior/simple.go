@@ -21,7 +21,6 @@ func NewSimple(w, h float64) animal.Behavior {
 	}
 }
 
-
 func (a *simple) GetDirection() object.Crd {
 	return a.direction
 }

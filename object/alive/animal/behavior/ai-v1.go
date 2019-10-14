@@ -19,7 +19,7 @@ type aiV1 struct {
 
 const (
 	running = 100
-	eating = 50
+	eating  = 50
 	nothing = 9
 )
 
@@ -66,16 +66,16 @@ func NewAiv1(w, h float64) animal.Behavior {
 	}
 }
 
-func tD(speed, distance float64, cycle uint64) uint64{
+func tD(speed, distance float64, cycle uint64) uint64 {
 	return uint64(distance/speed*1.1) + cycle
 }
 
-type strategy struct{
+type strategy struct {
 	priority  uint8
-	mem bool
+	mem       bool
 	condition func() bool
-	reason func() string
-	action func() object.Crd
+	reason    func() string
+	action    func() object.Crd
 }
 
 func (a *aiV1) GetDirection() object.Crd {
@@ -93,16 +93,15 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 		closest = closestFn(self, animals, plants)
 		return closest
 	}
-	//TODO bypass obstacles
 	strategies := []strategy{
-		strategy{//running
+		strategy{ //running
 			priority: running,
-			mem: true,
+			mem:      true,
 			condition: func() bool {
 				return len(dangerous.obj) > 0
 			},
 			reason: func() string {
-				return strconv.Itoa(len(dangerous.obj))+"-"+strconv.Itoa(len(poisons))
+				return strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(len(poisons))
 			},
 			action: func() object.Crd {
 				sum := vector.GetVectorByPoint(self.GetX(), self.GetY(), self.GetX(), self.GetY())
@@ -115,9 +114,9 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 				return object.NewCrd(x, y)
 			},
 		},
-		strategy{//running from memory
+		strategy{ //running from memory
 			priority: running,
-			mem: false,
+			mem:      false,
 			condition: func() bool {
 				valid, _ := a.mem.check(running, cycle)
 				return valid
@@ -127,23 +126,23 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 				return crd
 			},
 		},
-		strategy{//eating
+		strategy{ //eating
 			priority: eating,
-			mem: true,
+			mem:      true,
 			condition: func() bool {
 				return closestFn() != nil
 			},
 			reason: func() string {
-				return strconv.Itoa(len(animals))+"-"+strconv.Itoa(len(dangerous.obj))+"-"+strconv.Itoa(len(poisons))
+				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(len(poisons))
 			},
 			action: func() object.Crd {
 				//TODO send split signal if size more than ration and target is alive
 				return object.NewCrd(closest.GetX(), closest.GetY())
 			},
 		},
-		strategy{//default
-			priority:nothing,
-			mem: false,
+		strategy{ //default
+			priority: nothing,
+			mem:      false,
 			condition: func() bool {
 				return true
 			},
@@ -163,6 +162,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 				}
 			}
 			crd := strategy.action()
+			crd = bypass(self, crd, poisons)
 			if strategy.mem {
 				a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, crd)
 			}
@@ -173,11 +173,82 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 	return a.direction
 }
 
-func bypass(el animal.Animal, direction object.Crd, poisons []alive.Alive) {
+func bypass(el animal.Animal, direction object.Crd, poisons []alive.Alive) object.Crd {
 	if len(poisons) == 0 {
-		return
+		return direction
 	}
+	vec := getVectorWithLength(el.GetX(), el.GetY(), direction.GetX(), direction.GetY(), el.Size())
+	vec.AddAngle(math.Pi / 2)
+	p1 := object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY()))
+	vec = getVectorWithLength(p1.GetX(), p1.GetY(), el.GetX(), el.GetY(), el.Size()*2)
+	p2 := object.NewCrd(vec.GetPointFromVector(p1.GetX(), p1.GetY()))
+	vec = getVectorWithLength(direction.GetX(), direction.GetY(), el.GetX(), el.GetY(), el.Size())
+	vec.AddAngle(math.Pi / 2)
+	p3 := object.NewCrd(vec.GetPointFromVector(direction.GetX(), direction.GetY()))
+	vec = getVectorWithLength(p3.GetX(), p3.GetY(), direction.GetX(), direction.GetY(), el.Size()*2)
+	p4 := object.NewCrd(vec.GetPointFromVector(p3.GetX(), p3.GetY()))
+	dist := 9e+5
+	var closestPoison alive.Alive
+	intersect := false
+	linesR := []geom.Segment{
+		geom.NewSegment(p1, p2),
+		geom.NewSegment(p2, p3),
+		geom.NewSegment(p3, p4),
+		geom.NewSegment(p4, p1),
+	}
+	for _, v := range poisons {
+		dis := geom.GetDistanceByCrd(el.GetCrd(), v.GetCrd())
+		if dist < dis {
+			continue
+		}
+		linesEl := []geom.Segment{
+			geom.NewSegment(object.NewCrd(0, v.GetY()), object.NewCrd(v.GetX(), v.GetY())),
+			geom.NewSegment(object.NewCrd(v.GetX(), 0), object.NewCrd(v.GetX(), v.GetY())),
+			geom.NewSegment(object.NewCrd(9e+4, v.GetY()), object.NewCrd(v.GetX(), v.GetY())),
+			geom.NewSegment(object.NewCrd(v.GetX(), 9e+4), object.NewCrd(v.GetX(), v.GetY())),
+		}
+		countIntersect := 0
+		for _, l := range linesEl {
+			inter := false
+			for _, r := range linesR {
+				if l.Intersection(r) {
+					countIntersect++
+					inter = true
+					break
+				}
+			}
+			if !inter {
+				break
+			}
+		}
+		if countIntersect >= 4 {
+			dist = dis
+			intersect = true
+			closestPoison = v
+		}
+	}
+	if intersect && closestPoison != nil {
+		vec = getVectorWithLength(closestPoison.GetX(), closestPoison.GetY(), el.GetX(), el.GetY(), closestPoison.Size())
+		vec.AddAngle(-1 * math.Pi / 2)
+		p1 = object.NewCrd(vec.GetPointFromVector(closestPoison.GetX(), closestPoison.GetY()))
+		vec = getVectorWithLength(p1.GetX(), p1.GetY(), p2.GetX(), p2.GetY(), el.Size() * 1.8)
+		vec.AddAngle(-1 * math.Pi / 2)
+		p1 = object.NewCrd(vec.GetPointFromVector(p1.GetX(), p1.GetY()))
+		dis :=  geom.GetDistanceByCrd(el.GetCrd(), p1)
+		dis += el.Size() * 3
+		vec = getVectorWithLength(el.GetX(), el.GetY(), p1.GetX(), p1.GetY(), dis)
+		direction = object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY()))
+		println("set new direction")
+	}
+	return direction
+}
 
+func getVectorWithLength(x1, y1, x2, y2, dist float64) vector.Vector {
+	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
+	length := vec.Len()
+	ratio := dist / length
+	vec.MultiplyByScalar(ratio)
+	return vec
 }
 
 func closestFn(self animal.Animal, animals []alive.Alive, plants []alive.Alive) alive.Alive {
@@ -245,7 +316,7 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 }
 
 func poisons(el animal.Animal, plants []alive.Alive) (food []alive.Alive, poisons []alive.Alive) {
-	if el.Size() - _const.MinSizeAlive < _const.MinSizeAlive || el.Count() >= _const.SplitMaxCount {
+	if el.Size()-_const.MinSizeAlive < _const.MinSizeAlive || el.Count() >= _const.SplitMaxCount {
 		return plants, poisons
 	}
 	food = make([]alive.Alive, 0, len(plants))
@@ -255,7 +326,7 @@ func poisons(el animal.Animal, plants []alive.Alive) (food []alive.Alive, poison
 		if el == nil || el1 == nil || el1.GetDead() {
 			continue
 		}
-		if el1.Size() > el.Size() {
+		if el1.Size() < el.Size() && el1.Danger() {
 			poisons = append(poisons, el1)
 		} else {
 			food = append(food, el1)
@@ -337,21 +408,21 @@ func checkEdge2(sum vector.Vector, xobj, yobj, w, h, vision float64) vector.Vect
 		interPoint, l1, l2 := getNewPoint(point1, point2, v.point1, v.point2)
 		if v.side == "x" {
 			if interPoint.X()-l1 > 0 {
-				tmpPoints := geom.NewPoint(interPoint.X() - l1, interPoint.Y())
+				tmpPoints := geom.NewPoint(interPoint.X()-l1, interPoint.Y())
 				checkLeng(tmpPoints, point2)
 			}
 			if interPoint.X()+l2 < w {
-				tmpPoints := geom.NewPoint(interPoint.X() + l2, interPoint.Y())
+				tmpPoints := geom.NewPoint(interPoint.X()+l2, interPoint.Y())
 				checkLeng(tmpPoints, point2)
 			}
 		}
 		if v.side == "y" {
 			if interPoint.Y()-l1 > 0 {
-				tmpPoints := geom.NewPoint(interPoint.X(), interPoint.Y() - l1)
+				tmpPoints := geom.NewPoint(interPoint.X(), interPoint.Y()-l1)
 				checkLeng(tmpPoints, point2)
 			}
 			if interPoint.Y()+l2 < h {
-				tmpPoints := geom.NewPoint(interPoint.X(), interPoint.Y() + l2)
+				tmpPoints := geom.NewPoint(interPoint.X(), interPoint.Y()+l2)
 				checkLeng(tmpPoints, point2)
 			}
 		}
