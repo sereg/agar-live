@@ -6,5 +6,5 @@ import (
 )
 
 type Behavior interface{
-	Direction(self Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd
+	Direction(self Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool)
 }

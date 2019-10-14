@@ -19,9 +19,9 @@ func (a *follower) GetDirection() object.Crd {
 	return a.direction
 }
 
-func (a *follower) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
+func (a *follower) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
 	if parent := self.Parent(); parent != nil {
 		a.direction.SetCrd(parent.GetX(), parent.GetY())
 	}
-	return a.direction
+	return a.direction, false
 }

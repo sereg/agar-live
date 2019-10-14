@@ -29,7 +29,7 @@ type Animal interface {
 	SetBehaviour(Behavior)
 	Behaviour() Behavior
 	Eat(a alive.Alive)
-	GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd
+	GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool)
 	Direction() object.Crd
 	SetCrdByDirection(a alive.Alive, direction object.Crd, dist float64, changeDirection bool)
 	GetInertia() (direction object.Crd, speed float64)

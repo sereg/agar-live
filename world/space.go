@@ -41,7 +41,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
 		world.gridAnimal.Set(el.GetX(), el.GetY(), el.Size(), i)
 		world.animal.Set(i, el)
 	}
@@ -80,13 +80,16 @@ func (w *World) Cycle() {
 		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, &removeList)
 		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, &removeList)
 		var direction object.Crd
+		split := false
 		dist := el.Speed()
 		if directionL, speed := el.GetInertia(); speed > 0 {
 			direction, dist = directionL, speed
 			el.SetCrdByDirection(el, direction, dist, first)
 		} else {
-			direction = el.GetDirection(closestAnimal, closestPlant, w.cycle)//TODO dont send objects in poisonous plants
-			//TODO get split signal and if it possible call split action
+			direction, split = el.GetDirection(closestAnimal, closestPlant, w.cycle)
+			if split {
+				Split(&w.animal, el, direction, w.cycle)
+			}
 			el.SetCrdByDirection(el, direction, dist, first)
 			w.fixNeighborhood(el)
 		}
@@ -214,7 +217,7 @@ func (w *World) forIntersect(
 			if _, ok := removedId[index]; ok {
 				died = true
 			}
-			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
+			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle  && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
 				el.Eat(el1)//TODO change size in 30 cycles
 			}

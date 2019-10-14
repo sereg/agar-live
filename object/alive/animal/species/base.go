@@ -124,8 +124,8 @@ func (b Base) Vision() float64 {
 	return b.vision
 }
 
-func (b *Base) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
-	return object.Crd{}
+func (b *Base) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
+	return object.Crd{}, false
 }
 
 func (b *Base) Direction() object.Crd {

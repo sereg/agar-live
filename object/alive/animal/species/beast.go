@@ -16,6 +16,6 @@ func NewBeast(behavior animal.Behavior) animal.Animal {
 	return &b
 }
 
-func (b *beast) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
+func (b *beast) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
 	return b.Behaviour().Direction(animal.Animal(b), animals, plants, cycle)
 }

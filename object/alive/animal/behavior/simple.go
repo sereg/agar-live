@@ -25,7 +25,7 @@ func (a *simple) GetDirection() object.Crd {
 	return a.direction
 }
 
-func (s *simple) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
+func (s *simple) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
 	l := self.GetCrd()
 	if change() || l.GetX()+(self.Size()) >= s.w {
 		s.direction.X(0)
@@ -39,7 +39,7 @@ func (s *simple) Direction(self animal.Animal, animals []alive.Alive, plants []a
 	if change() || l.GetY()-(self.Size()) <= 0 {
 		s.direction.Y(s.h)
 	}
-	return s.direction
+	return s.direction, false
 }
 
 func change() bool{

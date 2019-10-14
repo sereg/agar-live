@@ -82,15 +82,16 @@ func (a *aiV1) GetDirection() object.Crd {
 	return a.direction
 }
 
-func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) object.Crd {
+func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
 	dangerous := dangerous(self, animals)
 	plants, poisons := poisons(self, plants)
 	var closest alive.Alive
+	split := false
 	closestFn := func() alive.Alive {
 		if len(animals) == 0 && len(plants) == 0 {
 			return nil
 		}
-		closest = closestFn(self, animals, plants)
+		closest, split = closestFn(self, animals, plants)
 		return closest
 	}
 	strategies := []strategy{
@@ -136,7 +137,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(len(poisons))
 			},
 			action: func() object.Crd {
-				//TODO send split signal if size more than ration and target is alive
+				//TODO dont send objects in poisonous plants
 				return object.NewCrd(closest.GetX(), closest.GetY())
 			},
 		},
@@ -147,7 +148,8 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 				return true
 			},
 			action: func() object.Crd {
-				return a.simple.Direction(self, nil, nil, 0)
+				crd, _ := a.simple.Direction(self, nil, nil, 0)
+				return crd
 			},
 		},
 	}
@@ -170,7 +172,7 @@ func (a *aiV1) Direction(self animal.Animal, animals []alive.Alive, plants []ali
 			break
 		}
 	}
-	return a.direction
+	return a.direction, split
 }
 
 func bypass(el animal.Animal, direction object.Crd, poisons []alive.Alive) object.Crd {
@@ -238,7 +240,7 @@ func bypass(el animal.Animal, direction object.Crd, poisons []alive.Alive) objec
 		dis += el.Size() * 3
 		vec = getVectorWithLength(el.GetX(), el.GetY(), p1.GetX(), p1.GetY(), dis)
 		direction = object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY()))
-		println("set new direction")
+		//println("set new direction")
 	}
 	return direction
 }
@@ -251,17 +253,17 @@ func getVectorWithLength(x1, y1, x2, y2, dist float64) vector.Vector {
 	return vec
 }
 
-func closestFn(self animal.Animal, animals []alive.Alive, plants []alive.Alive) alive.Alive {
-	closestFnAn := func() alive.Alive {
+func closestFn(self animal.Animal, animals []alive.Alive, plants []alive.Alive) (closest alive.Alive, split bool) {
+	closestFnAn := func() (closest alive.Alive, split bool) {
 		return getClosest(self, animals)
 	}
-	closestFnPl := func() alive.Alive {
+	closestFnPl := func() (closest alive.Alive, split bool) {
 		return getClosest(self, plants)
 	}
-	if closest := closestFnAn(); closest == nil {
+	if closest, split := closestFnAn(); closest == nil {
 		return closestFnPl()
 	} else {
-		return closest
+		return closest, split
 	}
 }
 
@@ -335,8 +337,7 @@ func poisons(el animal.Animal, plants []alive.Alive) (food []alive.Alive, poison
 	return
 }
 
-func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
-	var elRes alive.Alive
+func getClosest(el animal.Animal, els []alive.Alive) (closest alive.Alive, split bool) {
 	dist := 9e+5
 	mass := 0.0
 	for i := 0; i < len(els); i++ {
@@ -349,12 +350,17 @@ func getClosest(el animal.Animal, els []alive.Alive) alive.Alive {
 		if el != nil && el1 != nil && !el1.GetDead() && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
 			mass <= el1.Size() && distFn() < dist && distRes < el.Vision() {
-			elRes = el1
+			closest = el1
 			dist = distRes
+			if dist < _const.SplitDist && el.Size() > el1.Size() * 2 {
+				if _, ok := el1.(animal.Animal); ok {
+					split = true
+				}
+			}
 			mass = el1.Size()
 		}
 	}
-	return elRes
+	return
 }
 
 func checkEdge2(sum vector.Vector, xobj, yobj, w, h, vision float64) vector.Vector {

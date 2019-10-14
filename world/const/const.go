@@ -20,9 +20,9 @@ const (
 	GlueTime     = 600
 	MinSizeSplit = 20
 	SplitRation  = 0.9
-	SplitSpeed   = 4
-	SplitDeceleration   = 0.15
-	SplitDist    = 200
+	SplitSpeed   = 8
+	SplitDeceleration   = 0.11
+	SplitDist    = 500
 	SplitTime    = 60
 	SplitMaxCount = 10
 
