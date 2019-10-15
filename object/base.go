@@ -1,11 +1,16 @@
 package object
 
+import (
+	math2 "agar-life/math"
+	"agar-life/math/crd"
+)
+
 //Base is basic realization on object interface
 type Base struct {
 	color  string
 	size   float64
 	hidden bool
-	Crd
+	crd.Crd
 }
 
 //Color return color of point
@@ -25,7 +30,7 @@ func (p Base) Size() float64 {
 
 //SetSize sets a size for the point
 func (p *Base) SetSize(size float64) {
-	p.size = size
+	p.size = math2.ToFixed(size, 2)
 }
 
 //Hidden return is hidden the point
@@ -37,5 +42,3 @@ func (p *Base) Hidden() bool {
 func (p *Base) SetHidden(isHidden bool) {
 	p.hidden = isHidden
 }
-
-

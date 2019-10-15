@@ -2,8 +2,8 @@ package world
 
 import (
 	math2 "agar-life/math"
+	"agar-life/math/crd"
 	"agar-life/math/vector"
-	"agar-life/object"
 	"agar-life/object/alive/animal/behavior"
 	"agar-life/object/alive/animal/species"
 	_const "agar-life/world/const"
@@ -16,7 +16,7 @@ import (
 
 
 
-func Split(fr *frame.Frame, el animal.Animal, direction object.Crd, cycle uint64) {
+func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 	if el.Size() < _const.MinSizeSplit {
 		return
 	}
@@ -38,20 +38,11 @@ func Split(fr *frame.Frame, el animal.Animal, direction object.Crd, cycle uint64
 		gnt.Size(size),
 		gnt.Name(el.Group()),
 		gnt.Color(el.Color()),
-		gnt.Crd(gnt.FixCrd(el.GetX(), el.GetY())),
+		gnt.Crd(gnt.FixCrd(el.X(), el.Y())),
 	)
-	vec := getVectorWithLength(el.GetX(), el.GetY(), direction.GetX(), direction.GetY(), _const.SplitDist)
-	direction = object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY()))
+	direction = vector.GetCrdWithLength(el.GetCrd(), direction, _const.SplitDist)
 	alv.SetInertia(direction)
 	fr.Add(alv)
-}
-
-func getVectorWithLength(x1, y1, x2, y2, dist float64) vector.Vector {
-	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
-	length := vec.Len()
-	ratio := dist / length
-	vec.MultiplyByScalar(ratio)
-	return vec
 }
 
 func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
@@ -72,8 +63,8 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 	}
 	el.SetSize(size)
 	addAngel := 2.0 * math.Pi / float64(burstCount)
-	vec := vector.GetVectorByPoint(el.GetX(), el.GetY(), el.GetX()+_const.SplitDist, el.GetY())
-	el.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
+	vec := vector.GetVectorByPoint(el.GetCrd(), crd.NewCrd(el.X()+_const.SplitDist, el.Y()))
+	el.SetInertia(vec.GetPointFromVector(el.GetCrd()))
 	el.SetGlueTime(cycle)
 	var parent animal.Animal
 	if p := el.Parent(); p != nil {
@@ -91,10 +82,10 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 			gnt.Size(size),
 			gnt.Name(el.Group()),
 			gnt.Color(el.Color()),
-			gnt.Crd(gnt.FixCrd(el.GetX(), el.GetY())),
+			gnt.Crd(gnt.FixCrd(el.X(), el.Y())),
 		)
 		vec.AddAngle(addAngel)
-		alv.SetInertia(object.NewCrd(vec.GetPointFromVector(el.GetX(), el.GetY())))
+		alv.SetInertia(vec.GetPointFromVector(el.GetCrd()))
 		fr.Add(alv)
 	}
 	return true

@@ -49,7 +49,7 @@ func (j *JS) NewCanvas() Base {
 	ctx := canvas.Call("getContext", "2d")
 	//img := j.doc.Call("getElementById", "thorn")
 	img := j.window.Call("eval", "new Image()")
-	img.Set("src", "/img/thorn1.png")
+	img.Set("src", "/img/thorn.png")
 	wait := make(chan struct{})
 	addImg := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		println("imag loaded")
@@ -82,10 +82,10 @@ func (b *Base) Draw(obj1 object.Object) {
 	obj := obj1.(alive.Alive)
 	if obj.Danger() {
 		size := obj.Size() * 2
-		b.ctx.Call("drawImage", b.img, obj.GetX(), obj.GetY(), size, size)
+		b.ctx.Call("drawImage", b.img, obj.X(), obj.Y(), size, size)
 	} else {
 		b.ctx.Call("beginPath")
-		b.ctx.Call("arc", obj.GetX(), obj.GetY(), obj.Size(), 0, math.Pi*2, false)
+		b.ctx.Call("arc", obj.X(), obj.Y(), obj.Size(), 0, math.Pi*2, false)
 		b.ctx.Set("fillStyle", obj.Color())
 		b.ctx.Call("fill")
 		b.ctx.Call("closePath")
@@ -125,20 +125,20 @@ func (a *Animal) Draw(obj1 object.Object) {
 	obj := obj1.(animal.Animal)
 	a.Base.Draw(obj)
 	a.ctx.Call("beginPath")
-	a.ctx.Call("rect", obj.GetX()-obj.Vision(), obj.GetY()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
+	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
 	a.ctx.Set("strokeStyle", "#335dbb")
 	a.ctx.Call("stroke")
 	a.ctx.Set("setLineDash", "[5, 5]")
 	a.ctx.Call("closePath")
 
 	a.ctx.Call("beginPath")
-	a.ctx.Call("moveTo", obj.GetX(), obj.GetY())
-	a.ctx.Call("lineTo", obj.Direction().GetX(), obj.Direction().GetY())
+	a.ctx.Call("moveTo", obj.X(), obj.Y())
+	a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
 	a.ctx.Call("stroke")
 
 	a.ctx.Set("fillStyle", "#000")
 	a.ctx.Set("font", "bold 12px Arial")
-	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.GetX()-obj.Size(), obj.GetY())
+	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.Size(), obj.Y())
 }
 
 func (a *Animal) Refresh() {

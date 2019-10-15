@@ -1,7 +1,7 @@
 package species
 
 import (
-	"agar-life/object"
+	"agar-life/math/crd"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/move"
@@ -42,7 +42,7 @@ func (b *Base) SetCountChildren(count int) {
 	b.children = make([]animal.Animal, 0, count)
 }
 
-func (b *Base) SetBehaviour(behavior animal.Behavior){
+func (b *Base) SetBehaviour(behavior animal.Behavior) {
 	b.behavior = behavior
 }
 
@@ -68,13 +68,13 @@ func (b *Base) SetGlueTime(cycle uint64) {
 	b.cycleGlue = cycle + _const.GlueTime
 }
 
-func (b *Base) DeleteChild(id int){
+func (b *Base) DeleteChild(id int) {
 	if index := getIndexByID(b.children, id); index != -1 {
 		b.children = animal.Remove(b.children, index)
 	}
 }
 
-func getIndexByID(a []animal.Animal, id int) int{
+func getIndexByID(a []animal.Animal, id int) int {
 	for k, v := range a {
 		if id == v.ID() {
 			return k
@@ -124,11 +124,11 @@ func (b Base) Vision() float64 {
 	return b.vision
 }
 
-func (b *Base) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
-	return object.Crd{}, false
+func (b *Base) Action(animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
+	return crd.Crd{}, false
 }
 
-func (b *Base) Direction() object.Crd {
+func (b *Base) Direction() crd.Crd {
 	return b.Move.GetDirection()
 }
 

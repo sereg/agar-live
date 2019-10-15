@@ -1,7 +1,8 @@
 package generate
 
 import (
-	"agar-life/math"
+	math2 "agar-life/math"
+	"agar-life/math/crd"
 	"agar-life/object/alive"
 	_const "agar-life/world/const"
 	"strconv"
@@ -30,13 +31,13 @@ func Generate(el alive.Alive, opts ...Option) {
 	}
 }
 
-type crdFunc func(x, y float64) (float64, float64)
+type crdFunc func(x, y float64) crd.Crd
 
 type Options struct {
 	w, h, size float64
 	name       string
 	crdFn      crdFunc
-	color *string
+	color      *string
 }
 
 func DefaultOptions() Options {
@@ -70,13 +71,13 @@ func Crd(crdFn crdFunc) Option {
 	}
 }
 
-func RandomCrd(x, y float64) (float64, float64) {
-	return float64(math.Random(0, int(x))), float64(math.Random(0, int(y)))
+func RandomCrd(x, y float64) crd.Crd {
+	return crd.NewCrd(float64(math2.Random(0, int(x))), float64(math2.Random(0, int(y))))
 }
 
 func FixCrd(x, y float64) crdFunc {
-	return func(float64, float64) (float64, float64) {
-		return x, y
+	return func(float64, float64) crd.Crd {
+		return crd.NewCrd(x, y)
 	}
 }
 
@@ -95,8 +96,8 @@ func Size(size float64) Option {
 }
 
 func getRandomColor() string {
-	r := strconv.FormatInt(int64(math.Random(50, 250)), 16)
-	g := strconv.FormatInt(int64(math.Random(50, 250)), 16)
-	b := strconv.FormatInt(int64(math.Random(50, 250)), 16)
+	r := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
+	g := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
+	b := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
 	return "#" + r + g + b
 }

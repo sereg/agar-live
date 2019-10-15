@@ -17,18 +17,18 @@ const (
 
 	MinSizeAlive = 6
 
-	GlueTime     = 600
-	MinSizeSplit = 20
-	SplitRation  = 0.9
-	SplitSpeed   = 8
-	SplitDeceleration   = 0.11
-	SplitDist    = 500
-	SplitTime    = 60
-	SplitMaxCount = 10
+	GlueTime          = 600
+	MinSizeSplit      = 20
+	SplitRation       = 0.9
+	SplitSpeed        = 4
+	SplitDeceleration = 0.31
+	SplitDist         = 500
+	SplitTime         = 60
+	SplitMaxCount     = 10
 
-	Half         = 0.5
-	BurstCount   = 8
+	Half       = 0.5
+	BurstCount = 8
 
 	PoisonColor = "#8eb021"
-	PoisonSize = 10
+	PoisonSize  = 10
 )

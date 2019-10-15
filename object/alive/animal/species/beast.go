@@ -1,7 +1,7 @@
 package species
 
 import (
-	"agar-life/object"
+	"agar-life/math/crd"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 )
@@ -16,6 +16,6 @@ func NewBeast(behavior animal.Behavior) animal.Animal {
 	return &b
 }
 
-func (b *beast) GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool) {
-	return b.Behaviour().Direction(animal.Animal(b), animals, plants, cycle)
+func (b *beast) Action(animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
+	return b.Behaviour().Action(animal.Animal(b), animals, plants, cycle)
 }

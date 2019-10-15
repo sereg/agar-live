@@ -1,13 +1,49 @@
 package vector
 
-import "math"
+import (
+	"agar-life/math/crd"
+	"math"
+)
 
 type Vector struct {
 	x, y float64
 }
 
-func NewVector(x, y float64) Vector {
-	return Vector{x: x, y: y}
+func NewVector(crd crd.Crd) Vector {
+	return Vector{x: crd.X(), y: crd.Y()}
+}
+
+func GetVectorByPoint(a, b crd.Crd) Vector {
+	vec := Vector{}
+	vec.x = b.X() - a.X()
+	vec.y = b.Y() - a.Y()
+	return vec
+}
+
+//func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
+//	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
+//	length := vec.Len()
+//	ratio := dist
+//	if length > 0 {
+//		ratio = dist / length
+//	}
+//	vec.MultiplyByScalar(ratio)
+//	x, y = vec.GetPointFromVector(x2, y2)
+//	x, y = x-x2, y-y2
+//	return
+//}
+
+func GetVectorWithLength(a, b crd.Crd, dist float64) Vector {
+	vec := GetVectorByPoint(a, b)
+	length := vec.Len()
+	ratio := dist / length
+	vec.MultiplyByScalar(ratio)
+	return vec
+}
+
+func GetCrdWithLength(a, b crd.Crd, dist float64) crd.Crd {
+	vec := GetVectorWithLength(a, b, dist)
+	return vec.GetPointFromVector(a)
 }
 
 func (vec Vector) Len() float64 {
@@ -20,13 +56,13 @@ func (vec *Vector) MultiplyByScalar(s float64) {
 }
 
 func (vec *Vector) AddAngle(angle float64) {
-	len := vec.Len()
-	y := math.Cos(vec.GetAngle() + angle) * len
-	x := math.Sin(vec.GetAngle() + angle) * len
-	if x == len {
+	l := vec.Len()
+	y := math.Cos(vec.GetAngle() + angle) * l
+	x := math.Sin(vec.GetAngle() + angle) * l
+	if x == l {
 		y = 0
 	}
-	if y == len {
+	if y == l {
 		x = 0
 	}
 	vec.x = x
@@ -34,30 +70,23 @@ func (vec *Vector) AddAngle(angle float64) {
 }
 
 func (vec *Vector) SetAngle(angle float64) {
-	len := vec.Len()
-	y := math.Cos(angle) * len
-	x := math.Sin(angle) * len
-	if x == len {
+	l := vec.Len()
+	y := math.Cos(angle) * l
+	x := math.Sin(angle) * l
+	if x == l {
 		y = 0
 	}
-	if y == len {
+	if y == l {
 		x = 0
 	}
 	vec.x = x
 	vec.y = y
 }
 
-func GetVectorByPoint(x, y, x2, y2 float64) Vector {
-	vec := Vector{}
-	vec.x = x2 - x
-	vec.y = y2 - y
-	return vec
-}
-
-func (vec Vector) GetPointFromVector(x, y float64) (float64, float64) {
-	xr := vec.x + x
-	yr := vec.y + y
-	return xr, yr
+func (vec Vector) GetPointFromVector(a crd.Crd) crd.Crd {
+	xr := vec.x + a.X()
+	yr := vec.y + a.Y()
+	return crd.NewCrd(xr, yr)
 }
 
 func (vec Vector) GetAngle() float64 {

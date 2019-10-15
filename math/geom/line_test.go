@@ -26,7 +26,7 @@ func TestLineByPoint(t *testing.T) {
 	}
 	for _, v := range testRes {
 		line := NewLine(v.p1, v.p2)
-		if math.ToFixed(line.y, 6) != v.y || math.ToFixed(line.slope, 6) != v.slope {
+		if math2.ToFixed(line.y, 6) != v.y || math2.ToFixed(line.slope, 6) != v.slope {
 			fmt.Println(line.y != v.y)
 			fmt.Println(line.slope != v.slope)
 			t.Errorf("p1 - %v, p2 - %v, recieved unexpected result, expected - '%f', '%f', got - '%f', '%f'", v.p1, v.p2, v.y, v.slope ,line.y ,line.slope)

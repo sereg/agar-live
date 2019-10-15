@@ -1,7 +1,7 @@
 package geom
 
 import (
-	"agar-life/object"
+	"agar-life/math/crd"
 	"errors"
 	"math"
 )
@@ -38,9 +38,9 @@ func NewLine(a, b Point) Line {
 	return Line{slope, y}
 }
 
-func NewLineCrd(a, b object.Crd) Line {
+func NewLineCrd(a, b crd.Crd) Line {
 	var slope float64
-	ax, ay, bx, by := a.GetX(), a.GetY(), b.GetX(), b.GetY()
+	ax, ay, bx, by := a.X(), a.Y(), b.X(), b.Y()
 	if (bx - ax) == 0 {
 		bx += 0.01
 	}

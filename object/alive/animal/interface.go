@@ -1,7 +1,7 @@
 package animal
 
 import (
-	"agar-life/object"
+	"agar-life/math/crd"
 	"agar-life/object/alive"
 )
 
@@ -29,11 +29,11 @@ type Animal interface {
 	SetBehaviour(Behavior)
 	Behaviour() Behavior
 	Eat(a alive.Alive)
-	GetDirection(animals []alive.Alive, plants []alive.Alive, cycle uint64) (object.Crd, bool)
-	Direction() object.Crd
-	SetCrdByDirection(a alive.Alive, direction object.Crd, dist float64, changeDirection bool)
-	GetInertia() (direction object.Crd, speed float64)
-	SetInertia(direction object.Crd)
+	Action(animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool)
+	Direction() crd.Crd
+	SetCrdByDirection(a alive.Alive, direction crd.Crd, dist float64, changeDirection bool)
+	GetInertia() (direction crd.Crd, speed float64)
+	SetInertia(direction crd.Crd)
 	Count() int
 }
 
