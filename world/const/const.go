@@ -22,7 +22,7 @@ const (
 	SplitRation       = 0.9
 	SplitSpeed        = 4
 	SplitDeceleration = 0.31
-	SplitDist         = 500
+	//SplitDist         = 500
 	SplitTime         = 60
 	SplitMaxCount     = 10
 
@@ -32,3 +32,16 @@ const (
 	PoisonColor = "#8eb021"
 	PoisonSize  = 10
 )
+
+var SplitDist float64 = 0
+
+func init() {
+	v := float64(SplitSpeed)
+	for {
+		SplitDist += v
+		v -=SplitDeceleration
+		if v <= 0 {
+			break
+		}
+	}
+}

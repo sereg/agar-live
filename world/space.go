@@ -219,7 +219,8 @@ func (w *World) forIntersect(
 			if _, ok := removedId[index]; ok {
 				died = true
 			}
-			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() && el1.GlueTime() <= w.cycle  && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
+			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
+				el1.GlueTime() <= w.cycle  && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
 				el.Eat(el1)//TODO change size in 30 cycles
 			}
