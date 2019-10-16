@@ -30,7 +30,7 @@ func (p Base) Size() float64 {
 
 //SetSize sets a size for the point
 func (p *Base) SetSize(size float64) {
-	p.size = math2.ToFixed(size, 2)
+	p.size = math2.Round(size)
 }
 
 //Hidden return is hidden the point

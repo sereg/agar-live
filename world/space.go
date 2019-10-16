@@ -42,8 +42,8 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
-		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
+		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 		world.animal.Set(i, el)
 	}
@@ -214,8 +214,8 @@ func (w *World) forIntersect(
 			}
 			return dis
 		}
+		died := false
 		if el != nil && el1 != nil && !el1.GetDead() {
-			died := false
 			if _, ok := removedId[index]; ok {
 				died = true
 			}
@@ -240,6 +240,11 @@ func (w *World) forIntersect(
 				idInt = removeFromInt(idInt, j)
 				j--
 			}
+		}
+		if !died && el.Group() == el1.Group() {
+			closest = alive.Remove(closest, j)
+			idInt = removeFromInt(idInt, j)
+			j--
 		}
 	}
 	return closest

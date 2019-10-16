@@ -272,7 +272,7 @@ func (d dangerObj) Names() string {
 }
 
 func (d *dangerObj) add(a, b crd.Crd, vision float64, name string) {
-	vec := vector.GetVectorWithLength(a, b, vision)
+	vec := vector.GetVectorWithLength(b, a, vision)
 	for _, v := range d.obj {
 		if vector.Compare(v.vec, vec) {
 			return
@@ -324,10 +324,11 @@ func getClosest(el animal.Animal, els []alive.Alive) (closest alive.Alive, split
 		}
 		if el != nil && el1 != nil && !el1.GetDead() && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
-			mass <= el1.Size() && distFn() < dist && distRes < el.Vision() {
+			(mass <= el1.Size() || mass > _const.FoodSize) &&
+			distFn() < dist && distRes < el.Vision() {
 			closest = el1
 			dist = distRes
-			if dist < _const.SplitDist && el.Size() > el1.Size()*2 {
+			if dist < _const.SplitDist && el.Size() > el1.Size()*2.5 {
 				if _, ok := el1.(animal.Animal); ok {
 					split = true
 				}

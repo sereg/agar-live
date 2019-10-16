@@ -14,13 +14,11 @@ import (
 	gnt "agar-life/object/generate"
 )
 
-
-
 func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 	if el.Size() < _const.MinSizeSplit {
 		return
 	}
-	size := math2.ToFixed(el.Size() * _const.Half, 2)
+	size := math2.Round(el.Size() * _const.Half)
 	el.SetSize(size)
 	el.SetGlueTime(cycle)
 	var parent animal.Animal
@@ -29,6 +27,8 @@ func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 	} else {
 		parent = el
 	}
+	direction = vector.GetCrdWithLength(el.GetCrd(), direction, _const.SplitDist)
+	el.SetInertia(direction)
 	alv := species.NewBeast(behavior.NewFollower())
 	alv.SetParent(parent)
 	alv.SetGlueTime(cycle)
@@ -40,26 +40,25 @@ func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 		gnt.Color(el.Color()),
 		gnt.Crd(gnt.FixCrd(el.X(), el.Y())),
 	)
-	direction = vector.GetCrdWithLength(el.GetCrd(), direction, _const.SplitDist)
-	alv.SetInertia(direction)
+
 	fr.Add(alv)
 }
 
 func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 	burstCount := _const.BurstCount
-	if _const.SplitMaxCount < (el.Count()+int(burstCount)-1) {
+	if _const.SplitMaxCount < (el.Count() + burstCount - 1) {
 		burstCount = _const.SplitMaxCount - el.Count()
 		if burstCount < 2 {
 			return true
 		}
 	}
-	size := math2.ToFixed(el.Size() / float64(burstCount), 2)
+	size := math2.Round(el.Size() / float64(burstCount))
 	if size < _const.MinSizeAlive {
 		burstCount = int(el.Size() / _const.MinSizeAlive)
 		if burstCount < 2 {
 			return false
 		}
-		size = math2.ToFixed(el.Size() / float64(burstCount), 2)
+		size = math2.Round(el.Size() / float64(burstCount))
 	}
 	el.SetSize(size)
 	addAngel := 2.0 * math.Pi / float64(burstCount)
@@ -90,5 +89,3 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 	}
 	return true
 }
-
-

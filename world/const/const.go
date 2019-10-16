@@ -2,6 +2,8 @@ package _const
 
 //EatRatio ratio when one object can eat another
 const (
+	FoodSize = 3
+
 	EatIncreaseRation     = 0.1
 	EatSelfIncreaseRation = 0.9
 	EatRatio              = 1.3
@@ -20,8 +22,8 @@ const (
 	GlueTime          = 600
 	MinSizeSplit      = 20
 	SplitRation       = 0.9
-	SplitSpeed        = 4
-	SplitDeceleration = 0.31
+	SplitSpeed        = 5
+	SplitDeceleration = 0.11
 	//SplitDist         = 500
 	SplitTime         = 60
 	SplitMaxCount     = 10
@@ -38,10 +40,11 @@ var SplitDist float64 = 0
 func init() {
 	v := float64(SplitSpeed)
 	for {
-		SplitDist += v
 		v -=SplitDeceleration
 		if v <= 0 {
 			break
 		}
+		SplitDist += v
 	}
+	println(int(SplitDist))
 }
