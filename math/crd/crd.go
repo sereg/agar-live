@@ -12,12 +12,12 @@ type Crd struct {
 
 //NewCrd return new instance of crd
 func NewCrd(x, y float64) Crd {
-	return Crd{x: math2.ToFixed(x, 2), y: math2.ToFixed(y, 2)}
+	return Crd{x: math2.Round(x), y: math2.Round(y)}
 }
 
 //SetX set x
 func (c *Crd) SetX(x float64) {
-	c.x = math2.ToFixed(x, 2)
+	c.x = math2.Round(x)
 }
 
 //GetX it return x
@@ -27,12 +27,12 @@ func (c Crd) X() float64 {
 
 //Y set x
 func (c *Crd) SetY(y float64) {
-	c.y = math2.ToFixed(y, 2)
+	c.y = math2.Round(y)
 }
 
 //SetXY set x and y
 func (c *Crd) SetXY(x float64, y float64) {
-	c.x, c.y = math2.ToFixed(x, 2), math2.ToFixed(y, 2)
+	c.x, c.y = math2.Round(x), math2.Round(y)
 }
 
 //GetY it return y
@@ -47,6 +47,6 @@ func (c Crd) GetCrd() Crd {
 
 func (c *Crd) SetCrd(a Crd) {
 	if !math.IsNaN(a.X()) && !math.IsNaN(a.Y()) {
-		c.x, c.y = math2.ToFixed(a.X(), 2), math2.ToFixed(a.Y(), 2)
+		c.x, c.y = math2.Round(a.X()), math2.Round(a.Y())
 	}
 }
