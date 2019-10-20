@@ -26,7 +26,7 @@ type World struct {
 	plant      frame.Frame
 	cycle      uint64
 	gridPlant  grid.Grid //TODO move grid index to frame
-	gridAnimal grid.Grid
+	gridAnimal grid.Grid //TODO test Quadtree https://github.com/JamesMilnerUK/quadtree-go
 	resurrect  resurrects
 }
 
@@ -42,8 +42,8 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(behavior.NewAiv1(w, h))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
-		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10))
+		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(_const.AliveStartSize))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 		world.animal.Set(i, el)
 	}
@@ -104,17 +104,19 @@ func (w *World) Cycle() {
 		el := w.animal.Get(i)
 		w.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 	}
-	w.gridPlant.Reset()
-	for i := 0; i < len(w.plant.All()); i++ {
-		el := w.plant.Get(i)
-		w.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
+	if w.plant.UpdateState() {
+		w.gridPlant.Reset()
+		for i := 0; i < len(w.plant.All()); i++ {
+			el := w.plant.Get(i)
+			w.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
+		}
 	}
 	w.cycle++
 }
 
 func (w *World) fixNeighborhood(el animal.Animal) {
 	var parent animal.Animal
-	if parent = el.Parent(); parent == nil{
+	if parent = el.Parent(); parent == nil {
 		return
 	}
 	for _, v := range parent.Children() {
@@ -128,7 +130,7 @@ func (w *World) fixNeighborhood(el animal.Animal) {
 			continue
 		}
 		dis := geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
-		if dis < el.Size() + el1.Size() {
+		if dis < el.Size()+el1.Size() {
 			dist := el.Size() + el1.Size() - dis
 			vec := vector.GetVectorByPoint(el.GetCrd(), el1.GetCrd())
 			vec.AddAngle(math.Pi)
@@ -152,10 +154,10 @@ func (w *World) GetAnimal() []alive.Alive {
 
 type remove struct {
 	index int
-	fr *frame.Frame
+	fr    *frame.Frame
 }
 
-type rmList struct{
+type rmList struct {
 	list []remove
 }
 
@@ -220,9 +222,9 @@ func (w *World) forIntersect(
 				died = true
 			}
 			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
-				el1.GlueTime() <= w.cycle  && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
+				el1.GlueTime() <= w.cycle && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
-				el.Eat(el1)//TODO change size in 30 cycles
+				el.Eat(el1) //TODO change size in 30 cycles
 			}
 			if !died && el1.Danger() && el1.Size() < el.Size() && dist() < el.Size() {
 				if Burst(&w.animal, el, w.cycle) {
@@ -269,7 +271,6 @@ func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int,
 	return idInt, closest
 }
 
-
 func (w *World) fixLimit(el animal.Animal) {
 	x, y := el.X(), el.Y()
 	if x < 0 {
@@ -287,7 +288,6 @@ func (w *World) fixLimit(el animal.Animal) {
 	el.SetCrd(crd.NewCrd(x, y))
 }
 
-
 func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	world := World{
 		w:          w,
@@ -298,7 +298,8 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		plant:      frame.NewFrame(countPlant, w, h),
 	}
 	crAnimal := func(i int, x, y float64) {
-		el := species.NewBeast(behavior.NewAiv1(w, h))
+		//el := species.NewBeast(behavior.NewAiv1(w, h))
+		el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(41), gnt.Crd(gnt.FixCrd(x, y)))
@@ -313,6 +314,6 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	}
 	crAnimal(0, 200, 200)
 	crPlant(0, 30, 50)
-	crPlant(1, 70, 50)
+	//crPlant(1, 70, 50)
 	return world
 }

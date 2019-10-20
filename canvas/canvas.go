@@ -81,7 +81,7 @@ func (b *Base) Draw(obj1 object.Object) {
 	}
 	obj := obj1.(alive.Alive)
 	if obj.Danger() {
-		size := obj.Size() * 2
+		size := obj.Size() * 2.15
 		b.ctx.Call("drawImage", b.img, obj.X(), obj.Y(), size, size)
 	} else {
 		b.ctx.Call("beginPath")

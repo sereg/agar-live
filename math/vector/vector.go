@@ -20,19 +20,6 @@ func GetVectorByPoint(a, b crd.Crd) Vector {
 	return vec
 }
 
-//func getXYWithLength(x1, y1, x2, y2, dist float64) (x float64, y float64) {
-//	vec := vector.GetVectorByPoint(x1, y1, x2, y2)
-//	length := vec.Len()
-//	ratio := dist
-//	if length > 0 {
-//		ratio = dist / length
-//	}
-//	vec.MultiplyByScalar(ratio)
-//	x, y = vec.GetPointFromVector(x2, y2)
-//	x, y = x-x2, y-y2
-//	return
-//}
-
 func GetVectorWithLength(a, b crd.Crd, dist float64) Vector {
 	vec := GetVectorByPoint(a, b)
 	length := vec.Len()
@@ -53,6 +40,12 @@ func (vec Vector) Len() float64 {
 func (vec *Vector) MultiplyByScalar(s float64) {
 	vec.x *= s
 	vec.y *= s
+}
+
+func (vec Vector) MultiplyByVector(s Vector) Vector {
+	//vec.x *= s
+	//vec.y *= s
+	return vec
 }
 
 func (vec *Vector) AddAngle(angle float64) {

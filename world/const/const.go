@@ -3,13 +3,14 @@ package _const
 //EatRatio ratio when one object can eat another
 const (
 	FoodSize = 3
+	AliveStartSize = 15
 
 	EatIncreaseRation     = 0.1
 	EatSelfIncreaseRation = 0.9
 	EatRatio              = 1.3
 
 	ResurrectTime = 80
-	GridSize      = 80
+	GridSize      = 65
 
 	SpeedRatio = 10
 	StartSpeed = 12
@@ -24,7 +25,6 @@ const (
 	SplitRation       = 0.9
 	SplitSpeed        = 5
 	SplitDeceleration = 0.11
-	//SplitDist         = 500
 	SplitTime         = 60
 	SplitMaxCount     = 10
 
@@ -32,7 +32,7 @@ const (
 	BurstCount = 8
 
 	PoisonColor = "#8eb021"
-	PoisonSize  = 10
+	PoisonSize  = 15
 )
 
 var SplitDist float64 = 0

@@ -324,12 +324,12 @@ func getClosest(el animal.Animal, els []alive.Alive) (closest alive.Alive, split
 		}
 		if el != nil && el1 != nil && !el1.GetDead() && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
-			(mass <= el1.Size() || mass > _const.FoodSize) &&
+			(mass <= el1.Size() || mass > _const.FoodSize) && //TODO add equation choice distance or size
 			distFn() < dist && distRes < el.Vision() {
 			closest = el1
 			dist = distRes
 			if dist < _const.SplitDist && el.Size() > el1.Size()*2.5 {
-				if _, ok := el1.(animal.Animal); ok {
+				if _, ok := el1.(animal.Animal); ok { //TODO check object in dangerous angles
 					split = true
 				}
 			}
