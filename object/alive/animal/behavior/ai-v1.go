@@ -242,10 +242,10 @@ func bypass(el animal.Animal, direction crd.Crd, poisons []alive.Alive) crd.Crd 
 
 func closestFn(self animal.Animal, animals []alive.Alive, plants []alive.Alive) (closest alive.Alive, split bool) {
 	closestFnAn := func() (closest alive.Alive, split bool) {
-		return getClosest(self, animals)
+		return getClosest(self, animals, true)
 	}
 	closestFnPl := func() (closest alive.Alive, split bool) {
-		return getClosest(self, plants)
+		return getClosest(self, plants, false)
 	}
 	if closest, split := closestFnAn(); closest == nil {
 		return closestFnPl()
@@ -285,7 +285,7 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 	danObj := dangerObj{}
 	for i := 0; i < len(animals); i++ {
 		el1 := animals[i]
-		if el != nil && el1 != nil && !el1.GetDead() && el1.Size()/el.Size() > _const.EatRatio {
+		if el != nil && el1 != nil && el1.Size()/el.Size() > _const.EatRatio && el1.Group() != el.Group() && !el1.GetDead() {
 			danObj.add(el.GetCrd(), el1.GetCrd(), el.Vision(), el1.Group())
 		}
 	}
@@ -312,28 +312,34 @@ func poisons(el animal.Animal, plants []alive.Alive) (food []alive.Alive, poison
 	return
 }
 
-func getClosest(el animal.Animal, els []alive.Alive) (closest alive.Alive, split bool) {
+func getClosest(el animal.Animal, els []alive.Alive, animal bool) (closest alive.Alive, split bool) {
 	dist := 9e+5
 	mass := 0.0
 	for i := 0; i < len(els); i++ {
 		el1 := els[i]
-		var distRes float64
+		distRes := -1.0
 		distFn := func() float64 {
-			distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.Size()
+			if distRes == -1.0 {
+				distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.Size()
+			}
 			return distRes
 		}
-		if el != nil && el1 != nil && !el1.GetDead() && !el1.Danger() &&
+		if el != nil && el1 != nil && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
 			(mass <= el1.Size() || mass > _const.FoodSize) && //TODO add equation choice distance or size
-			distFn() < dist && distRes < el.Vision() {
+			distFn() < dist && distRes < el.Vision()  && el1.Group() != el.Group() && !el1.GetDead()  {
 			closest = el1
 			dist = distRes
 			if dist < _const.SplitDist && el.Size() > el1.Size()*2.5 {
-				if _, ok := el1.(animal.Animal); ok { //TODO check object in dangerous angles
+				if animal { //TODO check object in dangerous angles
 					split = true
 				}
 			}
 			mass = el1.Size()
+		} else {
+			if mass > 0 && !animal && distFn() > _const.GridSize {
+				return
+			}
 		}
 	}
 	return

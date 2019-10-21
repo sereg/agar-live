@@ -10,7 +10,7 @@ const (
 	EatRatio              = 1.3
 
 	ResurrectTime = 80
-	GridSize      = 65
+
 
 	SpeedRatio = 10
 	StartSpeed = 12
@@ -35,7 +35,10 @@ const (
 	PoisonSize  = 15
 )
 
-var SplitDist float64 = 0
+var (
+	SplitDist = 0.0
+	GridSize  = 70.0
+)
 
 func init() {
 	v := float64(SplitSpeed)

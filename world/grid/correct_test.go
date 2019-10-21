@@ -48,12 +48,12 @@ func testGrid(fn func() Grid) (l, f int) {
 	grid := fn()
 	for i:= 0.0; i < 100; i++ {
 		for j := 0.0; j < 100; j++ {
-			grid.Set(i * 40, j * 40, int(i))
+			grid.Set(i * 40, j * 40, i, -1)
 		}
 	}
 	for i:= 0.0; i < 100; i++ {
 		for j := 0.0; j < 100; j++ {
-			found = append(found, grid.GetObjInRadius(i * 40, j * 40, 70)...)
+			found = append(found, grid.GetObjInRadius(i * 40, j * 40, 70, -1)...)
 		}
 	}
 	l = grid.Len()

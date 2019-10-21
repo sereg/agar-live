@@ -168,14 +168,14 @@ func (r *rmList) add(index int, fr *frame.Frame) {
 	})
 }
 
-func (r *rmList) check(index int) bool {
-	for _, v := range r.list {
-		if v.index == index {
-			return true
-		}
-	}
-	return false
-}
+//func (r *rmList) check(index int) bool {
+//	for _, v := range r.list {
+//		if v.index == index {
+//			return true
+//		}
+//	}
+//	return false
+//}
 
 func (r rmList) Len() int           { return len(r.list) }
 func (r rmList) Less(i, j int) bool { return r.list[i].index > r.list[j].index }
@@ -185,7 +185,8 @@ func (w *World) remove(m rmList) {
 	if len(m.list) > 1 {
 		sort.Sort(m)
 	}
-	for _, v := range m.list {
+	for i:=0; i < len(m.list); i++ {
+		v := m.list[i]
 		index, fr := v.index, v.fr
 		if el, ok := fr.Get(index).(animal.Animal); ok {
 			if el.Parent() == nil && len(el.Children()) == 0 {
@@ -243,11 +244,14 @@ func (w *World) forIntersect(
 				j--
 			}
 		}
-		if !died && el.Group() == el1.Group() {
-			closest = alive.Remove(closest, j)
-			idInt = removeFromInt(idInt, j)
-			j--
+		if !died && dist() > el.Size() + _const.GridSize {
+			break
 		}
+		//if !died && el.Group() == el1.Group() {
+		//	closest = alive.Remove(closest, j)
+		//	idInt = removeFromInt(idInt, j)
+		//	j--
+		//}
 	}
 	return closest
 }
