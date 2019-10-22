@@ -91,7 +91,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 		return closest
 	}
 	strategies := []strategy{
-		strategy{ //running
+		{ //running
 			priority: running,
 			mem:      true,
 			condition: func() bool {
@@ -110,7 +110,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return sum.GetPointFromVector(self.GetCrd())
 			},
 		},
-		strategy{ //running from memory
+		{ //running from memory
 			priority: running,
 			mem:      false,
 			condition: func() bool {
@@ -122,7 +122,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return crdRes
 			},
 		},
-		strategy{ //eating
+		{ //eating
 			priority: eating,
 			mem:      true,
 			condition: func() bool {
@@ -136,15 +136,15 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return closest.GetCrd()
 			},
 		},
-		strategy{ //default
+		{ //default
 			priority: nothing,
 			mem:      false,
 			condition: func() bool {
 				return true
 			},
 			action: func() crd.Crd {
-				crd, _ := a.simple.Action(self, nil, nil, 0)
-				return crd
+				cr, _ := a.simple.Action(self, nil, nil, 0)
+				return cr
 			},
 		},
 	}
@@ -153,22 +153,24 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 			reason := ""
 			if strategy.mem {
 				reason = strategy.reason()
-				if valid, crd := a.mem.checkByReason(strategy.priority, cycle, reason); valid {
-					a.direction.SetCrd(crd)
+				if valid, cr := a.mem.checkByReason(strategy.priority, cycle, reason); valid {
+					a.direction.SetCrd(cr)
 					break
 				}
 			}
-			crd := strategy.action()
-			crd = bypass(self, crd, poisons)
+			cr := strategy.action()
+			cr = bypass(self, cr, poisons)
 			if strategy.mem {
-				a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, crd)
+				a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, cr)
 			}
-			a.direction.SetCrd(crd)
+			a.direction.SetCrd(cr)
 			break
 		}
 	}
 	return a.direction, split
 }
+
+
 
 func bypass(el animal.Animal, direction crd.Crd, poisons []alive.Alive) crd.Crd {
 	if len(poisons) == 0 {

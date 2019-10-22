@@ -2,7 +2,7 @@ package _const
 
 //EatRatio ratio when one object can eat another
 const (
-	FoodSize = 3
+	FoodSize       = 3
 	AliveStartSize = 15
 
 	EatIncreaseRation     = 0.1
@@ -10,7 +10,6 @@ const (
 	EatRatio              = 1.3
 
 	ResurrectTime = 80
-
 
 	SpeedRatio = 10
 	StartSpeed = 12
@@ -43,7 +42,7 @@ var (
 func init() {
 	v := float64(SplitSpeed)
 	for {
-		v -=SplitDeceleration
+		v -= SplitDeceleration
 		if v <= 0 {
 			break
 		}
