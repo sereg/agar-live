@@ -80,7 +80,7 @@ type strategy struct {
 
 func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
 	dangerous := dangerous(self, animals)
-	plants, poisons := poisons(self, plants)
+	poisons := poisons(self, plants)
 	var closest alive.Alive
 	split := false
 	closestFn := func() alive.Alive {
@@ -294,11 +294,10 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 	return danObj
 }
 
-func poisons(el animal.Animal, plants []alive.Alive) (food []alive.Alive, poisons []alive.Alive) {
+func poisons(el animal.Animal, plants []alive.Alive) (poisons []alive.Alive) {
 	if el.Size()-_const.MinSizeAlive < _const.MinSizeAlive || el.Count() >= _const.SplitMaxCount {
-		return plants, poisons
+		return poisons
 	}
-	food = make([]alive.Alive, 0, len(plants))
 	poisons = make([]alive.Alive, 0, len(plants))
 	for i := 0; i < len(plants); i++ {
 		el1 := plants[i]
@@ -307,8 +306,6 @@ func poisons(el animal.Animal, plants []alive.Alive) (food []alive.Alive, poison
 		}
 		if el1.Size() < el.Size() && el1.Danger() {
 			poisons = append(poisons, el1)
-		} else {
-			food = append(food, el1)
 		}
 	}
 	return
