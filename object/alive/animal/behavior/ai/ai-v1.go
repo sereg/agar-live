@@ -1,4 +1,4 @@
-package behavior
+package ai
 
 import (
 	"agar-life/math/crd"
@@ -6,6 +6,7 @@ import (
 	"agar-life/math/vector"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
+	"agar-life/object/alive/animal/behavior"
 	"agar-life/world/const"
 	"math"
 	"strconv"
@@ -13,7 +14,7 @@ import (
 )
 
 type aiV1 struct {
-	simple
+	behavior.Simple
 	mem memory
 }
 
@@ -60,9 +61,8 @@ func (m *memory) reset() {
 }
 
 func NewAiv1(w, h float64) animal.Behavior {
-	simple := simple{w: w, h: h, changeDirection: true}
 	return &aiV1{
-		simple: simple,
+		Simple: behavior.NewSimple(w, h),
 	}
 }
 
@@ -105,7 +105,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				for _, v := range dangerous.obj {
 					sum = vector.Add(sum, v.vec)
 				}
-				sum = checkEdge2(sum, self.GetCrd(), a.w, a.h, self.Vision())
+				sum = checkEdge2(sum, self.GetCrd(), a.W(), a.H(), self.Vision())
 				//TODO hide in poison plant if size of them more then object
 				return sum.GetPointFromVector(self.GetCrd())
 			},
@@ -143,7 +143,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return true
 			},
 			action: func() crd.Crd {
-				cr, _ := a.simple.Action(self, nil, nil, 0)
+				cr, _ := a.Simple.Action(self, nil, nil, 0)
 				return cr
 			},
 		},
@@ -154,7 +154,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 			if strategy.mem {
 				reason = strategy.reason()
 				if valid, cr := a.mem.checkByReason(strategy.priority, cycle, reason); valid {
-					a.direction.SetCrd(cr)
+					a.SetDir(cr)
 					break
 				}
 			}
@@ -163,14 +163,16 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 			if strategy.mem {
 				a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, cr)
 			}
-			a.direction.SetCrd(cr)
+			a.SetDir(cr)
 			break
 		}
 	}
-	return a.direction, split
+	return a.Dir(), split
 }
 
+func checkAngels() {
 
+}
 
 func bypass(el animal.Animal, direction crd.Crd, poisons []alive.Alive) crd.Crd {
 	if len(poisons) == 0 {
