@@ -24,7 +24,18 @@ const (
 	nothing = 9
 )
 
+var (
+	top = geom.Segment{}
+	down = geom.Segment{}
+	left = geom.Segment{}
+	right = geom.Segment{}
+)
+
 func NewAiv1(w, h float64) animal.Behavior {
+	top = geom.NewSegment(crd.NewCrd(0, 0), crd.NewCrd(w, 0))
+	down = geom.NewSegment(crd.NewCrd(0, h), crd.NewCrd(w, h))
+	left = geom.NewSegment(crd.NewCrd(0, 0), crd.NewCrd(0, h))
+	right = geom.NewSegment(crd.NewCrd(w, 0), crd.NewCrd(w, h))
 	return &aiV1{
 		Simple: behavior.NewSimple(w, h),
 	}
@@ -134,8 +145,24 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 	return a.Dir(), split
 }
 
-func checkAngels() {
+func (a *aiV1) checkAngels(el animal.Animal, poisons []alive.Alive) {
 
+}
+
+func (a *aiV1) segmentEdge(el animal.Animal) (seg []geom.Segment) {
+	if el.X() - el.Vision() < 0 {
+		seg = append(seg, left)
+	}
+	if el.X() + el.Vision() > a.W() {
+		seg = append(seg, right)
+	}
+	if el.Y() - el.Vision() < 0 {
+		seg = append(seg, top)
+	}
+	if el.Y() + el.Vision() > a.H() {
+		seg = append(seg, down)
+	}
+	return
 }
 
 func bypass(el animal.Animal, direction crd.Crd, poisons []alive.Alive) crd.Crd {
