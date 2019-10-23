@@ -63,6 +63,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 }
 
 func poison() bool {
+	//return false
 	return math2.Random(0, 10) == 9
 }
 
@@ -168,15 +169,6 @@ func (r *rmList) add(index int, fr *frame.Frame) {
 		fr:    fr,
 	})
 }
-
-//func (r *rmList) check(index int) bool {
-//	for _, v := range r.list {
-//		if v.index == index {
-//			return true
-//		}
-//	}
-//	return false
-//}
 
 func (r rmList) Len() int           { return len(r.list) }
 func (r rmList) Less(i, j int) bool { return r.list[i].index > r.list[j].index }
