@@ -1,6 +1,7 @@
 package canvas
 
 import (
+	math2 "agar-life/math"
 	"agar-life/object"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
@@ -47,13 +48,12 @@ func (j *JS) NewCanvas() Base {
 	canvas.Set("width", j.wh.w)
 	j.body.Call("appendChild", canvas)
 	ctx := canvas.Call("getContext", "2d")
-	//img := j.doc.Call("getElementById", "thorn")
 	img := j.window.Call("eval", "new Image()")
 	img.Set("src", "/img/thorn.png")
 	wait := make(chan struct{})
 	addImg := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		println("imag loaded")
-		wait <-struct{}{}
+		wait <- struct{}{}
 		return nil
 	})
 	img.Call("addEventListener", "load", addImg)
@@ -73,6 +73,7 @@ func (b *Base) Save() {
 func (b *Base) Restore() {
 	b.ctx.Call("restore")
 }
+
 //js.Global().Set("add", js.NewCallback(add))
 func (b *Base) Draw(obj1 object.Object) {
 	if obj1.Hidden() {
@@ -118,27 +119,100 @@ type Animal struct {
 	Base
 }
 
+//func (a *Animal) Draw(obj1 object.Object) {
+//	if obj1.Hidden() {
+//		return
+//	}
+//	obj := obj1.(animal.Animal)
+//	a.Base.Draw(obj)
+//	a.ctx.Call("beginPath")
+//	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
+//	a.ctx.Set("strokeStyle", "#335dbb")
+//	a.ctx.Call("stroke")
+//	a.ctx.Set("setLineDash", "[5, 5]")
+//	a.ctx.Call("closePath")
+//
+//	a.ctx.Call("beginPath")
+//	a.ctx.Call("moveTo", obj.X(), obj.Y())
+//	a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
+//	a.ctx.Call("stroke")
+//
+//	a.ctx.Set("fillStyle", "#000")
+//	a.ctx.Set("font", "bold 12px Arial")
+//	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.Size(), obj.Y())
+//}
+
 func (a *Animal) Draw(obj1 object.Object) {
-	if obj1.Hidden() {
-		return
-	}
 	obj := obj1.(animal.Animal)
-	a.Base.Draw(obj)
 	a.ctx.Call("beginPath")
-	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
-	a.ctx.Set("strokeStyle", "#335dbb")
+	a.ctx.Call("arc", obj.X(), obj.Y(), 2, 0, math.Pi*2, false)
 	a.ctx.Call("stroke")
-	a.ctx.Set("setLineDash", "[5, 5]")
-	a.ctx.Call("closePath")
+	count := int((obj.Vision() * math.Pi * 2) / obj.Size())
+	addAngel := 2.0 * math.Pi / float64(count)
+	addAngelV := 2.0 * math.Pi / float64(count) * 2
+	angel := math.Pi
+	angelV := math.Pi + addAngelV
+	sift := 4.0
+	//for {
+	for i := 0; i < count; i++ {
+		//a.Refresh()
+		a.ctx.Set("strokeStyle", getRandomColor())
+		xs1 := obj.X() + obj.Size()*math.Cos(angel)
+		ys1 := obj.Y() + obj.Size()*math.Sin(angel)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xs1, ys1, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
 
-	a.ctx.Call("beginPath")
-	a.ctx.Call("moveTo", obj.X(), obj.Y())
-	a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
-	a.ctx.Call("stroke")
+		angel += math.Pi
+		xs2 := obj.X() + obj.Size()*math.Cos(angel)
+		ys2 := obj.Y() + obj.Size()*math.Sin(angel)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xs2, ys2, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
+		angel -= math.Pi
 
-	a.ctx.Set("fillStyle", "#000")
-	a.ctx.Set("font", "bold 12px Arial")
-	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.Size(), obj.Y())
+		angelV = angel + addAngel*sift + math.Pi/25
+		xf1 := obj.X() + obj.Vision()*math.Cos(angelV)
+		yf1 := obj.Y() + obj.Vision()*math.Sin(angelV)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xf1, yf1, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
+		angelV += addAngelV
+		xf2 := obj.X() + obj.Vision()*math.Cos(angelV)
+		yf2 := obj.Y() + obj.Vision()*math.Sin(angelV)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xf2, yf2, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
+
+		a.ctx.Call("beginPath")
+		a.ctx.Call("moveTo", xs1, ys1)
+		a.ctx.Call("lineTo", xf1, yf1)
+		a.ctx.Call("stroke")
+
+		a.ctx.Call("beginPath")
+		a.ctx.Call("moveTo", xs2, ys2)
+		a.ctx.Call("lineTo", xf2, yf2)
+		a.ctx.Call("stroke")
+
+		angelV -=addAngel
+		xd := obj.X() + obj.Vision()*math.Cos(angelV)
+		yd := obj.Y() + obj.Vision()*math.Sin(angelV)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("moveTo", obj.X(), obj.Y())
+		a.ctx.Call("lineTo", xd, yd)
+		a.ctx.Call("stroke")
+		break
+		angel += addAngel
+	}
+	//}
+
+}
+
+func getRandomColor() string {
+	r := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
+	g := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
+	b := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
+	return "#" + r + g + b
 }
 
 func (a *Animal) Refresh() {

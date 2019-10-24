@@ -299,7 +299,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(41), gnt.Crd(gnt.FixCrd(x, y)))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(60), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 		world.animal.Set(0, el)
 	}
@@ -309,7 +309,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
-	crAnimal(0, 200, 200)
+	crAnimal(0, 150, 200)
 	crPlant(0, 30, 50)
 	//crPlant(1, 70, 50)
 	return world
