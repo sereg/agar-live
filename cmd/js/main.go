@@ -17,7 +17,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	//space := world.NewWorld(400, 2, jsCon.GetW(), jsCon.GetH())
+	//space := world.NewWorld(2000, 2, jsCon.GetW(), jsCon.GetH())
 	space := world.NewWorldTest(1, 1, jsCon.GetW(), jsCon.GetH())
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}

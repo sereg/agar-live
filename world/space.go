@@ -309,7 +309,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
-	crAnimal(0, 150, 200)
+	crAnimal(0, 450, 400)
 	crPlant(0, 30, 50)
 	//crPlant(1, 70, 50)
 	return world

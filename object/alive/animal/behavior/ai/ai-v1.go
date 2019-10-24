@@ -39,7 +39,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 	return &aiV1{
 		Simple: behavior.NewSimple(w, h),
 	}
-}
+}//zf4HAco6Mc7sUqQCD8S4PDmFENJ
 
 func tD(speed, distance float64, cycle uint64) uint64 {
 	return uint64(distance/speed*1.1) + cycle

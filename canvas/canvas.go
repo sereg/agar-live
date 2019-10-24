@@ -2,10 +2,13 @@ package canvas
 
 import (
 	math2 "agar-life/math"
+	"agar-life/math/crd"
+	"agar-life/math/vector"
 	"agar-life/object"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/world/const"
+	"fmt"
 	"math"
 	"strconv"
 	"syscall/js"
@@ -153,46 +156,47 @@ func (a *Animal) Draw(obj1 object.Object) {
 	angel := math.Pi
 	angelV := math.Pi + addAngelV
 	sift := 4.0
-	//for {
-	for i := 0; i < count; i++ {
+	fmt.Println(count)
+	expectedDir := -1.0
+	for i := 0.0; i < 5; i++ {
 		//a.Refresh()
 		a.ctx.Set("strokeStyle", getRandomColor())
-		xs1 := obj.X() + obj.Size()*math.Cos(angel)
-		ys1 := obj.Y() + obj.Size()*math.Sin(angel)
-		a.ctx.Call("beginPath")
-		a.ctx.Call("arc", xs1, ys1, 2, 0, math.Pi*2, false)
-		a.ctx.Call("stroke")
+		//xs1 := obj.X() + obj.Size()*math.Cos(angel)
+		//ys1 := obj.Y() + obj.Size()*math.Sin(angel)
+		//a.ctx.Call("beginPath")
+		//a.ctx.Call("arc", xs1, ys1, 2, 0, math.Pi*2, false)
+		//a.ctx.Call("stroke")
 
-		angel += math.Pi
-		xs2 := obj.X() + obj.Size()*math.Cos(angel)
-		ys2 := obj.Y() + obj.Size()*math.Sin(angel)
-		a.ctx.Call("beginPath")
-		a.ctx.Call("arc", xs2, ys2, 2, 0, math.Pi*2, false)
-		a.ctx.Call("stroke")
-		angel -= math.Pi
+		//angel += math.Pi
+		//xs2 := obj.X() + obj.Size()*math.Cos(angel)
+		//ys2 := obj.Y() + obj.Size()*math.Sin(angel)
+		//a.ctx.Call("beginPath")
+		//a.ctx.Call("arc", xs2, ys2, 2, 0, math.Pi*2, false)
+		//a.ctx.Call("stroke")
+		//angel -= math.Pi
 
 		angelV = angel + addAngel*sift + math.Pi/25
-		xf1 := obj.X() + obj.Vision()*math.Cos(angelV)
-		yf1 := obj.Y() + obj.Vision()*math.Sin(angelV)
-		a.ctx.Call("beginPath")
-		a.ctx.Call("arc", xf1, yf1, 2, 0, math.Pi*2, false)
-		a.ctx.Call("stroke")
+		//xf1 := obj.X() + obj.Vision()*math.Cos(angelV)
+		//yf1 := obj.Y() + obj.Vision()*math.Sin(angelV)
+		//a.ctx.Call("beginPath")
+		//a.ctx.Call("arc", xf1, yf1, 2, 0, math.Pi*2, false)
+		//a.ctx.Call("stroke")
 		angelV += addAngelV
-		xf2 := obj.X() + obj.Vision()*math.Cos(angelV)
-		yf2 := obj.Y() + obj.Vision()*math.Sin(angelV)
-		a.ctx.Call("beginPath")
-		a.ctx.Call("arc", xf2, yf2, 2, 0, math.Pi*2, false)
-		a.ctx.Call("stroke")
-
-		a.ctx.Call("beginPath")
-		a.ctx.Call("moveTo", xs1, ys1)
-		a.ctx.Call("lineTo", xf1, yf1)
-		a.ctx.Call("stroke")
-
-		a.ctx.Call("beginPath")
-		a.ctx.Call("moveTo", xs2, ys2)
-		a.ctx.Call("lineTo", xf2, yf2)
-		a.ctx.Call("stroke")
+		//xf2 := obj.X() + obj.Vision()*math.Cos(angelV)
+		//yf2 := obj.Y() + obj.Vision()*math.Sin(angelV)
+		//a.ctx.Call("beginPath")
+		//a.ctx.Call("arc", xf2, yf2, 2, 0, math.Pi*2, false)
+		//a.ctx.Call("stroke")
+		//
+		//a.ctx.Call("beginPath")
+		//a.ctx.Call("moveTo", xs1, ys1)
+		//a.ctx.Call("lineTo", xf1, yf1)
+		//a.ctx.Call("stroke")
+		//
+		//a.ctx.Call("beginPath")
+		//a.ctx.Call("moveTo", xs2, ys2)
+		//a.ctx.Call("lineTo", xf2, yf2)
+		//a.ctx.Call("stroke")
 
 		angelV -=addAngel
 		xd := obj.X() + obj.Vision()*math.Cos(angelV)
@@ -201,17 +205,30 @@ func (a *Animal) Draw(obj1 object.Object) {
 		a.ctx.Call("moveTo", obj.X(), obj.Y())
 		a.ctx.Call("lineTo", xd, yd)
 		a.ctx.Call("stroke")
-		break
+		if expectedDir == -1 {
+			vec := vector.GetVectorByPoint(crd.NewCrd(obj.X(), obj.Y()), crd.NewCrd(xd, yd))
+			expectedDir = vec.GetAngle()
+			fmt.Println(expectedDir)
+		} else {
+			a.ctx.Set("strokeStyle", "#000")
+			vec := vector.GetVectorByPoint(crd.NewCrd(obj.X(), obj.Y()), crd.NewCrd(obj.X()+obj.Vision(), obj.Y()))
+			vec.SetAngle(expectedDir-addAngel*i)
+			c := vec.GetPointFromVector(crd.NewCrd(obj.X(), obj.Y()))
+			a.ctx.Call("beginPath")
+			a.ctx.Call("moveTo", obj.X(), obj.Y())
+			a.ctx.Call("lineTo", c.X(), c.Y())
+			a.ctx.Call("stroke")
+		}
+		//break
 		angel += addAngel
 	}
-	//}
 
 }
 
 func getRandomColor() string {
-	r := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
-	g := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
-	b := strconv.FormatInt(int64(math2.Random(50, 250)), 16)
+	r := strconv.FormatInt(int64(math2.Random(80, 255)), 16)
+	g := strconv.FormatInt(int64(math2.Random(20, 180)), 16)
+	b := strconv.FormatInt(int64(math2.Random(30, 180)), 16)
 	return "#" + r + g + b
 }
 
