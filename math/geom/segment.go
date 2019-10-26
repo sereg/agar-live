@@ -20,3 +20,11 @@ func (s Segment) Intersection(s1 Segment) bool {
 	v4 := (ax2-ax1)*(by2-ay1) - (ay2-ay1)*(bx2-ax1)
 	return (v1*v2 < 0) && (v3*v4 < 0)
 }
+
+func (s Segment) Start() crd.Crd {
+	return s.a
+}
+
+func (s Segment) Finish() crd.Crd {
+	return s.b
+}

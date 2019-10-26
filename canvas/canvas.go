@@ -3,6 +3,7 @@ package canvas
 import (
 	math2 "agar-life/math"
 	"agar-life/math/crd"
+	"agar-life/math/geom"
 	"agar-life/math/vector"
 	"agar-life/object"
 	"agar-life/object/alive"
@@ -122,100 +123,112 @@ type Animal struct {
 	Base
 }
 
-//func (a *Animal) Draw(obj1 object.Object) {
-//	if obj1.Hidden() {
-//		return
-//	}
-//	obj := obj1.(animal.Animal)
-//	a.Base.Draw(obj)
-//	a.ctx.Call("beginPath")
-//	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
-//	a.ctx.Set("strokeStyle", "#335dbb")
-//	a.ctx.Call("stroke")
-//	a.ctx.Set("setLineDash", "[5, 5]")
-//	a.ctx.Call("closePath")
-//
-//	a.ctx.Call("beginPath")
-//	a.ctx.Call("moveTo", obj.X(), obj.Y())
-//	a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
-//	a.ctx.Call("stroke")
-//
-//	a.ctx.Set("fillStyle", "#000")
-//	a.ctx.Set("font", "bold 12px Arial")
-//	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.Size(), obj.Y())
-//}
+func (a *Animal) Draw1(obj1 object.Object) {
+	if obj1.Hidden() {
+		return
+	}
+	obj := obj1.(animal.Animal)
+	a.Base.Draw(obj)
+	a.ctx.Call("beginPath")
+	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
+	a.ctx.Set("strokeStyle", "#335dbb")
+	a.ctx.Call("stroke")
+	a.ctx.Set("setLineDash", "[5, 5]")
+	a.ctx.Call("closePath")
+
+	a.ctx.Call("beginPath")
+	a.ctx.Call("moveTo", obj.X(), obj.Y())
+	a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
+	a.ctx.Call("stroke")
+
+	a.ctx.Set("fillStyle", "#000")
+	a.ctx.Set("font", "bold 12px Arial")
+	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.Size(), obj.Y())
+}
 
 func (a *Animal) Draw(obj1 object.Object) {
-	obj := obj1.(animal.Animal)
+	el := obj1.(animal.Animal)
 	a.ctx.Call("beginPath")
-	a.ctx.Call("arc", obj.X(), obj.Y(), 2, 0, math.Pi*2, false)
+	a.ctx.Call("arc", el.X(), el.Y(), 2, 0, math.Pi*2, false)
 	a.ctx.Call("stroke")
-	count := int((obj.Vision() * math.Pi * 2) / obj.Size())
+	count := int((el.Vision() * math.Pi * 2) / el.Size())
+	for count % 4 != 0 {
+		count++
+	}
 	addAngel := 2.0 * math.Pi / float64(count)
 	addAngelV := 2.0 * math.Pi / float64(count) * 2
-	angel := math.Pi
-	angelV := math.Pi + addAngelV
-	sift := 4.0
-	fmt.Println(count)
+	angel := 0.0
+	//angel := math.Pi - addAngel
+	//angel := math.Pi / 2 - addAngel
+	//angel := math.Pi / 2 * -1 - addAngel
+	sift := float64(count / 4.0)
+	//diff := angel + addAngel*sift - addAngel
+
+	angelV := 0.0
+	fmt.Printf("size - %f, count - %f\r\n", el.Size(), float64(count))
 	expectedDir := -1.0
-	for i := 0.0; i < 5; i++ {
+
+	for i := 0.0; i < float64(count / 4); i++ {
 		//a.Refresh()
 		a.ctx.Set("strokeStyle", getRandomColor())
-		//xs1 := obj.X() + obj.Size()*math.Cos(angel)
-		//ys1 := obj.Y() + obj.Size()*math.Sin(angel)
-		//a.ctx.Call("beginPath")
-		//a.ctx.Call("arc", xs1, ys1, 2, 0, math.Pi*2, false)
-		//a.ctx.Call("stroke")
+		xs1 := el.X() + el.Size()*math.Cos(angel)
+		ys1 := el.Y() + el.Size()*math.Sin(angel)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xs1, ys1, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
 
-		//angel += math.Pi
-		//xs2 := obj.X() + obj.Size()*math.Cos(angel)
-		//ys2 := obj.Y() + obj.Size()*math.Sin(angel)
-		//a.ctx.Call("beginPath")
-		//a.ctx.Call("arc", xs2, ys2, 2, 0, math.Pi*2, false)
-		//a.ctx.Call("stroke")
-		//angel -= math.Pi
+		angel += math.Pi
+		xs2 := el.X() + el.Size()*math.Cos(angel)
+		ys2 := el.Y() + el.Size()*math.Sin(angel)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xs2, ys2, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
+		angel -= math.Pi
 
-		angelV = angel + addAngel*sift + math.Pi/25
-		//xf1 := obj.X() + obj.Vision()*math.Cos(angelV)
-		//yf1 := obj.Y() + obj.Vision()*math.Sin(angelV)
-		//a.ctx.Call("beginPath")
-		//a.ctx.Call("arc", xf1, yf1, 2, 0, math.Pi*2, false)
-		//a.ctx.Call("stroke")
+		angelV = angel + addAngel*sift
+		xf1 := el.X() + el.Vision()*math.Cos(angelV)
+		yf1 := el.Y() + el.Vision()*math.Sin(angelV)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xf1, yf1, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
 		angelV += addAngelV
-		//xf2 := obj.X() + obj.Vision()*math.Cos(angelV)
-		//yf2 := obj.Y() + obj.Vision()*math.Sin(angelV)
-		//a.ctx.Call("beginPath")
-		//a.ctx.Call("arc", xf2, yf2, 2, 0, math.Pi*2, false)
-		//a.ctx.Call("stroke")
-		//
-		//a.ctx.Call("beginPath")
-		//a.ctx.Call("moveTo", xs1, ys1)
-		//a.ctx.Call("lineTo", xf1, yf1)
-		//a.ctx.Call("stroke")
-		//
-		//a.ctx.Call("beginPath")
-		//a.ctx.Call("moveTo", xs2, ys2)
-		//a.ctx.Call("lineTo", xf2, yf2)
-		//a.ctx.Call("stroke")
+		xf2 := el.X() + el.Vision()*math.Cos(angelV)
+		yf2 := el.Y() + el.Vision()*math.Sin(angelV)
+		a.ctx.Call("beginPath")
+		a.ctx.Call("arc", xf2, yf2, 2, 0, math.Pi*2, false)
+		a.ctx.Call("stroke")
+
+		a.ctx.Call("beginPath")
+		a.ctx.Call("moveTo", xs1, ys1)
+		a.ctx.Call("lineTo", xf1, yf1)
+		a.ctx.Call("stroke")
+
+		a.ctx.Call("beginPath")
+		a.ctx.Call("moveTo", xs2, ys2)
+		a.ctx.Call("lineTo", xf2, yf2)
+		a.ctx.Call("stroke")
 
 		angelV -=addAngel
-		xd := obj.X() + obj.Vision()*math.Cos(angelV)
-		yd := obj.Y() + obj.Vision()*math.Sin(angelV)
+		xd := el.X() + el.Vision()*math.Cos(angelV)
+		yd := el.Y() + el.Vision()*math.Sin(angelV)
 		a.ctx.Call("beginPath")
-		a.ctx.Call("moveTo", obj.X(), obj.Y())
+		a.ctx.Call("moveTo", el.X(), el.Y())
 		a.ctx.Call("lineTo", xd, yd)
 		a.ctx.Call("stroke")
+		vec := vector.GetVectorByPoint(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(xd, yd))
+		fmt.Println(geom.ModuleDegree(vec.GetAngle()))
 		if expectedDir == -1 {
-			vec := vector.GetVectorByPoint(crd.NewCrd(obj.X(), obj.Y()), crd.NewCrd(xd, yd))
-			expectedDir = vec.GetAngle()
+			expectedDir = geom.ModuleDegree(vec.GetAngle())
 			fmt.Println(expectedDir)
+			fmt.Println(angel)
 		} else {
 			a.ctx.Set("strokeStyle", "#000")
-			vec := vector.GetVectorByPoint(crd.NewCrd(obj.X(), obj.Y()), crd.NewCrd(obj.X()+obj.Vision(), obj.Y()))
+			vec := vector.GetVectorByPoint(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X()+el.Vision(), el.Y()))
+			fmt.Println(expectedDir-addAngel*i)
 			vec.SetAngle(expectedDir-addAngel*i)
-			c := vec.GetPointFromVector(crd.NewCrd(obj.X(), obj.Y()))
+			c := vec.GetPointFromVector(crd.NewCrd(el.X(), el.Y()))
 			a.ctx.Call("beginPath")
-			a.ctx.Call("moveTo", obj.X(), obj.Y())
+			a.ctx.Call("moveTo", el.X(), el.Y())
 			a.ctx.Call("lineTo", c.X(), c.Y())
 			a.ctx.Call("stroke")
 		}

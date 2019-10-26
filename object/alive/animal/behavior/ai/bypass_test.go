@@ -6,7 +6,7 @@ import (
 	"agar-life/object/alive/animal/behavior"
 	"agar-life/object/alive/animal/species"
 	sp "agar-life/object/alive/plant/species"
-	gnt "agar-life/object/generate"
+	gnt "agar-life/world/generate"
 	"strconv"
 	"testing"
 )

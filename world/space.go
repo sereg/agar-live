@@ -12,10 +12,11 @@ import (
 	"agar-life/object/alive/animal/species"
 	"agar-life/object/alive/plant"
 	sp "agar-life/object/alive/plant/species"
-	gnt "agar-life/object/generate"
 	"agar-life/world/const"
 	"agar-life/world/frame"
-	"agar-life/world/grid"
+	"agar-life/world/frame/grid"
+	gnt "agar-life/world/generate"
+	"fmt"
 	"math"
 	"sort"
 	"strconv"
@@ -237,8 +238,11 @@ func (w *World) forIntersect(
 				j--
 			}
 		}
-		if !died && dist() > el.Size() + _const.GridSize {
-			break
+		if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() &&  dist() > el.Size() + el1.Size() + _const.GridSize {
+		//if !died && dist() > el.Size() + el1.Size() + _const.GridSize  {
+		//	if _, ok := el1.(animal.Animal); !ok {
+				break
+			//}
 		}
 		//if !died && el.Group() == el1.Group() {
 		//	closest = alive.Remove(closest, j)
@@ -294,14 +298,14 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		animal:     frame.NewFrame(countAnimal, w, h),
 		plant:      frame.NewFrame(countPlant, w, h),
 	}
-	crAnimal := func(i int, x, y float64) {
+	crAnimal := func(i int, x, y, size float64) {
 		//el := species.NewBeast(behavior.NewAiv1(w, h))
 		el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(60), gnt.Crd(gnt.FixCrd(x, y)))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(size), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
-		world.animal.Set(0, el)
+		world.animal.Set(i, el)
 	}
 	crPlant := func(i int, x, y float64) {
 		el := sp.NewPlant()
@@ -309,7 +313,13 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
-	crAnimal(0, 450, 400)
+	ratio := 6.0
+	size := 6.0
+	for i :=0; i < countAnimal; i++ {
+		fmt.Println(size)
+		size += ratio * float64(i)
+		crAnimal(i, 50 + float64(i) * float64(i) * 30 + size, 400, size)
+	}
 	crPlant(0, 30, 50)
 	//crPlant(1, 70, 50)
 	return world

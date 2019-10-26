@@ -25,9 +25,9 @@ const (
 )
 
 var (
-	top = geom.Segment{}
-	down = geom.Segment{}
-	left = geom.Segment{}
+	top   = geom.Segment{}
+	down  = geom.Segment{}
+	left  = geom.Segment{}
 	right = geom.Segment{}
 )
 
@@ -39,7 +39,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 	return &aiV1{
 		Simple: behavior.NewSimple(w, h),
 	}
-}//zf4HAco6Mc7sUqQCD8S4PDmFENJ
+}
 
 func tD(speed, distance float64, cycle uint64) uint64 {
 	return uint64(distance/speed*1.1) + cycle
@@ -56,6 +56,7 @@ type strategy struct {
 func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
 	dangerous := dangerous(self, animals)
 	poisons := poisons(self, plants)
+	poisonCount := len(poisons)
 	var closest alive.Alive
 	split := false
 	closestFn := func() alive.Alive {
@@ -73,7 +74,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return len(dangerous.obj) > 0
 			},
 			reason: func() string {
-				return strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(len(poisons))
+				return strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(poisonCount)
 			},
 			action: func() crd.Crd {
 				sum := vector.GetVectorByPoint(self.GetCrd(), self.GetCrd())
@@ -104,7 +105,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return closestFn() != nil
 			},
 			reason: func() string {
-				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(len(poisons))
+				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(poisonCount)
 			},
 			action: func() crd.Crd {
 				//TODO dont send objects in poisonous plants
@@ -142,28 +143,141 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 			break
 		}
 	}
+	//if self.Size() < 80 {
+	//	self.SetSize(80)
+	//}
 	return a.Dir(), split
 }
 
-func (a *aiV1) checkAngels(el animal.Animal, poisons []alive.Alive) {
-
+type rangeAngels struct{
+	dangerous bool
+	start, finish float64
+	dist float64
 }
 
-func (a *aiV1) segmentEdge(el animal.Animal) (seg []geom.Segment) {
-	if el.X() - el.Vision() < 0 {
-		seg = append(seg, left)
+func (a *aiV1) checkAngels(el animal.Animal, poisons []alive.Alive) []rangeAngels {
+	if len(poisons) == 0 {
+		return nil
 	}
-	if el.X() + el.Vision() > a.W() {
-		seg = append(seg, right)
+	locPoisons := make([]intersect, len(poisons))
+	for k, v := range poisons {
+		locPoisons[k] = newPoint(v)
 	}
-	if el.Y() - el.Vision() < 0 {
-		seg = append(seg, top)
+	count := int((el.Vision() * math.Pi * 2) / el.Size())
+	for count % 4 != 0 {
+		count++
 	}
-	if el.Y() + el.Vision() > a.H() {
-		seg = append(seg, down)
+	addAngel := 2.0 * math.Pi / float64(count)
+	angel := 0.0
+	sift := float64(count / 4.0)
+	angelV := angel + addAngel*sift - addAngel
+	angelD := angelV * 2
+	xd := el.X() + el.Vision()*math.Cos(angelV)
+	yd := el.Y() + el.Vision()*math.Sin(angelV)
+	vec := vector.GetVectorByPoint(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(xd, yd))
+	dirAngel := geom.ModuleDegree(vec.GetAngle())
+	rangAng := make([]rangeAngels, 0, len(poisons))
+	for i := 0.0; i < float64(count); i++ {
+		xs1 := el.X() + el.Size()*math.Cos(angel)
+		ys1 := el.Y() + el.Size()*math.Sin(angel)
+		xs2 := el.X() + el.Size()*math.Cos(angel)
+		ys2 := el.Y() + el.Size()*math.Sin(angel)
+		angelV = angel + addAngel*sift
+		xf1 := el.X() + el.Vision()*math.Cos(angelV)
+		yf1 := el.Y() + el.Vision()*math.Sin(angelV)
+		angelV += angelD
+		xf2 := el.X() + el.Vision()*math.Cos(angelV)
+		yf2 := el.Y() + el.Vision()*math.Sin(angelV)
+		line1 := geom.NewSegment(crd.NewCrd(xs1, ys1), crd.NewCrd(xf1, yf1))
+		line2 := geom.NewSegment(crd.NewCrd(xf1, yf1), crd.NewCrd(xf2, yf2))
+		line3 := geom.NewSegment(crd.NewCrd(xs2, ys2), crd.NewCrd(xf2, yf2))
+		for _, v := range locPoisons {
+			if intersect, dist := v.check(el.GetCrd(), line1, line2, line3); intersect {
+				rangAng = append(rangAng, rangeAngels{
+					dangerous: v.dangerous(),
+					start:     dirAngel + addAngel,
+					finish:    dirAngel - addAngel,
+					dist:      dist,
+				})
+				break
+			}
+		}
+		dirAngel -=addAngel
+		angel += addAngel
 	}
-	return
+	return rangAng
 }
+
+type intersect interface{
+	check(center crd.Crd, lines ...geom.Segment) (bool, float64)
+	dangerous() bool
+}
+
+type point struct {
+	outer []geom.Segment
+	inner []geom.Segment
+}
+
+func newPoint(el alive.Alive) intersect {
+	p := point{
+		outer: []geom.Segment{
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X()-el.Size(), el.Y())),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), el.Y()-el.Size())),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X()+el.Size(), el.Y())),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), el.Y()+el.Size())),
+		},
+		inner: []geom.Segment{
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(0, el.Y())),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), 0)),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(9e+2, el.Y())),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), 9e+2)),
+		},
+	}
+	return &p
+}
+
+func (p *point) dangerous() bool {
+	return true
+}
+
+func (p *point) check(center crd.Crd, lines ...geom.Segment) (bool, float64){
+	for _, v := range p.outer {
+		for _, line := range lines {
+			if v.Intersection(line) {
+				return true, geom.GetDistanceByCrd(center, v.Start())
+			}
+		}
+	}
+	countIntersect := 0
+	for _, v := range p.outer {
+		for _, line := range lines {
+			if v.Intersection(line) {
+				countIntersect++
+				break
+			}
+		}
+	}
+	if countIntersect >= 3 {
+		return true, geom.GetDistanceByCrd(center, p.outer[0].Start())
+	}
+	return false, 0
+}
+
+//func (a *aiV1) segmentEdge(el animal.Animal) (seg []geom.Segment) {
+//	if el.X() - el.Vision() < 0 {
+//		seg = append(seg, left)
+//	}
+//	if el.X() + el.Vision() > a.W() {
+//		seg = append(seg, right)
+//	}
+//	if el.Y() - el.Vision() < 0 {
+//		seg = append(seg, top)
+//	}
+//	if el.Y() + el.Vision() > a.H() {
+//		seg = append(seg, down)
+//	}
+//	return
+//}
 
 func bypass(el animal.Animal, direction crd.Crd, poisons []alive.Alive) crd.Crd {
 	if len(poisons) == 0 {
@@ -291,7 +405,7 @@ func poisons(el animal.Animal, plants []alive.Alive) (poisons []alive.Alive) {
 	if el.Size()-_const.MinSizeAlive < _const.MinSizeAlive || el.Count() >= _const.SplitMaxCount {
 		return poisons
 	}
-	poisons = make([]alive.Alive, 0, len(plants) / 10)
+	poisons = make([]alive.Alive, 0, len(plants)/10)
 	for i := 0; i < len(plants); i++ {
 		el1 := plants[i]
 		if el == nil || el1 == nil || el1.GetDead() {
@@ -319,7 +433,7 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool) (closest alive
 		if el != nil && el1 != nil && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
 			(mass <= el1.Size() || mass > _const.FoodSize) && //TODO add equation choice distance or size
-			distFn() < dist && distRes < el.Vision()  && el1.Group() != el.Group() && !el1.GetDead()  {
+			distFn() < dist && distRes < el.Vision() && el1.Group() != el.Group() && !el1.GetDead() {
 			closest = el1
 			dist = distRes
 			if dist < _const.SplitDist && el.Size() > el1.Size()*2.5 {

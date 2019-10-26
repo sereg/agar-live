@@ -11,7 +11,7 @@ import (
 	"math"
 
 	"agar-life/object/alive/animal"
-	gnt "agar-life/object/generate"
+	gnt "agar-life/world/generate"
 )
 
 func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
