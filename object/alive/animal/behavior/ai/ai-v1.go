@@ -1,6 +1,7 @@
 package ai
 
 import (
+	m2 "agar-life/math"
 	"agar-life/math/crd"
 	"agar-life/math/geom"
 	"agar-life/math/vector"
@@ -42,7 +43,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 }
 
 func tD(speed, distance float64, cycle uint64) uint64 {
-	return uint64(distance/speed*1.1) + cycle
+	return uint64(distance/speed*0.3) + cycle
 }
 
 type strategy struct {
@@ -57,13 +58,14 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 	dangerous := dangerous(self, animals)
 	poisons := poisons(self, plants)
 	poisonCount := len(poisons)
-	var closest alive.Alive
+	dAngeles := a.checkAngels(self, poisons)
+	var closest *crd.Crd
 	split := false
-	closestFn := func() alive.Alive {
+	closestFn := func() *crd.Crd {
 		if len(animals) == 0 && len(plants) == 0 {
 			return nil
 		}
-		closest, split = closestFn(self, animals, plants)
+		closest, split = closestFn(self, animals, plants, dAngeles)
 		return closest
 	}
 	strategies := []strategy{
@@ -105,7 +107,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return closestFn() != nil
 			},
 			reason: func() string {
-				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(dangerous.obj)) + "-" + strconv.Itoa(poisonCount)
+				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(plants)) + "-" + strconv.Itoa(poisonCount)
 			},
 			action: func() crd.Crd {
 				//TODO dont send objects in poisonous plants
@@ -135,9 +137,12 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				}
 			}
 			cr := strategy.action()
-			cr = bypass(self, cr, poisons)
+			//if cr == crd.NewCrd(240, 420) {
+			//	fmt.Println(self.GetCrd())
+			//}
+			//cr = bypass(self, cr, poisons)
 			if strategy.mem {
-				a.mem.set(running, tD(self.Speed(), self.Vision(), cycle), reason, cr)
+				a.mem.set(strategy.priority, tD(self.Speed(), self.Vision(), cycle), reason, cr)
 			}
 			a.SetDir(cr)
 			break
@@ -149,67 +154,144 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 	return a.Dir(), split
 }
 
-type rangeAngels struct{
+type rangeAngels struct {
 	dangerous bool
-	start, finish float64
-	dist float64
+	dist      float64
 }
 
-func (a *aiV1) checkAngels(el animal.Animal, poisons []alive.Alive) []rangeAngels {
+type keyRange struct {
+	start, finish int
+}
+
+type mapRange map[keyRange]rangeAngels
+
+type angels struct {
+	rangeAngels mapRange
+	angel       int
+	first       int
+}
+
+func (a *angels) check(angel, dist float64) (reachable, dangerous bool) {
+	if len(a.rangeAngels) == 0 {
+		return true, false
+	}
+	number := int(angel*100) / a.angel
+	if number == 0 {
+		number = a.first / a.angel
+	}
+	key := keyRange{number * a.angel, number*a.angel - a.angel}
+	if v, ok := a.rangeAngels[key]; ok {
+		return dist < v.dist, v.dangerous
+	}
+	return true, false
+}
+
+func (a *angels) closestAvailable(angel float64) (newAngel float64) {
+	if len(a.rangeAngels) == 0 {
+		return angel
+	}
+	number := int(angel*100) / a.angel
+	if number == 0 {
+		number = a.first / a.angel
+	}
+	angelL := number*a.angel - a.angel
+	angelR := number*a.angel + a.angel
+	correct := func() {
+		if angelR > 628 {
+			angelR = 0
+		}
+		if angelL <= 0 {
+			angelL = a.first
+		}
+	}
+	correct()
+	for angelR != a.angel*number {
+		key := keyRange{angelR + a.angel, angelR}
+		if _, ok := a.rangeAngels[key]; !ok {
+			return float64(angelR) / 100
+		}
+		key = keyRange{angelL, angelL - a.angel}
+		if _, ok := a.rangeAngels[key]; !ok {
+			return float64(angelL) / 100
+		}
+		angelL -= a.angel
+		angelR += a.angel
+		correct()
+	}
+	return angel
+}
+
+func (a *aiV1) checkAngels(el animal.Animal, poisons []alive.Alive) (ang angels) {
 	if len(poisons) == 0 {
-		return nil
+		return ang
 	}
 	locPoisons := make([]intersect, len(poisons))
 	for k, v := range poisons {
 		locPoisons[k] = newPoint(v)
 	}
 	count := int((el.Vision() * math.Pi * 2) / el.Size())
-	for count % 4 != 0 {
+	for count%4 != 0 {
 		count++
 	}
-	addAngel := 2.0 * math.Pi / float64(count)
+	addAngel := m2.Round(2.0 * math.Pi / float64(count))
+	addInrAngel := int(2.0 * math.Pi / float64(count) * 100)
+	addAngelD := addAngel * 2
 	angel := 0.0
-	sift := float64(count / 4.0)
-	angelV := angel + addAngel*sift - addAngel
-	angelD := angelV * 2
+	sift := float64(int(count / 4.0))
+	shiftCorrect := 0.0
+	angelV := angel + addAngel*sift - shiftCorrect + addAngel
 	xd := el.X() + el.Vision()*math.Cos(angelV)
 	yd := el.Y() + el.Vision()*math.Sin(angelV)
 	vec := vector.GetVectorByPoint(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(xd, yd))
-	dirAngel := geom.ModuleDegree(vec.GetAngle())
-	rangAng := make([]rangeAngels, 0, len(poisons))
-	for i := 0.0; i < float64(count); i++ {
+	dirAngel := int(geom.ModuleDegree(vec.GetAngle())*100) / addInrAngel
+	dirAngel = dirAngel * addInrAngel
+	rangAng := make(mapRange, len(poisons))
+	first := dirAngel + addInrAngel
+	for i := 0; i < (count); i++ {
 		xs1 := el.X() + el.Size()*math.Cos(angel)
 		ys1 := el.Y() + el.Size()*math.Sin(angel)
+		angel += math.Pi
 		xs2 := el.X() + el.Size()*math.Cos(angel)
 		ys2 := el.Y() + el.Size()*math.Sin(angel)
-		angelV = angel + addAngel*sift
+		angel -= math.Pi
+		angelV = angel + addAngel*sift - shiftCorrect
 		xf1 := el.X() + el.Vision()*math.Cos(angelV)
 		yf1 := el.Y() + el.Vision()*math.Sin(angelV)
-		angelV += angelD
+		angelV += addAngelD
 		xf2 := el.X() + el.Vision()*math.Cos(angelV)
 		yf2 := el.Y() + el.Vision()*math.Sin(angelV)
 		line1 := geom.NewSegment(crd.NewCrd(xs1, ys1), crd.NewCrd(xf1, yf1))
 		line2 := geom.NewSegment(crd.NewCrd(xf1, yf1), crd.NewCrd(xf2, yf2))
 		line3 := geom.NewSegment(crd.NewCrd(xs2, ys2), crd.NewCrd(xf2, yf2))
-		for _, v := range locPoisons {
-			if intersect, dist := v.check(el.GetCrd(), line1, line2, line3); intersect {
-				rangAng = append(rangAng, rangeAngels{
+		if dirAngel == 0 {
+			dirAngel = first
+		}
+		for k, v := range locPoisons {
+			if intersect, dist := v.check(el.GetCrd(), el.Size(), poisons[k].Size(), line1, line2, line3); intersect {
+				rangAng[keyRange{dirAngel, dirAngel - addInrAngel}] = rangeAngels{
 					dangerous: v.dangerous(),
-					start:     dirAngel + addAngel,
-					finish:    dirAngel - addAngel,
 					dist:      dist,
-				})
+				}
+				if dirAngel == first {
+					rangAng[keyRange{dirAngel + addInrAngel, dirAngel}] = rangeAngels{
+						dangerous: v.dangerous(),
+						dist:      dist,
+					}
+				}
 				break
 			}
 		}
-		dirAngel -=addAngel
+		dirAngel -= addInrAngel
 		angel += addAngel
 	}
-	return rangAng
+	ang.angel = addInrAngel
+	ang.rangeAngels = rangAng
+	ang.first = first
+	return ang
 }
 
-type intersect interface{
-	check(center crd.Crd, lines ...geom.Segment) (bool, float64)
+type intersect interface {
+	check(center crd.Crd, sizeEl, size float64, lines ...geom.Segment) (bool, float64)
 	dangerous() bool
 }
 
@@ -240,16 +322,25 @@ func (p *point) dangerous() bool {
 	return true
 }
 
-func (p *point) check(center crd.Crd, lines ...geom.Segment) (bool, float64){
+func (p *point) check(center crd.Crd, sizeEl, size float64, lines ...geom.Segment) (bool, float64) {
+	res := func() (bool, float64) {
+		dist := geom.GetDistanceByCrd(center, p.outer[0].Start())
+		if dist > sizeEl+size {
+			dist -= sizeEl + size
+		} else {
+			dist -= math.Max(sizeEl, size)
+		}
+		return true, dist
+	}
 	for _, v := range p.outer {
 		for _, line := range lines {
 			if v.Intersection(line) {
-				return true, geom.GetDistanceByCrd(center, v.Start())
+				return res()
 			}
 		}
 	}
 	countIntersect := 0
-	for _, v := range p.outer {
+	for _, v := range p.inner {
 		for _, line := range lines {
 			if v.Intersection(line) {
 				countIntersect++
@@ -258,7 +349,7 @@ func (p *point) check(center crd.Crd, lines ...geom.Segment) (bool, float64){
 		}
 	}
 	if countIntersect >= 3 {
-		return true, geom.GetDistanceByCrd(center, p.outer[0].Start())
+		return res()
 	}
 	return false, 0
 }
@@ -349,12 +440,12 @@ func bypass(el animal.Animal, direction crd.Crd, poisons []alive.Alive) crd.Crd 
 	return direction
 }
 
-func closestFn(self animal.Animal, animals []alive.Alive, plants []alive.Alive) (closest alive.Alive, split bool) {
-	closestFnAn := func() (closest alive.Alive, split bool) {
-		return getClosest(self, animals, true)
+func closestFn(self animal.Animal, animals, plants []alive.Alive, dAngeles angels) (closest *crd.Crd, split bool) {
+	closestFnAn := func() (closest *crd.Crd, split bool) {
+		return getClosest(self, animals, true, dAngeles)
 	}
-	closestFnPl := func() (closest alive.Alive, split bool) {
-		return getClosest(self, plants, false)
+	closestFnPl := func() (closest *crd.Crd, split bool) {
+		return getClosest(self, plants, false, dAngeles)
 	}
 	if closest, split := closestFnAn(); closest == nil {
 		return closestFnPl()
@@ -418,28 +509,43 @@ func poisons(el animal.Animal, plants []alive.Alive) (poisons []alive.Alive) {
 	return
 }
 
-func getClosest(el animal.Animal, els []alive.Alive, animal bool) (closest alive.Alive, split bool) {
+func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles angels) (closest *crd.Crd, split bool) {
 	dist := 9e+5
 	mass := 0.0
+	obstacle := true
 	for i := 0; i < len(els); i++ {
 		el1 := els[i]
 		distRes := -1.0
+		var vec vector.Vector
 		distFn := func() float64 {
 			if distRes == -1.0 {
-				distRes = geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd()) - el.Size()
+				vec = vector.GetVectorByPoint(el.GetCrd(), el1.GetCrd())
+				distRes = vec.Len() - el.Size()
 			}
 			return distRes
 		}
 		if el != nil && el1 != nil && !el1.Danger() &&
 			el.Size()/el1.Size() > _const.EatRatio &&
-			(mass <= el1.Size() || mass > _const.FoodSize) && //TODO add equation choice distance or size
-			distFn() < dist && distRes < el.Vision() && el1.Group() != el.Group() && !el1.GetDead() {
-			closest = el1
+			(mass < el1.Size() || obstacle) && //TODO add equation choice distance or size
+			el1.Group() != el.Group() && !el1.GetDead() && distFn() < dist &&
+			distFn() < el.Vision() {
+			vecAngel := geom.ModuleDegree(vec.GetAngle())
+			reachable, dangerous := dAngeles.check(vecAngel, distRes)
+			if !reachable && !obstacle {
+				continue
+			}
+			cr := el1.GetCrd()
+			if reachable {
+				obstacle = false
+			} else {
+				angel := dAngeles.closestAvailable(vecAngel)
+				vec.SetAngle(angel)
+				cr = vec.GetPointFromVector(el.GetCrd())
+			}
+			closest = &cr
 			dist = distRes
-			if dist < _const.SplitDist && el.Size() > el1.Size()*2.5 {
-				if animal { //TODO check object in dangerous angles
-					split = true
-				}
+			if dist < _const.SplitDist && (el.Size()*_const.SplitRatio)/el1.Size() > _const.EatRatio && !dangerous && animal {
+				split = true
 			}
 			mass = el1.Size()
 		} else {

@@ -22,7 +22,7 @@ func (m *memory) check(pr uint8, cycle uint64) (bool, crd.Crd) {
 	if m.valid && m.validTime < cycle && m.priority >= pr {
 		return true, m.crd
 	}
-	m.reset()
+	//m.reset()//TODO remove this line
 	return false, m.crd
 }
 

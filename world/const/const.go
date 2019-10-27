@@ -27,7 +27,7 @@ const (
 	SplitTime         = 60
 	SplitMaxCount     = 10
 
-	Half       = 0.5
+	SplitRatio = 0.5
 	BurstCount = 8
 
 	PoisonColor = "#8eb021"

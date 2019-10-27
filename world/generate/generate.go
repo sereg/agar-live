@@ -43,6 +43,7 @@ type Options struct {
 func DefaultOptions() Options {
 	return Options{
 		size:  _const.FoodSize,
+		//size:  _const.PoisonSize,
 		crdFn: RandomCrd,
 	}
 }

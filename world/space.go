@@ -7,7 +7,6 @@ import (
 	"agar-life/math/vector"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
-	"agar-life/object/alive/animal/behavior"
 	"agar-life/object/alive/animal/behavior/ai"
 	"agar-life/object/alive/animal/species"
 	"agar-life/object/alive/plant"
@@ -16,7 +15,6 @@ import (
 	"agar-life/world/frame"
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
-	"fmt"
 	"math"
 	"sort"
 	"strconv"
@@ -65,7 +63,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 
 func poison() bool {
 	//return false
-	return math2.Random(0, 10) == 9
+	return math2.Random(0, 10) > 6
 }
 
 func (w *World) Cycle() {
@@ -179,7 +177,7 @@ func (w *World) remove(m rmList) {
 	if len(m.list) > 1 {
 		sort.Sort(m)
 	}
-	for i:=0; i < len(m.list); i++ {
+	for i := 0; i < len(m.list); i++ {
 		v := m.list[i]
 		index, fr := v.index, v.fr
 		if el, ok := fr.Get(index).(animal.Animal); ok {
@@ -238,17 +236,11 @@ func (w *World) forIntersect(
 				j--
 			}
 		}
-		if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() &&  dist() > el.Size() + el1.Size() + _const.GridSize {
-		//if !died && dist() > el.Size() + el1.Size() + _const.GridSize  {
-		//	if _, ok := el1.(animal.Animal); !ok {
-				break
+		if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() && dist() > el.Size()+el1.Size()+_const.GridSize {
+			//	if _, ok := el1.(animal.Animal); !ok {
+			break
 			//}
 		}
-		//if !died && el.Group() == el1.Group() {
-		//	closest = alive.Remove(closest, j)
-		//	idInt = removeFromInt(idInt, j)
-		//	j--
-		//}
 	}
 	return closest
 }
@@ -299,28 +291,37 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		plant:      frame.NewFrame(countPlant, w, h),
 	}
 	crAnimal := func(i int, x, y, size float64) {
-		//el := species.NewBeast(behavior.NewAiv1(w, h))
-		el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
+		el := species.NewBeast(ai.NewAiv1(w, h))
+		//el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(size), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 		world.animal.Set(i, el)
 	}
-	crPlant := func(i int, x, y float64) {
-		el := sp.NewPlant()
+	crPlant := func(i int, x, y float64, poison bool) {
+		var el plant.Plant
+		if poison {
+			el = sp.NewPoison()
+		} else {
+			el = sp.NewPlant()
+		}
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
-	ratio := 6.0
-	size := 6.0
-	for i :=0; i < countAnimal; i++ {
-		fmt.Println(size)
-		size += ratio * float64(i)
-		crAnimal(i, 50 + float64(i) * float64(i) * 30 + size, 400, size)
-	}
-	crPlant(0, 30, 50)
+	//ratio := 6.0
+	//size := 10.0
+	//for i :=0; i < countAnimal; i++ {
+	//	fmt.Println(size)
+	//	size += ratio * float64(i)
+	//	crAnimal(i, 50 + float64(i) * float64(i) * 30 + size, 400, size)
+	//}
+	//crPlant(0, 30, 50, false)
+	crAnimal(0, 210.09, 409.04, 26)
+
+	crPlant(0, 250, 400, true)
+	crPlant(1, 240, 420, false)
 	//crPlant(1, 70, 50)
 	return world
 }

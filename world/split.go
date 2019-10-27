@@ -18,7 +18,7 @@ func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 	if el.Size() < _const.MinSizeSplit {
 		return
 	}
-	size := math2.Round(el.Size() * _const.Half)
+	size := math2.Round(el.Size() * _const.SplitRatio)
 	el.SetSize(size)
 	el.SetGlueTime(cycle)
 	var parent animal.Animal
