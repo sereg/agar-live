@@ -63,7 +63,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 
 func poison() bool {
 	//return false
-	return math2.Random(0, 10) > 6
+	return math2.Random(0, 10) > 8
 }
 
 func (w *World) Cycle() {
@@ -318,10 +318,15 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	//	crAnimal(i, 50 + float64(i) * float64(i) * 30 + size, 400, size)
 	//}
 	//crPlant(0, 30, 50, false)
-	crAnimal(0, 210.09, 409.04, 26)
+	//crAnimal(0, 110.09, 209.04, 26)
+	//crAnimal(0, 160.09, 150.04, 26)
+	crAnimal(0, 110, 130, 40)
 
-	crPlant(0, 250, 400, true)
-	crPlant(1, 240, 420, false)
+	crPlant(0, 150, 200, true)
+	//crPlant(1, 140, 220, false)
+	crPlant(1, 160, 210, false)
+	//crPlant(3, 170, 200, false)
+	//crPlant(4, 140, 180, false)
 	//crPlant(1, 70, 50)
 	return world
 }

@@ -3,9 +3,11 @@ package behavior
 import (
 	math2 "agar-life/math"
 	"agar-life/math/crd"
+	"agar-life/math/geom"
 	"agar-life/math/vector"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
+	"agar-life/object/alive/animal/behavior/checkangels"
 )
 
 type Simple struct {
@@ -51,7 +53,7 @@ func (s *Simple) SetDirection(self animal.Animal, direction crd.Crd) {
 	s.direction = vector.GetCrdWithLength(self.GetCrd(), s.direction, self.Vision())
 }
 
-func (s *Simple) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
+func (s *Simple) Action(self animal.Animal, animals, plants []alive.Alive, cycle uint64, dAngeles checkangels.Angels) (crd.Crd, bool) {
 	if s.direction.X() == 0 && s.direction.Y() == 0 {
 		s.SetDirection(self, crd.NewCrd(float64(math2.Random(0, int(s.w))), float64(math2.Random(0, int(s.h)))))
 	}
@@ -66,6 +68,14 @@ func (s *Simple) Action(self animal.Animal, animals []alive.Alive, plants []aliv
 	}
 	if change() || self.Y()-(self.Size()) <= 0 {
 		s.SetDirection(self, crd.NewCrd(self.X(), s.h))
+	}
+	vec := vector.GetVectorByPoint(self.GetCrd(), s.direction)
+	vecAngel := geom.ModuleDegree(vec.GetAngle())
+	reachable, _ := dAngeles.Check(vecAngel, vec.Len())
+	if !reachable {
+		angel := dAngeles.ClosestAvailable(vecAngel)
+		vec.SetAngle(angel)
+		s.direction = vec.GetPointFromVector(self.GetCrd())
 	}
 	return s.direction, false
 }
