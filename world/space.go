@@ -236,11 +236,11 @@ func (w *World) forIntersect(
 				j--
 			}
 		}
-		if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() && dist() > el.Size()+el1.Size()+_const.GridSize {
-			//	if _, ok := el1.(animal.Animal); !ok {
-			break
-			//}
-		}
+		//if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() && dist() > el.Size()+el1.Size()+_const.GridSize {
+		//	//	if _, ok := el1.(animal.Animal); !ok {
+		//	break
+		//	//}
+		//}
 	}
 	return closest
 }
@@ -267,16 +267,16 @@ func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int,
 func (w *World) fixLimit(el animal.Animal) {
 	x, y := el.X(), el.Y()
 	if x < 0 {
-		x = 0
+		x = 1
 	}
 	if x > w.w {
-		x = w.w
+		x = w.w - 1
 	}
 	if y < 0 {
-		y = 0
+		y = 1
 	}
 	if y > w.h {
-		y = w.h
+		y = w.h - 1
 	}
 	el.SetCrd(crd.NewCrd(x, y))
 }
@@ -319,11 +319,12 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	//}
 	//crPlant(0, 30, 50, false)
 	//crAnimal(0, 110.09, 209.04, 26)
-	crAnimal(0, 20, 20, 12)
-	crAnimal(1, 20, 80, 20)
+	//crAnimal(0, 20, 20, 12)
+	crAnimal(0, 20, 610, 18)
+	crAnimal(1, 20, 510, 30)
 	//crAnimal(0, 200, 170, 50)
 
-	crPlant(0, 150, 300, true)
+	crPlant(0, 400, 400, true)
 	//crPlant(1, 140, 220, false)
 	crPlant(1, 160, 310, false)
 	//crPlant(3, 170, 200, false)

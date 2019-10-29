@@ -58,44 +58,44 @@ func (g *array) Set(x, y, size float64, i int) {
 }
 
 func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
-	//ltx, lty := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
-	//rdx, rdy := toInt((x+radius)/g.cellSize), toInt((y+radius)/g.cellSize)
+	ltx, lty := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
+	rdx, rdy := toInt((x+radius)/g.cellSize), toInt((y+radius)/g.cellSize)
 	obj := make([]int, 0, 20)
-	//for cx := ltx; cx <= rdx; cx++ {
-	//	for cy := lty; cy <= rdy; cy++ {
-	//		if len(g.data) <= cx {
-	//			continue
-	//		}
-	//		d := g.data[cx]
-	//		if len(d) <= cy {
-	//			continue
-	//		}
-	//		obj = append(obj, d[cy]...)
-	//	}
-	//}
-	cx, cy := toInt((x)/g.cellSize), toInt((y)/g.cellSize)
-	sp := spiral(cx, cy)
-	count := 0.0
-	radius = radius * 2
-	limitCount := radius * radius
-	for {
-		//if cx > rdx || cy > rdy || cx < ltx || cy < lty{
-		if limitCount < count{
-			break
+	for cx := ltx; cx <= rdx; cx++ {
+		for cy := lty; cy <= rdy; cy++ {
+			if len(g.data) <= cx {
+				continue
+			}
+			d := g.data[cx]
+			if len(d) <= cy {
+				continue
+			}
+			obj = append(obj, d[cy]...)
 		}
-		count++
-		if len(g.data) <= cx || cx < 0 {
-			cx, cy = sp()
-			continue
-		}
-		d := g.data[cx]
-		if len(d) <= cy || cy < 0 {
-			cx, cy = sp()
-			continue
-		}
-		obj = append(obj, d[cy]...)
-		cx, cy = sp()
 	}
+	//cx, cy := toInt((x)/g.cellSize), toInt((y)/g.cellSize)
+	//sp := spiral(cx, cy)
+	//count := 0.0
+	//radius = radius * 2
+	//limitCount := radius * radius
+	//for {
+	//	//if cx > rdx || cy > rdy || cx < ltx || cy < lty{
+	//	if limitCount < count{
+	//		break
+	//	}
+	//	count++
+	//	if len(g.data) <= cx || cx < 0 {
+	//		cx, cy = sp()
+	//		continue
+	//	}
+	//	d := g.data[cx]
+	//	if len(d) <= cy || cy < 0 {
+	//		cx, cy = sp()
+	//		continue
+	//	}
+	//	obj = append(obj, d[cy]...)
+	//	cx, cy = sp()
+	//}
 	return excludeByID(obj, exclude)
 }
 

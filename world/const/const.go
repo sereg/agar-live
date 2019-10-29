@@ -7,7 +7,7 @@ const (
 
 	EatIncreaseRation     = 0.1
 	EatSelfIncreaseRation = 0.9
-	EatRatio              = 1.3
+	EatRatio              = 1.2
 
 	ResurrectTime = 80
 

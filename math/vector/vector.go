@@ -83,7 +83,11 @@ func (vec Vector) GetPointFromVector(a crd.Crd) crd.Crd {
 }
 
 func (vec Vector) GetAngle() float64 {
-	return math.Atan2(vec.x, vec.y)
+	angel := math.Atan2(vec.x, vec.y)
+	if math.IsNaN(angel) {
+		angel = math.Pi
+	}
+	return angel
 }
 
 func (vec Vector) GetPerpendicularVector(x float64) Vector {

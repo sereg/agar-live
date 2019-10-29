@@ -56,9 +56,9 @@ func (s *Simple) SetDirection(self animal.Animal, direction crd.Crd) {
 
 func (s *Simple) Action(self animal.Animal, animals, plants []alive.Alive, cycle uint64, dAngeles checkangels.Angels) (crd.Crd, bool) {
 	if s.direction.X() == 0 && s.direction.Y() == 0 {
-		s.SetDirection(self, crd.NewCrd(float64(math2.Random(0, int(s.w))), float64(math2.Random(0, int(s.h)))))
+		//s.direction =  crd.NewCrd(float64(math2.Random(0, int(s.w))), float64(math2.Random(0, int(s.h))))
 	}
-	vec := vector.GetVectorByPoint(self.GetCrd(), s.direction)
+	vec := vector.GetVectorWithLength(self.GetCrd(), s.direction, self.Vision())
 	if change() {
 		part := 6.0
 		addAngel := randomFloat(-1 * math.Pi / part, math.Pi / part)

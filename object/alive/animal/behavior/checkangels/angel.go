@@ -128,8 +128,8 @@ func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 					dangerous: v.dangerous(),
 					dist:      dist,
 				}
-				if dirAngel == first {
-					rangAng[keyRange{dirAngel + addInrAngel, dirAngel}] = rangeAngels{
+				if dirAngel == first || dirAngel - addInrAngel == 0 {
+					rangAng[keyRange{first, first - addInrAngel}] = rangeAngels{
 						dangerous: v.dangerous(),
 						dist:      dist,
 					}
@@ -154,7 +154,7 @@ type Obstacle interface {
 type point struct {
 	outer []geom.Segment
 	inner []geom.Segment
-	size float64
+	size  float64
 }
 
 func NewPoint(el alive.Alive) Obstacle {
@@ -186,7 +186,7 @@ func (p *point) check(center crd.Crd, size float64, lines ...geom.Segment) (bool
 		if dist > p.size+size {
 			dist -= p.size + size
 		} else {
-			dist = math.Max(dist - (p.size*0.3 + size), 0)
+			dist = math.Max(dist-(p.size*0.3+size), 0)
 		}
 		return true, dist
 	}
@@ -212,7 +212,7 @@ func (p *point) check(center crd.Crd, size float64, lines ...geom.Segment) (bool
 	return false, 0
 }
 
-type line struct{
+type line struct {
 	line geom.Segment
 }
 
@@ -227,8 +227,9 @@ func (l *line) dangerous() bool {
 }
 
 func (l *line) check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64) {
-	if  l.line.Intersection(lines[0]){
-		_, cr := l.line.IntersectionPoint(lines[0])
+	line := geom.NewSegment(center, lines[1].MidPoint())
+	if l.line.Intersection(line) {
+		_, cr := l.line.IntersectionPoint(line)
 		return true, geom.GetDistanceByCrd(center, cr) - size
 	}
 	return false, 0

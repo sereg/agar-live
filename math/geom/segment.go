@@ -21,6 +21,10 @@ func (s Segment) Intersection(s1 Segment) bool {
 	return (v1*v2 < 0) && (v3*v4 < 0)
 }
 
+func (s Segment) Len() float64 {
+	return GetDistanceByCrd(s.Start(), s.Finish())
+}
+
 func (s Segment) IntersectionPoint(s1 Segment) (intersect bool, cr crd.Crd) {
 	// Line AB represented as a1x + b1y = c1
 	a1 := s.Finish().Y() - s.Start().Y()
@@ -42,6 +46,13 @@ func (s Segment) IntersectionPoint(s1 Segment) (intersect bool, cr crd.Crd) {
 	}
 }
 
+func (s *Segment) SetStart(cr crd.Crd)  {
+	s.a = cr
+}
+
+func (s *Segment) SetFinish(cr crd.Crd)  {
+	s.b = cr
+}
 
 func (s Segment) Start() crd.Crd {
 	return s.a
@@ -49,4 +60,8 @@ func (s Segment) Start() crd.Crd {
 
 func (s Segment) Finish() crd.Crd {
 	return s.b
+}
+
+func (s Segment) MidPoint() crd.Crd {
+	return crd.NewCrd((s.a.X() + s.b.X()) / 2, (s.a.Y() + s.b.Y()) / 2)
 }

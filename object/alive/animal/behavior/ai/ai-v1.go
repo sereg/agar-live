@@ -42,6 +42,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 }
 
 func tD(speed, distance float64, cycle uint64) uint64 {
+	//return 3 + cycle
 	return uint64(distance/speed*0.3) + cycle
 }
 
@@ -93,8 +94,8 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				for _, v := range dangerous.obj {
 					sum = vector.Add(sum, v.vec)
 				}
-				vecAngel := sum.GetAngle()
-				reachable, _ := dAngeles.Check(sum.GetAngle(), sum.Len())
+				vecAngel := geom.ModuleDegree(sum.GetAngle())
+				reachable, _ := dAngeles.Check(vecAngel, sum.Len())
 				if !reachable {
 					sum.SetAngle(dAngeles.ClosestAvailable(vecAngel))
 				}
@@ -146,6 +147,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 	}
 	for _, strategy := range strategies {
 		if strategy.condition() {
+			//fmt.Println(self.GetCrd())
 			reason := ""
 			if strategy.mem {
 				reason = strategy.reason()
@@ -156,7 +158,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 			}
 			cr := strategy.action()
 			//if cr == crd.NewCrd(240, 420) {
-			//	fmt.Println(self.GetCrd())
+
 			//}
 			if strategy.mem {
 				a.mem.set(strategy.priority, tD(self.Speed(), self.Vision(), cycle), reason, cr)
@@ -295,11 +297,12 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 				split = true
 			}
 			mass = el1.Size()
-		} else {
-			if !obstacle && i > 10 && mass > 0 && !animal && distFn() > _const.GridSize {
-				return
-			}
 		}
+		//else {
+		//	if !obstacle && i > 10 && mass > 0 && !animal && distFn() > _const.GridSize {
+		//		return
+		//	}
+		//}
 	}
 	return
 }
