@@ -68,11 +68,11 @@ func (a *Angels) ClosestAvailable(angel float64) (newAngel float64) {
 	for angelR != a.angel*number {
 		key := keyRange{angelR + a.angel, angelR}
 		if _, ok := a.rangeAngels[key]; !ok {
-			return float64(angelR) / 100
+			return float64(angelR+a.angel) / 100
 		}
 		key = keyRange{angelL, angelL - a.angel}
 		if _, ok := a.rangeAngels[key]; !ok {
-			return float64(angelL) / 100
+			return float64(angelL-a.angel) / 100
 		}
 		angelL -= a.angel
 		angelR += a.angel
@@ -81,17 +81,13 @@ func (a *Angels) ClosestAvailable(angel float64) (newAngel float64) {
 	return angel
 }
 
-func CheckAngels(el animal.Animal, obstacles []alive.Alive) (ang Angels) {
+func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 	if len(obstacles) == 0 {
 		return ang
 	}
-	locPoisons := make([]intersect, len(obstacles))
-	for k, v := range obstacles {
-		locPoisons[k] = newPoint(v)
-	}
 	count := int((el.Vision() * math.Pi * 2) / el.Size())
 	for count%4 != 0 {
-		count--
+		count++
 	}
 	addAngel := m2.Round(2.0 * math.Pi / float64(count))
 	addInrAngel := int(2.0 * math.Pi / float64(count) * 100)
@@ -126,8 +122,8 @@ func CheckAngels(el animal.Animal, obstacles []alive.Alive) (ang Angels) {
 		if dirAngel == 0 {
 			dirAngel = first
 		}
-		for k, v := range locPoisons {
-			if intersect, dist := v.check(el.GetCrd(), el.Size(), obstacles[k].Size(), line1, line2, line3); intersect {
+		for _, v := range obstacles {
+			if intersect, dist := v.check(el.GetCrd(), el.Size(), line1, line2, line3); intersect {
 				rangAng[keyRange{dirAngel, dirAngel - addInrAngel}] = rangeAngels{
 					dangerous: v.dangerous(),
 					dist:      dist,
@@ -150,18 +146,20 @@ func CheckAngels(el animal.Animal, obstacles []alive.Alive) (ang Angels) {
 	return ang
 }
 
-type intersect interface {
-	check(center crd.Crd, sizeEl, size float64, lines ...geom.Segment) (bool, float64)
+type Obstacle interface {
+	check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64)
 	dangerous() bool
 }
 
 type point struct {
 	outer []geom.Segment
 	inner []geom.Segment
+	size float64
 }
 
-func newPoint(el alive.Alive) intersect {
+func NewPoint(el alive.Alive) Obstacle {
 	p := point{
+		size: el.Size(),
 		outer: []geom.Segment{
 			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X()-el.Size(), el.Y())),
 			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), el.Y()-el.Size())),
@@ -182,13 +180,13 @@ func (p *point) dangerous() bool {
 	return true
 }
 
-func (p *point) check(center crd.Crd, sizeEl, size float64, lines ...geom.Segment) (bool, float64) {
+func (p *point) check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64) {
 	res := func() (bool, float64) {
 		dist := geom.GetDistanceByCrd(center, p.outer[0].Start())
-		if dist > sizeEl+size {
-			dist -= sizeEl + size
+		if dist > p.size+size {
+			dist -= p.size + size
 		} else {
-			dist -= math.Max(sizeEl, size)
+			dist = math.Max(dist - (p.size*0.3 + size), 0)
 		}
 		return true, dist
 	}
@@ -210,6 +208,28 @@ func (p *point) check(center crd.Crd, sizeEl, size float64, lines ...geom.Segmen
 	}
 	if countIntersect >= 3 {
 		return res()
+	}
+	return false, 0
+}
+
+type line struct{
+	line geom.Segment
+}
+
+func NewLine(l geom.Segment) Obstacle {
+	return &line{
+		line: l,
+	}
+}
+
+func (l *line) dangerous() bool {
+	return false
+}
+
+func (l *line) check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64) {
+	if  l.line.Intersection(lines[0]){
+		_, cr := l.line.IntersectionPoint(lines[0])
+		return true, geom.GetDistanceByCrd(center, cr) - size
 	}
 	return false, 0
 }

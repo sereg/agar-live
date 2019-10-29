@@ -8,6 +8,7 @@ import (
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
 	"agar-life/object/alive/animal/behavior/checkangels"
+	"math"
 )
 
 type Simple struct {
@@ -57,29 +58,28 @@ func (s *Simple) Action(self animal.Animal, animals, plants []alive.Alive, cycle
 	if s.direction.X() == 0 && s.direction.Y() == 0 {
 		s.SetDirection(self, crd.NewCrd(float64(math2.Random(0, int(s.w))), float64(math2.Random(0, int(s.h)))))
 	}
-	if change() || self.X()+(self.Size()) >= s.w {
-		s.SetDirection(self, crd.NewCrd(0, self.Y()))
-	}
-	if change() || self.X()-(self.Size()) <= 0 {
-		s.SetDirection(self, crd.NewCrd(s.w, self.Y()))
-	}
-	if change() || self.Y()+(self.Size()) >= s.h {
-		s.SetDirection(self, crd.NewCrd(self.X(), 0))
-	}
-	if change() || self.Y()-(self.Size()) <= 0 {
-		s.SetDirection(self, crd.NewCrd(self.X(), s.h))
-	}
 	vec := vector.GetVectorByPoint(self.GetCrd(), s.direction)
+	if change() {
+		part := 6.0
+		addAngel := randomFloat(-1 * math.Pi / part, math.Pi / part)
+		vec.AddAngle(addAngel)
+	}
 	vecAngel := geom.ModuleDegree(vec.GetAngle())
 	reachable, _ := dAngeles.Check(vecAngel, vec.Len())
 	if !reachable {
 		angel := dAngeles.ClosestAvailable(vecAngel)
 		vec.SetAngle(angel)
-		s.direction = vec.GetPointFromVector(self.GetCrd())
 	}
-	return s.direction, false
+	return vec.GetPointFromVector(self.GetCrd()), false
+}
+
+func randomFloat(min, max float64) float64 {
+	minInt := int(min * 100)
+	maxInt := int(max * 100)
+	rand := math2.Random(minInt, maxInt)
+	return float64(rand) / 100
 }
 
 func change() bool {
-	return math2.Random(0, 10000) > 9990
+	return math2.Random(0, 100) > 90
 }

@@ -58,7 +58,7 @@ func (g *array) Set(x, y, size float64, i int) {
 }
 
 func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
-	ltx, lty := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
+	//ltx, lty := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
 	//rdx, rdy := toInt((x+radius)/g.cellSize), toInt((y+radius)/g.cellSize)
 	obj := make([]int, 0, 20)
 	//for cx := ltx; cx <= rdx; cx++ {
@@ -75,11 +75,15 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 	//}
 	cx, cy := toInt((x)/g.cellSize), toInt((y)/g.cellSize)
 	sp := spiral(cx, cy)
+	count := 0.0
+	radius = radius * 2
+	limitCount := radius * radius
 	for {
 		//if cx > rdx || cy > rdy || cx < ltx || cy < lty{
-		if cx < ltx || cy < lty{
+		if limitCount < count{
 			break
 		}
+		count++
 		if len(g.data) <= cx || cx < 0 {
 			cx, cy = sp()
 			continue

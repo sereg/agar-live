@@ -319,12 +319,13 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	//}
 	//crPlant(0, 30, 50, false)
 	//crAnimal(0, 110.09, 209.04, 26)
-	//crAnimal(0, 160.09, 150.04, 26)
-	crAnimal(0, 110, 130, 40)
+	crAnimal(0, 20, 20, 12)
+	crAnimal(1, 20, 80, 20)
+	//crAnimal(0, 200, 170, 50)
 
-	crPlant(0, 150, 200, true)
+	crPlant(0, 150, 300, true)
 	//crPlant(1, 140, 220, false)
-	crPlant(1, 160, 210, false)
+	crPlant(1, 160, 310, false)
 	//crPlant(3, 170, 200, false)
 	//crPlant(4, 140, 180, false)
 	//crPlant(1, 70, 50)
