@@ -236,11 +236,11 @@ func (w *World) forIntersect(
 				j--
 			}
 		}
-		//if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() && dist() > el.Size()+el1.Size()+_const.GridSize {
+		if !died && el.Size()/el1.Size() > _const.EatRatio && el.Group() != el1.Group() && !el1.Danger() && dist() > el.Size()+el1.Size()+_const.GridSize {
 		//	//	if _, ok := el1.(animal.Animal); !ok {
-		//	break
+			break
 		//	//}
-		//}
+		}
 	}
 	return closest
 }
@@ -320,13 +320,13 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 	//crPlant(0, 30, 50, false)
 	//crAnimal(0, 110.09, 209.04, 26)
 	//crAnimal(0, 20, 20, 12)
-	crAnimal(0, 20, 610, 18)
-	crAnimal(1, 20, 510, 30)
+	crAnimal(0, 350, 400, 18)
+	//crAnimal(1, 20, 510, 30)
 	//crAnimal(0, 200, 170, 50)
 
 	crPlant(0, 400, 400, true)
 	//crPlant(1, 140, 220, false)
-	crPlant(1, 160, 310, false)
+	crPlant(1, 420, 400, false)
 	//crPlant(3, 170, 200, false)
 	//crPlant(4, 140, 180, false)
 	//crPlant(1, 70, 50)

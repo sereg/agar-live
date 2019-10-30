@@ -93,7 +93,7 @@ func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 	addInrAngel := int(2.0 * math.Pi / float64(count) * 100)
 	addAngelD := addAngel * 2
 	angel := 0.0
-	sift := float64(int(count / 4.0))
+	sift := float64(count / 4.0)
 	shiftCorrect := 0.0
 	angelV := angel + addAngel*sift - shiftCorrect + addAngel
 	xd := el.X() + el.Vision()*math.Cos(angelV)
@@ -103,32 +103,50 @@ func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 	dirAngel = dirAngel * addInrAngel
 	rangAng := make(mapRange, len(obstacles))
 	first := dirAngel + addInrAngel
+	obsQuarters := make([]quarter, len(obstacles))
+	for k, v := range obstacles {
+		obsQuarters[k] = getQuarter(el, v)
+	}
+	var line1 geom.Segment
+	var line2 geom.Segment
+	var line3 geom.Segment
 	for i := 0; i < (count); i++ {
-		xs1 := el.X() + el.Size()*math.Cos(angel)
-		ys1 := el.Y() + el.Size()*math.Sin(angel)
-		angel += math.Pi
-		xs2 := el.X() + el.Size()*math.Cos(angel)
-		ys2 := el.Y() + el.Size()*math.Sin(angel)
-		angel -= math.Pi
-		angelV = angel + addAngel*sift - shiftCorrect
-		xf1 := el.X() + el.Vision()*math.Cos(angelV)
-		yf1 := el.Y() + el.Vision()*math.Sin(angelV)
-		angelV += addAngelD
-		xf2 := el.X() + el.Vision()*math.Cos(angelV)
-		yf2 := el.Y() + el.Vision()*math.Sin(angelV)
-		line1 := geom.NewSegment(crd.NewCrd(xs1, ys1), crd.NewCrd(xf1, yf1))
-		line2 := geom.NewSegment(crd.NewCrd(xf1, yf1), crd.NewCrd(xf2, yf2))
-		line3 := geom.NewSegment(crd.NewCrd(xs2, ys2), crd.NewCrd(xf2, yf2))
+		calculated := false
+		calculateLine := func() {
+			if calculated {
+				return
+			}
+			xs1 := el.X() + el.Size()*math.Cos(angel)
+			ys1 := el.Y() + el.Size()*math.Sin(angel)
+			angel += math.Pi
+			xs2 := el.X() + el.Size()*math.Cos(angel)
+			ys2 := el.Y() + el.Size()*math.Sin(angel)
+			angel -= math.Pi
+			angelV = angel + addAngel*sift - shiftCorrect
+			xf1 := el.X() + el.Vision()*math.Cos(angelV)
+			yf1 := el.Y() + el.Vision()*math.Sin(angelV)
+			angelV += addAngelD
+			xf2 := el.X() + el.Vision()*math.Cos(angelV)
+			yf2 := el.Y() + el.Vision()*math.Sin(angelV)
+			line1 = geom.NewSegment(crd.NewCrd(xs1, ys1), crd.NewCrd(xf1, yf1))
+			line2 = geom.NewSegment(crd.NewCrd(xf1, yf1), crd.NewCrd(xf2, yf2))
+			line3 = geom.NewSegment(crd.NewCrd(xs2, ys2), crd.NewCrd(xf2, yf2))
+			calculated = true
+		}
 		if dirAngel == 0 {
 			dirAngel = first
 		}
-		for _, v := range obstacles {
+		for k, v := range obstacles {
+			if !obsQuarters[k].check(dirAngel) {
+				continue
+			}
+			calculateLine()
 			if intersect, dist := v.check(el.GetCrd(), el.Size(), line1, line2, line3); intersect {
 				rangAng[keyRange{dirAngel, dirAngel - addInrAngel}] = rangeAngels{
 					dangerous: v.dangerous(),
 					dist:      dist,
 				}
-				if dirAngel == first || dirAngel - addInrAngel == 0 {
+				if dirAngel == first || dirAngel-addInrAngel == 0 {
 					rangAng[keyRange{first, first - addInrAngel}] = rangeAngels{
 						dangerous: v.dangerous(),
 						dist:      dist,
@@ -146,25 +164,80 @@ func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 	return ang
 }
 
+type quarter struct {
+	intersect bool
+	parts     []int8
+}
+
+func (q quarter) check(angel int) bool {
+	if q.intersect {
+		return true
+	}
+	quarter := int8(-1)
+	if angel >= 0 && angel < 157 {
+		quarter = 3
+	} else if angel >= 157 && angel < 314 {
+		quarter = 2
+	} else if angel >= 314 && angel < 471 {
+		quarter = 1
+	} else {
+		quarter = 4
+	}
+	for _, v := range q.parts {
+		if v == quarter {
+			return true
+		}
+	}
+	return false
+}
+
+func getQuarter(el alive.Alive, obs Obstacle) (q quarter) {
+	if !obs.isPoint() {
+		q.intersect = true
+		return
+	}
+	dist := geom.GetDistanceByCrd(el.GetCrd(), obs.center())
+	if dist < el.Size()+obs.size() {
+		q.intersect = true
+		return
+	}
+	if obs.center().X()+obs.size() >= el.X()-el.Size() && obs.center().Y()+obs.size() >= el.Y()-el.Size() {
+		q.parts = append(q.parts, 3)
+	}
+	if obs.center().X()+obs.size() >= el.X()-el.Size() && obs.center().Y()-obs.size() <= el.Y()+el.Size() {
+		q.parts = append(q.parts, 2)
+	}
+	if obs.center().X()-obs.size() <= el.X()+el.Size() && obs.center().Y()-obs.size() <= el.Y()+el.Size() {
+		q.parts = append(q.parts, 1)
+	}
+	if obs.center().X()-obs.size() <= el.X()+el.Size() && obs.center().Y()+obs.size() >= el.Y()-el.Size() {
+		q.parts = append(q.parts, 4)
+	}
+	return
+}
+
 type Obstacle interface {
 	check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64)
 	dangerous() bool
+	isPoint() bool
+	size() float64
+	center() crd.Crd
 }
 
 type point struct {
-	outer []geom.Segment
-	inner []geom.Segment
-	size  float64
+	outer    []geom.Segment
+	inner    []geom.Segment
+	centerEl crd.Crd
+	sizeEL   float64
 }
 
 func NewPoint(el alive.Alive) Obstacle {
 	p := point{
-		size: el.Size(),
+		sizeEL:   el.Size(),
+		centerEl: el.GetCrd(),
 		outer: []geom.Segment{
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X()-el.Size(), el.Y())),
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), el.Y()-el.Size())),
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X()+el.Size(), el.Y())),
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), el.Y()+el.Size())),
+			geom.NewSegment(crd.NewCrd(el.X()-el.Size(), el.Y()), crd.NewCrd(el.X()+el.Size(), el.Y())),
+			geom.NewSegment(crd.NewCrd(el.X(), el.Y()-el.Size()), crd.NewCrd(el.X(), el.Y()+el.Size())),
 		},
 		inner: []geom.Segment{
 			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(0, el.Y())),
@@ -176,17 +249,29 @@ func NewPoint(el alive.Alive) Obstacle {
 	return &p
 }
 
-func (p *point) dangerous() bool {
+func (p point) dangerous() bool {
+	return true
+}
+
+func (p point) size() float64 {
+	return p.sizeEL
+}
+
+func (p point) center() crd.Crd {
+	return p.centerEl
+}
+
+func (p point) isPoint() bool {
 	return true
 }
 
 func (p *point) check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64) {
 	res := func() (bool, float64) {
-		dist := geom.GetDistanceByCrd(center, p.outer[0].Start())
-		if dist > p.size+size {
-			dist -= p.size + size
+		dist := geom.GetDistanceByCrd(center, p.centerEl)
+		if dist > p.sizeEL+size {
+			dist -= p.sizeEL + size
 		} else {
-			dist = math.Max(dist-(p.size*0.3+size), 0)
+			dist = math.Max(dist-(p.sizeEL*0.3+size), 0)
 		}
 		return true, dist
 	}
@@ -198,12 +283,15 @@ func (p *point) check(center crd.Crd, size float64, lines ...geom.Segment) (bool
 		}
 	}
 	countIntersect := 0
-	for _, v := range p.inner {
+	for k, v := range p.inner {
 		for _, line := range lines {
 			if v.Intersection(line) {
 				countIntersect++
 				break
 			}
+		}
+		if countIntersect == 3 || countIntersect-k < 0 {
+			break
 		}
 	}
 	if countIntersect >= 3 {
@@ -222,8 +310,19 @@ func NewLine(l geom.Segment) Obstacle {
 	}
 }
 
-func (l *line) dangerous() bool {
+func (l line) dangerous() bool {
 	return false
+}
+
+func (l line) isPoint() bool {
+	return false
+}
+
+func (l line) size() float64 {
+	return 0
+}
+func (l line) center() crd.Crd {
+	return l.line.Start()
 }
 
 func (l *line) check(center crd.Crd, size float64, lines ...geom.Segment) (bool, float64) {

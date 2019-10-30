@@ -85,16 +85,16 @@ func (b *Base) Draw(obj1 object.Object) {
 		return
 	}
 	obj := obj1.(alive.Alive)
-	//if obj.Danger() {
-	//	size := obj.Size() * 2.15
-	//	b.ctx.Call("drawImage", b.img, obj.X() - obj.Size(), obj.Y()-obj.Size(), size, size)
-	//} else {
+	if obj.Danger() {
+		size := obj.Size() * 2.15
+		b.ctx.Call("drawImage", b.img, obj.X() - obj.Size(), obj.Y()-obj.Size(), size, size)
+	} else {
 		b.ctx.Call("beginPath")
 		b.ctx.Call("arc", obj.X(), obj.Y(), obj.Size(), 0, math.Pi*2, false)
 		b.ctx.Set("fillStyle", obj.Color())
 		b.ctx.Call("fill")
 		b.ctx.Call("closePath")
-	//}
+	}
 }
 
 func (b *Base) Refresh() {

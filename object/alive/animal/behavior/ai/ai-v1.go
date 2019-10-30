@@ -295,14 +295,14 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 			dist = distRes
 			if dist < _const.SplitDist && (el.Size()*_const.SplitRatio)/el1.Size() > _const.EatRatio && !dangerous && animal {
 				split = true
+				break
 			}
 			mass = el1.Size()
+		} else {
+			if !obstacle && i > 10 && mass > 0 && !animal && distFn() > _const.GridSize {
+				return
+			}
 		}
-		//else {
-		//	if !obstacle && i > 10 && mass > 0 && !animal && distFn() > _const.GridSize {
-		//		return
-		//	}
-		//}
 	}
 	return
 }

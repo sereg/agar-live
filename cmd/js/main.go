@@ -18,8 +18,8 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	space := world.NewWorld(300, 10, jsCon.GetW(), jsCon.GetH())
-	//space := world.NewWorldTest(2, 2, jsCon.GetW(), jsCon.GetH())
+	space := world.NewWorld(400, 10, jsCon.GetW(), jsCon.GetH())
+	//space := world.NewWorldTest(2, 1, jsCon.GetW(), jsCon.GetH())
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
 	var cycle js.Func
@@ -43,7 +43,7 @@ func main() {
 		}
 		fieldAnimals.Restore()
 		//println("requestAnimationFrame"){212.83 420}{210.09 409.04}
-		//jsCon.GetWindow().Call("requestAnimationFrame", cycle)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	})
 	jsCon.GetWindow().Call("requestAnimationFrame", cycle)
