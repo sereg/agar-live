@@ -57,15 +57,16 @@ func (g *array) Set(x, y, size float64, i int) {
 	}
 }
 
-func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
-	ltx, lty := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
-	rdx, rdy := toInt((x+radius)/g.cellSize), toInt((y+radius)/g.cellSize)
+func (g array) GetObjInRadius(x, y, radius, size float64, exclude int) ([]int, int) {
+	lrx, lry := toInt((x-radius)/g.cellSize), toInt((y-radius)/g.cellSize)
+	rrx, rry := toInt((x+radius)/g.cellSize), toInt((y+radius)/g.cellSize)
+	lsx, lsy := toInt((x-size)/g.cellSize), toInt((y-size)/g.cellSize)
+	rsx, rsy := toInt((x+size)/g.cellSize), toInt((y+size)/g.cellSize)
 	far := make([]int, 0, 5)
-	normal := make([]int, 0, 5)
 	closest := make([]int, 0, 5)
-	elx, ely := toInt((x)/g.cellSize), toInt((y)/g.cellSize)
-	for cx := ltx; cx <= rdx; cx++ {
-		for cy := lty; cy <= rdy; cy++ {
+	//elx, ely := toInt((x)/g.cellSize), toInt((y)/g.cellSize)
+	for cx := lrx; cx <= rrx; cx++ {
+		for cy := lry; cy <= rry; cy++ {
 			if len(g.data) <= cx {
 				continue
 			}
@@ -73,18 +74,16 @@ func (g array) GetObjInRadius(x, y, radius float64, exclude int) []int {
 			if len(d) <= cy {
 				continue
 			}
-			if cx == elx && cy == ely {
+			if cx >= lsx && cx <= rsx && cy >= lsy && cy <= rsy {
 				closest = append(closest, d[cy]...)
-			} else if cx == elx || cy == ely {
-				normal = append(normal, d[cy]...)
 			} else {
 				far = append(far, d[cy]...)
 			}
 		}
 	}
-	obj := append(closest, normal...)
-	obj = append(obj, far...)
-	return excludeByID(obj, exclude)
+	closest = excludeByID(closest, exclude)
+	obj := append(closest, far...)
+	return obj, len(closest)
 }
 
 func excludeByID(a []int, id int) []int {

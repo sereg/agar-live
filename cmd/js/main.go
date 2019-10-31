@@ -43,7 +43,7 @@ func main() {
 		}
 		fieldAnimals.Restore()
 		//println("requestAnimationFrame"){212.83 420}{210.09 409.04}
-		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
+		//jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	})
 	jsCon.GetWindow().Call("requestAnimationFrame", cycle)
