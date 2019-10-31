@@ -135,11 +135,12 @@ func (a *Animal) Draw(obj1 object.Object) {
 	a.ctx.Call("stroke")
 	a.ctx.Set("setLineDash", "[5, 5]")
 	a.ctx.Call("closePath")
-
-	a.ctx.Call("beginPath")
-	a.ctx.Call("moveTo", obj.X(), obj.Y())
-	a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
-	a.ctx.Call("stroke")
+	if parent := obj.Parent(); parent == nil {
+		a.ctx.Call("beginPath")
+		a.ctx.Call("moveTo", obj.X(), obj.Y())
+		a.ctx.Call("lineTo", obj.Direction().X(), obj.Direction().Y())
+		a.ctx.Call("stroke")
+	}
 
 	a.ctx.Set("fillStyle", "#000")
 	a.ctx.Set("font", "bold 12px Arial")

@@ -65,7 +65,6 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 	dAngelesFn := func() checkangels.Angels {
 		if dAngeles.Angel() == 0 {
 			dAngeles = checkangels.CheckAngels(self, append(edges, poisons...))
-			//dAngeles = checkangels.CheckAngels(self, poisons)
 		}
 		return dAngeles
 	}
@@ -99,7 +98,6 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				if !reachable {
 					sum.SetAngle(dAngeles.ClosestAvailable(vecAngel))
 				}
-				//sum = checkEdge2(sum, self.GetCrd(), a.W(), a.H(), self.Vision())
 				//TODO hide in poison plant if size of them more then object
 				return sum.GetPointFromVector(self.GetCrd())
 			},
@@ -157,9 +155,6 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				}
 			}
 			cr := strategy.action()
-			//if cr == crd.NewCrd(240, 420) {
-
-			//}
 			if strategy.mem {
 				a.mem.set(strategy.priority, tD(self.Speed(), self.Vision(), cycle), reason, cr)
 			}
@@ -303,6 +298,7 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 				return
 			}
 		}
+
 	}
 	return
 }

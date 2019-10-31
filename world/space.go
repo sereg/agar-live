@@ -15,7 +15,6 @@ import (
 	"agar-life/world/frame"
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
-	"math"
 	"sort"
 	"strconv"
 )
@@ -79,9 +78,9 @@ func (w *World) Cycle() {
 			continue
 		}
 		idC, inner, closest := getClosest(w.gridAnimal, el, w.animal, i)
-		closestAnimal := append(w.forIntersect(el, closest[:inner], idC, &w.animal, &removeList), closest[inner:]...)
+		closestAnimal := append(w.forIntersect(el, closest[:inner], idC[:inner], &w.animal, &removeList), closest[inner:]...)
 		idC, inner, closest = getClosest(w.gridPlant, el, w.plant, -1)
-		closestPlant := append(w.forIntersect(el, closest[:inner], idC, &w.plant, &removeList), closest[inner:]...)
+		closestPlant := append(w.forIntersect(el, closest[:inner], idC[:inner], &w.plant, &removeList), closest[inner:]...)
 		var direction crd.Crd
 		split := false
 		dist := el.Speed()
@@ -93,8 +92,8 @@ func (w *World) Cycle() {
 			if split {
 				Split(&w.animal, el, direction, w.cycle)
 			}
+			direction = w.fixNeighborhood(el, direction)
 			el.SetCrdByDirection(el, direction, dist, first)
-			w.fixNeighborhood(el)
 		}
 		w.fixLimit(el)
 	}
@@ -115,11 +114,13 @@ func (w *World) Cycle() {
 	w.cycle++
 }
 
-func (w *World) fixNeighborhood(el animal.Animal) {
+func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
 	var parent animal.Animal
 	if parent = el.Parent(); parent == nil {
-		return
+		return dir
 	}
+	intersected := false
+	sum := vector.GetVectorByPoint(el.GetCrd(), el.GetCrd())
 	for _, v := range parent.Children() {
 		var el1 animal.Animal
 		if v.ID() == el.ID() {
@@ -132,13 +133,14 @@ func (w *World) fixNeighborhood(el animal.Animal) {
 		}
 		dis := geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
 		if dis < el.Size()+el1.Size() {
-			dist := el.Size() + el1.Size() - dis
-			vec := vector.GetVectorByPoint(el.GetCrd(), el1.GetCrd())
-			vec.AddAngle(math.Pi)
-			direction := vec.GetPointFromVector(el.GetCrd())
-			el.SetCrdByDirection(el, direction, dist, true)
+			intersected = true
+			sum = vector.Add(sum, vector.GetVectorWithLength(el1.GetCrd(), el.GetCrd(), el.Size() + el1.Size()))
 		}
 	}
+	if intersected {
+		dir = sum.GetPointFromVector(el.GetCrd())
+	}
+	return dir
 }
 
 func (w *World) GetPlant() []alive.Alive {
@@ -198,10 +200,9 @@ func (w *World) forIntersect(
 	fr *frame.Frame,
 	removeList *rmList,
 ) []alive.Alive {
-	removedId := map[int]struct{}{}
 	for j := 0; j < len(closest); j++ {
 		index := idInt[j]
-		el1 := closest[j]
+		el1 := fr.Get(index)
 		dis := -1.0
 		dist := func() float64 {
 			if dis == -1.0 {
@@ -211,10 +212,7 @@ func (w *World) forIntersect(
 		}
 		died := false
 		if el != nil && el1 != nil && !el1.GetDead() {
-			if _, ok := removedId[index]; ok {
-				died = true
-			}
-			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
+			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
 				el1.GlueTime() <= w.cycle && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
 				el.Eat(el1) //TODO change size in 30 cycles
@@ -226,10 +224,7 @@ func (w *World) forIntersect(
 			}
 			if died {
 				el1.Die()
-				if _, ok := removedId[index]; !ok {
-					removeList.add(index, fr)
-					removedId[index] = struct{}{}
-				}
+				removeList.add(index, fr)
 				fr.SetUpdateState(true)
 				closest = alive.Remove(closest, j)
 				idInt = removeFromInt(idInt, j)
@@ -248,7 +243,7 @@ func removeFromInt(a []int, i int) []int {
 }
 
 func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, int, []alive.Alive) {
-	idInt, inner := gr.GetObjInRadius(el.X(), el.Y(), el.Vision(),  el.Size(), ind)
+	idInt, inner := gr.GetObjInRadius(el.X(), el.Y(), el.Vision(), el.Size(), ind)
 	closest := make([]alive.Alive, len(idInt))
 	j := 0
 	for i := 0; i < len(idInt); i++ {
@@ -318,7 +313,6 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 
 	//crAnimal(1, 20, 510, 30)
 	//crAnimal(0, 200, 170, 50)
-
 
 	//crPlant(1, 140, 220, false)
 	//crPlant(3, 170, 200, false)
