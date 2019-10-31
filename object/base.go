@@ -3,13 +3,16 @@ package object
 import (
 	math2 "agar-life/math"
 	"agar-life/math/crd"
+	_const "agar-life/world/const"
 )
 
 //Base is basic realization on object interface
 type Base struct {
-	color  string
-	size   float64
-	hidden bool
+	color    string
+	size     float64
+	viewSize float64
+	growSize float64
+	hidden   bool
 	crd.Crd
 }
 
@@ -30,7 +33,24 @@ func (p Base) Size() float64 {
 
 //SetSize sets a size for the point
 func (p *Base) SetSize(size float64) {
-	p.size = math2.Round(size)
+	newSize := math2.Round(size)
+	p.growSize = (newSize - p.size) / _const.GrowTime
+	p.size = newSize
+}
+
+//ViewSize return viewSize of point
+func (p Base) ViewSize() float64 {
+	return p.viewSize
+}
+
+//GrowSize return growSize of point
+func (p Base) GrowSize() float64 {
+	return p.growSize
+}
+
+//SetSize sets a size for the point
+func (p *Base) SetViewSize(size float64) {
+	p.viewSize = size
 }
 
 //Hidden return is hidden the point

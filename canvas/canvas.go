@@ -86,11 +86,11 @@ func (b *Base) Draw(obj1 object.Object) {
 	}
 	obj := obj1.(alive.Alive)
 	if obj.Danger() {
-		size := obj.Size() * 2.15
-		b.ctx.Call("drawImage", b.img, obj.X() - obj.Size(), obj.Y()-obj.Size(), size, size)
+		size := obj.ViewSize() * 2.15
+		b.ctx.Call("drawImage", b.img, obj.X() - obj.ViewSize(), obj.Y()-obj.ViewSize(), size, size)
 	} else {
 		b.ctx.Call("beginPath")
-		b.ctx.Call("arc", obj.X(), obj.Y(), obj.Size(), 0, math.Pi*2, false)
+		b.ctx.Call("arc", obj.X(), obj.Y(), obj.ViewSize(), 0, math.Pi*2, false)
 		b.ctx.Set("fillStyle", obj.Color())
 		b.ctx.Call("fill")
 		b.ctx.Call("closePath")
@@ -144,7 +144,7 @@ func (a *Animal) Draw(obj1 object.Object) {
 
 	a.ctx.Set("fillStyle", "#000")
 	a.ctx.Set("font", "bold 12px Arial")
-	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.Size(), obj.Y())
+	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.ViewSize())), obj.X()-obj.ViewSize(), obj.Y())
 }
 
 func (a *Animal) Draw1(obj1 object.Object) {
@@ -152,7 +152,7 @@ func (a *Animal) Draw1(obj1 object.Object) {
 	a.ctx.Call("beginPath")
 	a.ctx.Call("arc", el.X(), el.Y(), 2, 0, math.Pi*2, false)
 	a.ctx.Call("stroke")
-	count := int((el.Vision() * math.Pi * 2) / el.Size())
+	count := int((el.Vision() * math.Pi * 2) / el.ViewSize())
 	for count%4 != 0 {
 		count++
 	}
@@ -164,7 +164,7 @@ func (a *Animal) Draw1(obj1 object.Object) {
 	//angel := math.Pi / 2 * -1 - addAngel
 	sift := float64(count / 4.0)
 	shiftCorrect := 0.0
-	//xs1 := el.X() + el.Size()*math.Cos(angel)
+	//xs1 := el.X() + el.ViewSize()*math.Cos(angel)
 	//angelV := angel + addAngel*sift - shiftCorrect
 	//xf1 := el.X() + el.Vision()*math.Cos(angelV)
 	//for math.Abs(xf1 - xs1) > 10 {
@@ -174,21 +174,21 @@ func (a *Animal) Draw1(obj1 object.Object) {
 	//}
 	//diff := angel + addAngel*sift - addAngel
 	angelV := 0.0
-	fmt.Printf("size - %f, count - %f\r\n", el.Size(), float64(count))
+	fmt.Printf("size - %f, count - %f\r\n", el.ViewSize(), float64(count))
 	expectedDir := -1.0
 
 	for i := 0.0; i < float64(count/4); i++ {
 		//a.Refresh()
 		a.ctx.Set("strokeStyle", getRandomColor())
-		xs1 := el.X() + el.Size()*math.Cos(angel)
-		ys1 := el.Y() + el.Size()*math.Sin(angel)
+		xs1 := el.X() + el.ViewSize()*math.Cos(angel)
+		ys1 := el.Y() + el.ViewSize()*math.Sin(angel)
 		a.ctx.Call("beginPath")
 		a.ctx.Call("arc", xs1, ys1, 2, 0, math.Pi*2, false)
 		a.ctx.Call("stroke")
 
 		angel += math.Pi
-		xs2 := el.X() + el.Size()*math.Cos(angel)
-		ys2 := el.Y() + el.Size()*math.Sin(angel)
+		xs2 := el.X() + el.ViewSize()*math.Cos(angel)
+		ys2 := el.Y() + el.ViewSize()*math.Sin(angel)
 		a.ctx.Call("beginPath")
 		a.ctx.Call("arc", xs2, ys2, 2, 0, math.Pi*2, false)
 		a.ctx.Call("stroke")

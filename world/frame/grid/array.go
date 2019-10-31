@@ -64,7 +64,6 @@ func (g array) GetObjInRadius(x, y, radius, size float64, exclude int) ([]int, i
 	rsx, rsy := toInt((x+size)/g.cellSize), toInt((y+size)/g.cellSize)
 	far := make([]int, 0, 5)
 	closest := make([]int, 0, 5)
-	//elx, ely := toInt((x)/g.cellSize), toInt((y)/g.cellSize)
 	for cx := lrx; cx <= rrx; cx++ {
 		for cy := lry; cy <= rry; cy++ {
 			if len(g.data) <= cx {

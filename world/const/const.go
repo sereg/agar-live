@@ -2,8 +2,9 @@ package _const
 
 //EatRatio ratio when one object can eat another
 const (
-	FoodSize       = 3
-	AliveStartSize = 10
+	FoodSize       = 8
+	AliveStartSize = 15
+	GrowTime       = 30
 
 	EatIncreaseRation     = 0.2
 	EatSelfIncreaseRation = 0.95

@@ -15,6 +15,7 @@ import (
 	"agar-life/world/frame"
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
+	"math"
 	"sort"
 	"strconv"
 )
@@ -25,7 +26,7 @@ type World struct {
 	plant      frame.Frame
 	cycle      uint64
 	gridPlant  grid.Grid //TODO move grid index to frame
-	gridAnimal grid.Grid //TODO test Quadtree https://github.com/JamesMilnerUK/quadtree-go
+	gridAnimal grid.Grid
 	resurrect  resurrects
 }
 
@@ -40,8 +41,6 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(ai.NewAiv1(w, h))
-		//el := species.NewBeast(behavior.NewSimple(w, h))
-		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(_const.AliveStartSize))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 		world.animal.Set(i, el)
@@ -61,7 +60,6 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 }
 
 func poison() bool {
-	//return false
 	return math2.Random(0, 10) > 8
 }
 
@@ -96,6 +94,7 @@ func (w *World) Cycle() {
 			el.SetCrdByDirection(el, direction, dist, first)
 		}
 		w.fixLimit(el)
+		grow(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
 	w.remove(removeList)
@@ -112,6 +111,14 @@ func (w *World) Cycle() {
 		}
 	}
 	w.cycle++
+}
+
+func grow(el animal.Animal) {
+	if math.Abs(el.Size() - el.ViewSize()) > 0.1 {
+		el.SetViewSize(el.ViewSize() + el.GrowSize())
+	} else {
+		el.SetViewSize(el.Size())
+	}
 }
 
 func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
