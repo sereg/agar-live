@@ -240,10 +240,8 @@ func NewPoint(el alive.Alive) Obstacle {
 			geom.NewSegment(crd.NewCrd(el.X(), el.Y()-el.Size()), crd.NewCrd(el.X(), el.Y()+el.Size())),
 		},
 		inner: []geom.Segment{
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(0, el.Y())),
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), 0)),
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(9e+2, el.Y())),
-			geom.NewSegment(crd.NewCrd(el.X(), el.Y()), crd.NewCrd(el.X(), 9e+2)),
+			geom.NewSegment(crd.NewCrd(0, el.Y()), crd.NewCrd(el.X()+9e+2, el.Y())),
+			geom.NewSegment(crd.NewCrd(el.X(), 0), crd.NewCrd(el.X(), el.Y()+9e+2)),
 		},
 	}
 	return &p
@@ -283,14 +281,18 @@ func (p *point) check(center crd.Crd, size float64, lines ...geom.Segment) (bool
 		}
 	}
 	countIntersect := 0
-	for k, v := range p.inner {
+	for _, v := range p.inner {
+		localCountIntersect := 0
 		for _, line := range lines {
 			if v.Intersection(line) {
-				countIntersect++
-				break
+				localCountIntersect++
+				if localCountIntersect >= 2 {
+					break
+				}
 			}
 		}
-		if countIntersect == 3 || countIntersect-k < 0 {
+		countIntersect += localCountIntersect
+		if countIntersect < 1 {
 			break
 		}
 	}

@@ -43,7 +43,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 
 func tD(speed, distance float64, cycle uint64) uint64 {
 	//return 3 + cycle
-	return uint64(distance/speed*0.3) + cycle
+	return uint64(distance/speed*0.5) + cycle
 }
 
 type strategy struct {
