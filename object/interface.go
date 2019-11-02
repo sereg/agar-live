@@ -8,6 +8,9 @@ type Object interface {
 	SetColor(string)
 	Size() float64
 	SetSize(size float64)
+	ViewSize() float64
+	SetViewSize(size float64)
+	GrowSize() float64
 	GetCrd() crd.Crd
 	SetCrd(crd.Crd)
 	SetX(float64)
