@@ -34,10 +34,7 @@ func (p Base) Size() float64 {
 //SetSize sets a size for the point
 func (p *Base) SetSize(size float64) {
 	newSize := math2.Round(size)
-	p.growSize = (newSize - p.size) / _const.GrowTime
-	if (p.growSize > 0 && p.viewSize > p.size) || (p.growSize < 0 && p.viewSize < p.size) {
-		p.growSize = (newSize - p.viewSize) / _const.GrowTime
-	}
+	p.growSize = (newSize - p.viewSize) / _const.GrowTime
 	p.size = newSize
 }
 

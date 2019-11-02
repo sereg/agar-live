@@ -97,7 +97,7 @@ func (w *World) Cycle() {
 		w.fixLimit(el)
 		grow(el)
 		if el.Size() < el.ViewSize() && el.GrowSize() >= 0 {
-			fmt.Println("hh")
+
 		}
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
@@ -114,9 +114,6 @@ func (w *World) Cycle() {
 			w.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
 		}
 	}
-	//if w.cycle >= 5120 {
-	//	fmt.Println("hh")
-	//}
 	w.cycle++
 }
 
@@ -232,7 +229,7 @@ func (w *World) forIntersect(
 			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
 				el1.GlueTime() <= w.cycle && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
-				el.Eat(el1) //TODO change size in 30 cycles
+				el.Eat(el1)
 			}
 			if !died && el1.Danger() && el1.Size() < el.Size() && dist() < el.Size() {
 				if Burst(&w.animal, el, w.cycle) {
@@ -285,7 +282,12 @@ func (w *World) fixLimit(el animal.Animal) {
 	if y > w.h {
 		y = w.h - 1
 	}
-	el.SetCrd(crd.NewCrd(x, y))
+	if (x == 0 && y == 0) || (x == 1 && y == 1) {
+		fmt.Println("ff")
+	}
+	if x != el.X() || y != el.Y() {
+		el.SetXY(x, y)
+	}
 }
 
 func NewWorldTest(countPlant, countAnimal int, w, h float64) World {

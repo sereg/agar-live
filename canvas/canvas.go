@@ -129,12 +129,7 @@ func (a *Animal) Draw(obj1 object.Object) {
 	}
 	obj := obj1.(animal.Animal)
 	a.Base.Draw(obj)
-	a.ctx.Call("beginPath")
-	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
-	a.ctx.Set("strokeStyle", "#335dbb")
-	a.ctx.Call("stroke")
-	a.ctx.Set("setLineDash", "[5, 5]")
-	a.ctx.Call("closePath")
+	a.DrawCircle(obj)
 	if parent := obj.Parent(); parent == nil {
 		a.ctx.Call("beginPath")
 		a.ctx.Call("moveTo", obj.X(), obj.Y())
@@ -145,6 +140,23 @@ func (a *Animal) Draw(obj1 object.Object) {
 	a.ctx.Set("fillStyle", "#000")
 	a.ctx.Set("font", "bold 12px Arial")
 	a.ctx.Call("fillText", strconv.Itoa(obj.Count())+"/"+strconv.Itoa(int(obj.Size())), obj.X()-obj.ViewSize(), obj.Y())
+}
+
+func (a *Animal) DrawCircle(obj animal.Animal) {
+	a.ctx.Call("beginPath")
+	a.ctx.Set("strokeStyle", "#335dbb")
+	a.ctx.Call("arc", obj.X(), obj.Y(), obj.Vision(), 0, math.Pi*2, false)
+	a.ctx.Call("stroke")
+	a.ctx.Call("closePath")
+}
+
+func (a *Animal) DrawRectangle(obj animal.Animal) {
+	a.ctx.Call("beginPath")
+	a.ctx.Call("rect", obj.X()-obj.Vision(), obj.Y()-obj.Vision(), 2*obj.Vision(), 2*obj.Vision())
+	a.ctx.Set("strokeStyle", "#335dbb")
+	a.ctx.Call("stroke")
+	a.ctx.Set("setLineDash", "[5, 5]")
+	a.ctx.Call("closePath")
 }
 
 func (a *Animal) Draw1(obj1 object.Object) {

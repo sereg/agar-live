@@ -42,6 +42,9 @@ func (m *Move) GetDirection() crd.Crd {
 }
 
 func (m *Move) SetCrdByDirection(a alive.Alive, direction crd.Crd, dist float64, changeDirection bool) {
+	if direction == a.GetCrd() {
+		return
+	}
 	if changeDirection || direction != m.oldDirection || m.oldDist != dist{
 		c := vector.GetCrdWithLength(a.GetCrd(), direction, dist)
 		xDif, yDif := c.X()-a.X(), c.Y()-a.Y()
@@ -49,6 +52,5 @@ func (m *Move) SetCrdByDirection(a alive.Alive, direction crd.Crd, dist float64,
 	}
 	m.oldDirection = direction
 	m.oldDist = dist
-	a.SetX(a.X() + m.chCrd.X())
-	a.SetY(a.Y() + m.chCrd.Y())
+	a.SetXY(a.X() + m.chCrd.X(), a.Y() + m.chCrd.Y())
 }

@@ -2,6 +2,7 @@ package crd
 
 import (
 	math2 "agar-life/math"
+	"fmt"
 	"math"
 )
 
@@ -32,6 +33,9 @@ func (c *Crd) SetY(y float64) {
 
 //SetXY set x and y
 func (c *Crd) SetXY(x float64, y float64) {
+	if (x == 0 && y == 0) || (x == 1 && y == 1) {
+		fmt.Println("ff")
+	}
 	c.x, c.y = math2.Round(x), math2.Round(y)
 }
 
