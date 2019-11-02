@@ -4,8 +4,8 @@ import (
 	"agar-life/math/crd"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
-	"agar-life/object/alive/animal/move"
 	_const "agar-life/world/const"
+	"agar-life/world/move"
 	"math"
 )
 

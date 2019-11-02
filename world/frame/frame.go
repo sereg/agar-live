@@ -3,7 +3,7 @@ package frame
 import (
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
-	"agar-life/object/alive/animal/behavior"
+	"agar-life/object/alive/animal/behavior/ai"
 )
 
 type Frame struct {
@@ -29,7 +29,7 @@ func (f *Frame) Delete(index int) {
 		if children := el.Children(); len(children) > 0 {
 			parent := el.Child(0)
 			parent.SetParent(nil)
-			parent.SetBehaviour(behavior.NewAiv1(f.w, f.h))
+			parent.SetBehaviour(ai.NewAiv1(f.w, f.h))
 			parent.SetCountChildren(len(children))
 			for i := 1; i < len(children); i++ {
 				el.Child(i).SetParent(parent)

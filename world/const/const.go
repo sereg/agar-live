@@ -2,14 +2,15 @@ package _const
 
 //EatRatio ratio when one object can eat another
 const (
-	FoodSize       = 3
+	FoodSize       = 8
 	AliveStartSize = 15
+	GrowTime       = 30
 
-	EatIncreaseRation     = 0.1
-	EatSelfIncreaseRation = 0.9
-	EatRatio              = 1.3
+	EatIncreaseRation     = 0.2
+	EatSelfIncreaseRation = 0.95
+	EatRatio              = 1.1
 
-	ResurrectTime = 80
+	ResurrectTime = 1200
 
 	SpeedRatio = 10
 	StartSpeed = 12
@@ -27,7 +28,7 @@ const (
 	SplitTime         = 60
 	SplitMaxCount     = 10
 
-	Half       = 0.5
+	SplitRatio = 0.5
 	BurstCount = 8
 
 	PoisonColor = "#8eb021"

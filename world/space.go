@@ -7,14 +7,14 @@ import (
 	"agar-life/math/vector"
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
-	"agar-life/object/alive/animal/behavior"
+	"agar-life/object/alive/animal/behavior/ai"
 	"agar-life/object/alive/animal/species"
 	"agar-life/object/alive/plant"
 	sp "agar-life/object/alive/plant/species"
-	gnt "agar-life/object/generate"
 	"agar-life/world/const"
 	"agar-life/world/frame"
-	"agar-life/world/grid"
+	"agar-life/world/frame/grid"
+	gnt "agar-life/world/generate"
 	"math"
 	"sort"
 	"strconv"
@@ -26,7 +26,7 @@ type World struct {
 	plant      frame.Frame
 	cycle      uint64
 	gridPlant  grid.Grid //TODO move grid index to frame
-	gridAnimal grid.Grid //TODO test Quadtree https://github.com/JamesMilnerUK/quadtree-go
+	gridAnimal grid.Grid
 	resurrect  resurrects
 }
 
@@ -40,9 +40,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 		plant:      frame.NewFrame(countPlant, w, h),
 	}
 	for i := 0; i < countAnimal; i++ {
-		el := species.NewBeast(behavior.NewAiv1(w, h))
-		//el := species.NewBeast(behavior.NewSimple(w, h))
-		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(10 + float64(math2.Random(0, 40))))
+		el := species.NewBeast(ai.NewAiv1(w, h))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(_const.AliveStartSize))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
 		world.animal.Set(i, el)
@@ -62,7 +60,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 }
 
 func poison() bool {
-	return math2.Random(0, 10) == 9
+	return math2.Random(0, 10) > 8
 }
 
 func (w *World) Cycle() {
@@ -77,10 +75,10 @@ func (w *World) Cycle() {
 		if el.GetDead() {
 			continue
 		}
-		idCA, closestAnimal := getClosest(w.gridAnimal, el, w.animal, i)
-		idCP, closestPlant := getClosest(w.gridPlant, el, w.plant, -1)
-		closestAnimal = w.forIntersect(el, closestAnimal, idCA, &w.animal, &removeList)
-		closestPlant = w.forIntersect(el, closestPlant, idCP, &w.plant, &removeList)
+		idC, inner, closest := getClosest(w.gridAnimal, el, w.animal, i)
+		closestAnimal := append(w.forIntersect(el, closest[:inner], idC[:inner], &w.animal, &removeList), closest[inner:]...)
+		idC, inner, closest = getClosest(w.gridPlant, el, w.plant, -1)
+		closestPlant := append(w.forIntersect(el, closest[:inner], idC[:inner], &w.plant, &removeList), closest[inner:]...)
 		var direction crd.Crd
 		split := false
 		dist := el.Speed()
@@ -92,10 +90,11 @@ func (w *World) Cycle() {
 			if split {
 				Split(&w.animal, el, direction, w.cycle)
 			}
+			direction = w.fixNeighborhood(el, direction)
 			el.SetCrdByDirection(el, direction, dist, first)
-			w.fixNeighborhood(el)
 		}
 		w.fixLimit(el)
+		grow(el)
 	}
 	w.resurrect.resurrect(w.cycle, w.w, w.h)
 	w.remove(removeList)
@@ -114,11 +113,21 @@ func (w *World) Cycle() {
 	w.cycle++
 }
 
-func (w *World) fixNeighborhood(el animal.Animal) {
+func grow(el animal.Animal) {
+	if math.Abs(el.Size() - el.ViewSize()) > 0.1 {
+		el.SetViewSize(el.ViewSize() + el.GrowSize())
+	} else {
+		el.SetViewSize(el.Size())
+	}
+}
+
+func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
 	var parent animal.Animal
 	if parent = el.Parent(); parent == nil {
-		return
+		return dir
 	}
+	intersected := false
+	sum := vector.GetVectorByPoint(el.GetCrd(), el.GetCrd())
 	for _, v := range parent.Children() {
 		var el1 animal.Animal
 		if v.ID() == el.ID() {
@@ -131,13 +140,14 @@ func (w *World) fixNeighborhood(el animal.Animal) {
 		}
 		dis := geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
 		if dis < el.Size()+el1.Size() {
-			dist := el.Size() + el1.Size() - dis
-			vec := vector.GetVectorByPoint(el.GetCrd(), el1.GetCrd())
-			vec.AddAngle(math.Pi)
-			direction := vec.GetPointFromVector(el.GetCrd())
-			el.SetCrdByDirection(el, direction, dist, true)
+			intersected = true
+			sum = vector.Add(sum, vector.GetVectorWithLength(el1.GetCrd(), el.GetCrd(), el.Size() + el1.Size()))
 		}
 	}
+	if intersected {
+		dir = sum.GetPointFromVector(el.GetCrd())
+	}
+	return dir
 }
 
 func (w *World) GetPlant() []alive.Alive {
@@ -168,15 +178,6 @@ func (r *rmList) add(index int, fr *frame.Frame) {
 	})
 }
 
-//func (r *rmList) check(index int) bool {
-//	for _, v := range r.list {
-//		if v.index == index {
-//			return true
-//		}
-//	}
-//	return false
-//}
-
 func (r rmList) Len() int           { return len(r.list) }
 func (r rmList) Less(i, j int) bool { return r.list[i].index > r.list[j].index }
 func (r rmList) Swap(i, j int)      { r.list[i], r.list[j] = r.list[j], r.list[i] }
@@ -185,7 +186,7 @@ func (w *World) remove(m rmList) {
 	if len(m.list) > 1 {
 		sort.Sort(m)
 	}
-	for i:=0; i < len(m.list); i++ {
+	for i := 0; i < len(m.list); i++ {
 		v := m.list[i]
 		index, fr := v.index, v.fr
 		if el, ok := fr.Get(index).(animal.Animal); ok {
@@ -206,10 +207,9 @@ func (w *World) forIntersect(
 	fr *frame.Frame,
 	removeList *rmList,
 ) []alive.Alive {
-	removedId := map[int]struct{}{}
 	for j := 0; j < len(closest); j++ {
 		index := idInt[j]
-		el1 := closest[j]
+		el1 := fr.Get(index)
 		dis := -1.0
 		dist := func() float64 {
 			if dis == -1.0 {
@@ -219,10 +219,7 @@ func (w *World) forIntersect(
 		}
 		died := false
 		if el != nil && el1 != nil && !el1.GetDead() {
-			if _, ok := removedId[index]; ok {
-				died = true
-			}
-			if !died && (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
+			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
 				el1.GlueTime() <= w.cycle && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
 				died = true
 				el.Eat(el1) //TODO change size in 30 cycles
@@ -234,24 +231,13 @@ func (w *World) forIntersect(
 			}
 			if died {
 				el1.Die()
-				if _, ok := removedId[index]; !ok {
-					removeList.add(index, fr)
-					removedId[index] = struct{}{}
-				}
+				removeList.add(index, fr)
 				fr.SetUpdateState(true)
 				closest = alive.Remove(closest, j)
 				idInt = removeFromInt(idInt, j)
 				j--
 			}
 		}
-		if !died && dist() > el.Size() + _const.GridSize {
-			break
-		}
-		//if !died && el.Group() == el1.Group() {
-		//	closest = alive.Remove(closest, j)
-		//	idInt = removeFromInt(idInt, j)
-		//	j--
-		//}
 	}
 	return closest
 }
@@ -263,8 +249,8 @@ func removeFromInt(a []int, i int) []int {
 	return a
 }
 
-func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, []alive.Alive) {
-	idInt := gr.GetObjInRadius(el.X(), el.Y(), el.Vision(), ind)
+func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, int, []alive.Alive) {
+	idInt, inner := gr.GetObjInRadius(el.X(), el.Y(), el.Vision(), el.Size(), ind)
 	closest := make([]alive.Alive, len(idInt))
 	j := 0
 	for i := 0; i < len(idInt); i++ {
@@ -272,22 +258,22 @@ func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int,
 		closest[j] = fr.Get(id)
 		j++
 	}
-	return idInt, closest
+	return idInt, inner, closest
 }
 
 func (w *World) fixLimit(el animal.Animal) {
 	x, y := el.X(), el.Y()
 	if x < 0 {
-		x = 0
+		x = 1
 	}
 	if x > w.w {
-		x = w.w
+		x = w.w - 1
 	}
 	if y < 0 {
-		y = 0
+		y = 1
 	}
 	if y > w.h {
-		y = w.h
+		y = w.h - 1
 	}
 	el.SetCrd(crd.NewCrd(x, y))
 }
@@ -301,23 +287,47 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		animal:     frame.NewFrame(countAnimal, w, h),
 		plant:      frame.NewFrame(countPlant, w, h),
 	}
-	crAnimal := func(i int, x, y float64) {
-		//el := species.NewBeast(behavior.NewAiv1(w, h))
-		el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
+	crAnimal := func(i int, x, y, size float64) {
+		el := species.NewBeast(ai.NewAiv1(w, h))
+		//el := species.NewBeast(behavior.NewTestAngel(math.Pi / 2 * -1))
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(41), gnt.Crd(gnt.FixCrd(x, y)))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(size), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
-		world.animal.Set(0, el)
+		world.animal.Set(i, el)
 	}
-	crPlant := func(i int, x, y float64) {
-		el := sp.NewPlant()
+	crPlant := func(i int, x, y float64, poison bool) {
+		var el plant.Plant
+		if poison {
+			el = sp.NewPoison()
+		} else {
+			el = sp.NewPlant()
+		}
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
 		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
 		world.plant.Set(i, el)
 	}
-	crAnimal(0, 200, 200)
-	crPlant(0, 30, 50)
+	//ratio := 6.0
+	//size := 10.0
+	//for i :=0; i < countAnimal; i++ {
+	//	fmt.Println(size)
+	//	size += ratio * float64(i)
+	//	crAnimal(i, 50 + float64(i) * float64(i) * 30 + size, 400, size)
+	//}
+	//crPlant(0, 30, 50, false)
+	//crAnimal(0, 110.09, 209.04, 26)
+	//crAnimal(0, 20, 20, 12)
+
+	//crAnimal(1, 20, 510, 30)
+	//crAnimal(0, 200, 170, 50)
+
+	//crPlant(1, 140, 220, false)
+	//crPlant(3, 170, 200, false)
+	//crPlant(4, 140, 180, false)
 	//crPlant(1, 70, 50)
+
+	crAnimal(0, 150, 200, 18)
+	crPlant(0, 200, 200, true)
+	crPlant(1, 220, 200, false)
 	return world
 }

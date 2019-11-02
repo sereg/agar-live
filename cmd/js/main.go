@@ -4,6 +4,7 @@ import (
 	"agar-life/canvas"
 	"agar-life/world"
 	"math/rand"
+	"strconv"
 	"syscall/js"
 	"time"
 )
@@ -17,8 +18,8 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	space := world.NewWorld(400, 10, jsCon.GetW(), jsCon.GetH())
-	//space := world.NewWorldTest(1, 1, jsCon.GetW(), jsCon.GetH())
+	space := world.NewWorld(50, 1, jsCon.GetW(), jsCon.GetH())
+	//space := world.NewWorldTest(2, 1, jsCon.GetW(), jsCon.GetH())
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
 	var cycle js.Func
@@ -41,11 +42,12 @@ func main() {
 			fieldAnimals.Draw(v)
 		}
 		fieldAnimals.Restore()
-		//println("requestAnimationFrame")
-		//jsCon.GetWindow().Call("requestAnimationFrame", cycle)
+		//println("requestAnimationFrame"){212.83 420}{210.09 409.04}
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	})
 	jsCon.GetWindow().Call("requestAnimationFrame", cycle)
-	println("WASM Go Initialized")
+	js.Global().Set("cycle", cycle)
+	println("WASM Go Initialized field " +  strconv.Itoa(int(jsCon.GetW())) + " " + strconv.Itoa(int(jsCon.GetH())))
 	select {}
 }

@@ -39,9 +39,9 @@ func structGridKey(xInt, yInt int) xy {
 	return xy{x: xInt, y: yInt}
 }
 
-func (g structGrid) GetObjInRadius(x, y, vision float64, exclude int) []int {
-	ltx, lty := int((x-vision)/g.cellSize), int((y-vision)/g.cellSize)
-	rdx, rdy := int((x+vision)/g.cellSize), int((y+vision)/g.cellSize)
+func (g structGrid) GetObjInRadius(x, y, radius float64, size float64, exclude int) ([]int, int) {
+	ltx, lty := int((x-radius)/g.cellSize), int((y-radius)/g.cellSize)
+	rdx, rdy := int((x+radius)/g.cellSize), int((y+radius)/g.cellSize)
 	var obj []int
 	for cx := ltx; cx <= rdx; cx++ {
 		for cy := lty; cy <= rdy; cy++ {
@@ -51,5 +51,5 @@ func (g structGrid) GetObjInRadius(x, y, vision float64, exclude int) []int {
 			}
 		}
 	}
-	return obj
+	return obj, 0
 }

@@ -3,9 +3,9 @@ package world
 import (
 	"agar-life/object/alive"
 	"agar-life/object/alive/animal"
-	gnt "agar-life/object/generate"
 	"agar-life/world/const"
 	"agar-life/world/frame"
+	gnt "agar-life/world/generate"
 )
 
 type resurrect struct {

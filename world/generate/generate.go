@@ -16,6 +16,7 @@ func Generate(el alive.Alive, opts ...Option) {
 	if el.Danger() {
 		el.SetColor(_const.PoisonColor)
 		el.SetSize(_const.PoisonSize)
+		el.SetViewSize(_const.PoisonSize)
 	} else {
 		if opt.color == nil {
 			el.SetColor(getRandomColor())
@@ -23,6 +24,7 @@ func Generate(el alive.Alive, opts ...Option) {
 			el.SetColor(*opt.color)
 		}
 		el.SetSize(opt.size)
+		el.SetViewSize(opt.size)
 	}
 	el.SetCrd(opt.crdFn(opt.w, opt.h))
 	el.Revive()
@@ -43,6 +45,7 @@ type Options struct {
 func DefaultOptions() Options {
 	return Options{
 		size:  _const.FoodSize,
+		//size:  _const.PoisonSize,
 		crdFn: RandomCrd,
 	}
 }
