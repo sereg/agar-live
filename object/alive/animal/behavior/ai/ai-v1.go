@@ -125,6 +125,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 				return strconv.Itoa(len(animals)) + "-" + strconv.Itoa(len(plants)) + "-" + poisonCount + "-" + edgesCount
 			},
 			action: func() crd.Crd {
+				//TODO check object reachability
 				return closest.GetCrd()
 			},
 		},
@@ -288,7 +289,7 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 			}
 			closest = &cr
 			dist = distRes
-			if dist * 0.7 < _const.SplitDist && (el.Size()*_const.SplitRatio)/el1.Size() > _const.EatRatio && !dangerous && animal {
+			if dist * 1.3 < _const.SplitDist && (el.Size()*_const.SplitRatio)/el1.Size() > _const.EatRatio && !dangerous && animal {
 				split = true
 				break
 			}

@@ -17,7 +17,7 @@ type staticHandler struct {
 }
 
 func (m *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	prefix := "../../assets"
+	prefix := "../../assets/public"
 	path := r.URL.Path
 	if path == "/" {
 		path = prefix + "/index.html"
