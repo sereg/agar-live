@@ -13,6 +13,7 @@
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
     "css-loader": "^3.2.0",
+    "golang-wasm-async-loader": "^0.4.1",
     "node-sass": "^4.13.0",
     "sass-loader": "^8.0.0",
     "source-map-loader": "^0.2.4",

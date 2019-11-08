@@ -20,6 +20,7 @@ func main() {
 	jsCon := canvas.NewJsConnect()
 	space := world.NewWorld(500, 10, jsCon.GetW(), jsCon.GetH())
 	//space := world.NewWorldTest(2, 2, jsCon.GetW(), jsCon.GetH())
+	println(int(jsCon.GetW()), int(jsCon.GetH()))
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
 	var cycle js.Func

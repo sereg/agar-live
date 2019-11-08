@@ -23,6 +23,10 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.go$/,
+                loader: 'golang-wasm-async-loader'
+            },
+            {
                 test: /\.s[ac]ss$/i,
                 use: [
                     // Creates `style` nodes from JS strings
