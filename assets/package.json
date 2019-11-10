@@ -25,8 +25,15 @@
   },
   "dependencies": {
     "bootstrap": "4.3.1",
-    "font-awesome": "4.7.0",
+    "create-hash": "^1.2.0",
+    "create-hmac": "^1.1.7",
+    "crypto": "^1.0.1",
+    "hash.js": "^1.1.7",
+    "md5": "^2.2.1",
     "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "react-dom": "^16.11.0",
+    "sha": "^3.0.0",
+    "sha.js": "^2.4.11",
+    "util": "^0.12.1"
   }
 }

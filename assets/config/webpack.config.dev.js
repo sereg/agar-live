@@ -1,12 +1,21 @@
 'use strict';
 
 const helpers = require('./helpers');
+const webpack = require('webpack');
 
 module.exports = {
+    stats: {
+        warnings: false,
+    },
+
     mode: "development",
 
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
+
+    // entry: {
+    //     'go': './src/wasm_exec.js'
+    // },
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
@@ -51,6 +60,17 @@ module.exports = {
                 enforce: "pre",
                 test: /\.js$/,
                 loader: "source-map-loader"
+            },
+
+            // process fonts
+            {
+                test: /\.((ttf|eot)(\?v=[0-9]\.[0-9]\.[0-9]))|(ttf|eot)|((woff2?|svg)(\?v=[0-9]\.[0-9]\.[0-9]))|(woff2?|svg|jpe?g|png|gif|ico)$/,
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        outputPath: '/font'
+                    }
+                }]
             }
         ]
     },
@@ -62,5 +82,15 @@ module.exports = {
     externals: {
         "react": "React",
         "react-dom": "ReactDOM"
-    }
+    },
+
+    plugins: [
+        new webpack.ContextReplacementPlugin(
+            /wasm_exec.js|create-hmac/,
+            (data) => {
+                delete data.dependencies[0].critical;
+                return data;
+            },
+        ),
+    ]
 };

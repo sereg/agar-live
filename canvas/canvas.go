@@ -29,8 +29,8 @@ func NewJsConnect() JS {
 	jc.doc = jc.window.Get("document")
 	jc.body = jc.doc.Get("body")
 	jc.box = jc.doc.Call("getElementById", "box")
-	jc.wh.h = jc.window.Get("innerHeight").Float() - 13
-	jc.wh.w = jc.box.Get("offsetWidth").Float() - 40
+	jc.wh.h = jc.window.Get("innerHeight").Float() - 5
+	jc.wh.w = jc.box.Get("offsetWidth").Float() - 20
 	return jc
 }
 
