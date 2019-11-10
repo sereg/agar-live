@@ -1,0 +1,39 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^16.9.11",
+    "@types/react-dom": "^16.9.4",
+    "css-loader": "^3.2.0",
+    "golang-wasm-async-loader": "^0.4.1",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^8.0.0",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^1.0.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "bootstrap": "4.3.1",
+    "create-hash": "^1.2.0",
+    "create-hmac": "^1.1.7",
+    "crypto": "^1.0.1",
+    "hash.js": "^1.1.7",
+    "md5": "^2.2.1",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "sha": "^3.0.0",
+    "sha.js": "^2.4.11",
+    "util": "^0.12.1"
+  }
+}

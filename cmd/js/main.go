@@ -10,8 +10,8 @@ import (
 )
 //set GOARCH=wasm
 //set GOOS=js
-//go build -o ./assets/lib.wasm cmd/js/main.go
-//GOARCH=wasm GOOS=js go build -o ./assets/lib.wasm cmd/js/main.go
+//go src -o ./assets/lib.wasm cmd/js/main.go
+//GOARCH=wasm GOOS=js go src -o ./assets/public/lib.wasm cmd/js/main.go
 //go test -cpuprofile profile.out
 //go test -memprofile profile.out
 //go tool pprof --web profile.out
@@ -20,6 +20,7 @@ func main() {
 	jsCon := canvas.NewJsConnect()
 	space := world.NewWorld(500, 10, jsCon.GetW(), jsCon.GetH())
 	//space := world.NewWorldTest(2, 2, jsCon.GetW(), jsCon.GetH())
+	println(int(jsCon.GetW()), int(jsCon.GetH()))
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := canvas.Animal{Base: jsCon.NewCanvas()}
 	var cycle js.Func
@@ -42,7 +43,6 @@ func main() {
 			fieldAnimals.Draw(v)
 		}
 		fieldAnimals.Restore()
-		//println("requestAnimationFrame"){212.83 420}{210.09 409.04}
 		//jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	})

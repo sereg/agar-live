@@ -19,7 +19,7 @@ type WH struct{ w, h float64 }
 
 type JS struct {
 	value             int
-	window, doc, body js.Value
+	window, doc, body, box js.Value
 	wh                WH
 }
 
@@ -28,8 +28,9 @@ func NewJsConnect() JS {
 	jc.window = js.Global()
 	jc.doc = jc.window.Get("document")
 	jc.body = jc.doc.Get("body")
-	jc.wh.h = jc.window.Get("innerHeight").Float()
-	jc.wh.w = jc.window.Get("innerWidth").Float()
+	jc.box = jc.doc.Call("getElementById", "box")
+	jc.wh.h = jc.window.Get("innerHeight").Float() - 5
+	jc.wh.w = jc.box.Get("offsetWidth").Float() - 20
 	return jc
 }
 
@@ -50,7 +51,7 @@ func (j *JS) NewCanvas() Base {
 	canvas.Set("className", "canvas first")
 	canvas.Set("height", j.wh.h)
 	canvas.Set("width", j.wh.w)
-	j.body.Call("appendChild", canvas)
+	j.box.Call("appendChild", canvas)
 	ctx := canvas.Call("getContext", "2d")
 	img := j.window.Call("eval", "new Image()")
 	img.Set("src", "/img/thorn.png")

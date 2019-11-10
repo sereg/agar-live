@@ -16,6 +16,7 @@ import (
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
 	"fmt"
+	"io"
 	"math"
 	"sort"
 	"strconv"
@@ -32,6 +33,38 @@ type World struct {
 }
 
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
+	world := World{
+		w:          w,
+		h:          h,
+		gridPlant:  grid.NewArray(_const.GridSize, w, h),
+		gridAnimal: grid.NewArray(_const.GridSize, w, h),
+		animal:     frame.NewFrame(countAnimal, w, h),
+		plant:      frame.NewFrame(countPlant, w, h),
+	}
+	for i := 0; i < countAnimal; i++ {
+		el := species.NewBeast(ai.NewAiv1(w, h))
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(_const.AliveStartSize))
+		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
+		world.animal.Set(i, el)
+	}
+	for i := 0; i < countPlant; i++ {
+		var el plant.Plant
+		if poison() {
+			el = sp.NewPoison()
+		} else {
+			el = sp.NewPlant()
+		}
+		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)))
+		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
+		world.plant.Set(i, el)
+	}
+	return world
+}
+
+func NewWorldFromFile(reader io.Reader) World {
+	w, h := 1000.0, 1000.0
+	countAnimal := 0
+	countPlant := 0
 	world := World{
 		w:          w,
 		h:          h,

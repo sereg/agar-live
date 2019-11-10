@@ -4,3 +4,4 @@ vendor
 .history
 *.out
 *.test
+node_modules
