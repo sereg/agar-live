@@ -1,6 +1,7 @@
 package world
 
 import (
+	"agar-life/object/alive/animal"
 	_const "agar-life/world/const"
 	"fmt"
 	"math"
@@ -9,6 +10,21 @@ import (
 
 func TestCycle(t *testing.T) {
 	cycle()
+}
+
+func TestExport(t *testing.T) {
+	world := NewWorld(80, 10, 500, 500)
+	loop:for i := 0; i < 10000; i++ {
+		world.Cycle()
+		animalList := world.GetAnimal()
+		for _, v := range animalList {
+			el := v.(animal.Animal)
+			if el.GetParent() != nil {
+				break loop
+			}
+		}
+	}
+	world.GetWorld()
 }
 
 func cycle() {

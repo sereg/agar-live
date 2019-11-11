@@ -8,61 +8,61 @@ import (
 
 //Base is basic realization on object interface
 type Base struct {
-	color    string
-	size     float64
-	viewSize float64
-	growSize float64
-	hidden   bool
+	Color    string
+	Size     float64
+	ViewSize float64
+	GrowSize float64
+	Hidden   bool
 	crd.Crd
 }
 
-//Color return color of point
-func (p Base) Color() string {
-	return p.color
+//GetColor return Color of point
+func (p Base) GetColor() string {
+	return p.Color
 }
 
-//SetColor sets a color for the point
+//SetColor sets a Color for the point
 func (p *Base) SetColor(color string) {
-	p.color = color
+	p.Color = color
 }
 
-//Size return size of point
-func (p Base) Size() float64 {
-	return p.size
+//GetSize return Size of point
+func (p Base) GetSize() float64 {
+	return p.Size
 }
 
-//SetSize sets a size for the point
+//SetSize sets a Size for the point
 func (p *Base) SetSize(size float64) {
 	newSize := math2.Round(size)
-	p.growSize = (newSize - p.viewSize) / _const.GrowTime
-	p.size = newSize
+	p.GrowSize = (newSize - p.ViewSize) / _const.GrowTime
+	p.Size = newSize
 }
 
-//ViewSize return viewSize of point
-func (p Base) ViewSize() float64 {
-	return p.viewSize
+//GetViewSize return ViewSize of point
+func (p Base) GetViewSize() float64 {
+	return p.ViewSize
 }
 
-//GrowSize return growSize of point
-func (p Base) GrowSize() float64 {
-	return p.growSize
+//GetGrowSize return GrowSize of point
+func (p Base) GetGrowSize() float64 {
+	return p.GrowSize
 }
 
-//SetSize sets a size for the point
+//SetSize sets a Size for the point
 func (p *Base) SetViewSize(size float64) {
 	if size <= 0 {
-		p.viewSize = p.size
+		p.ViewSize = p.Size
 	} else {
-		p.viewSize = size
+		p.ViewSize = size
 	}
 }
 
-//Hidden return is hidden the point
-func (p *Base) Hidden() bool {
-	return p.hidden
+//GetHidden return is Hidden the point
+func (p *Base) GetHidden() bool {
+	return p.Hidden
 }
 
-//SetHidden set hidden property
+//SetHidden set Hidden property
 func (p *Base) SetHidden(isHidden bool) {
-	p.hidden = isHidden
+	p.Hidden = isHidden
 }

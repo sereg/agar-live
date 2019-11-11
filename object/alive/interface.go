@@ -9,15 +9,15 @@ type Alive interface {
 	GetDead() bool
 	Grow()
 	Decrease()
-	Group() string
+	GetGroup() string
 	SetGroup(string)
-	ID() int
+	GetID() int
 	SetID(int)
-	GlueTime() uint64
+	GetGlueTime() uint64
 	SetGlueTime(uint64)
-	Danger() bool
+	GetDanger() bool
 	SetDanger(bool)
-	Edible() bool
+	GetEdible() bool
 	SetEdible(bool)
 }
 

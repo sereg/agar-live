@@ -15,14 +15,14 @@ import (
 )
 
 func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
-	if el.Size() < _const.MinSizeSplit {
+	if el.GetSize() < _const.MinSizeSplit {
 		return
 	}
-	size := math2.Round(el.Size() * _const.SplitRatio)
+	size := math2.Round(el.GetSize() * _const.SplitRatio)
 	el.SetSize(size)
 	el.SetGlueTime(cycle)
 	var parent animal.Animal
-	if p := el.Parent(); p != nil {
+	if p := el.GetParent(); p != nil {
 		parent = p
 	} else {
 		parent = el
@@ -36,9 +36,9 @@ func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 	gnt.Generate(
 		alv,
 		gnt.Size(size),
-		gnt.Name(el.Group()),
-		gnt.Color(el.Color()),
-		gnt.Crd(gnt.FixCrd(el.X(), el.Y())),
+		gnt.Name(el.GetGroup()),
+		gnt.Color(el.GetColor()),
+		gnt.Crd(gnt.FixCrd(el.GetX(), el.GetY())),
 	)
 
 	fr.Add(alv)
@@ -52,21 +52,21 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 			return true
 		}
 	}
-	size := math2.Round(el.Size() / float64(burstCount))
+	size := math2.Round(el.GetSize() / float64(burstCount))
 	if size < _const.MinSizeAlive {
-		burstCount = int(el.Size() / _const.MinSizeAlive)
+		burstCount = int(el.GetSize() / _const.MinSizeAlive)
 		if burstCount < 2 {
 			return false
 		}
-		size = math2.Round(el.Size() / float64(burstCount))
+		size = math2.Round(el.GetSize() / float64(burstCount))
 	}
 	el.SetSize(size)
 	addAngel := 2.0 * math.Pi / float64(burstCount)
-	vec := vector.GetVectorByPoint(el.GetCrd(), crd.NewCrd(el.X()+_const.SplitDist, el.Y()))
+	vec := vector.GetVectorByPoint(el.GetCrd(), crd.NewCrd(el.GetX()+_const.SplitDist, el.GetY()))
 	el.SetInertia(vec.GetPointFromVector(el.GetCrd()))
 	el.SetGlueTime(cycle)
 	var parent animal.Animal
-	if p := el.Parent(); p != nil {
+	if p := el.GetParent(); p != nil {
 		parent = p
 	} else {
 		parent = el
@@ -79,9 +79,9 @@ func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
 		gnt.Generate(
 			alv,
 			gnt.Size(size),
-			gnt.Name(el.Group()),
-			gnt.Color(el.Color()),
-			gnt.Crd(gnt.FixCrd(el.X(), el.Y())),
+			gnt.Name(el.GetGroup()),
+			gnt.Color(el.GetColor()),
+			gnt.Crd(gnt.FixCrd(el.GetX(), el.GetY())),
 		)
 		vec.AddAngle(addAngel)
 		alv.SetInertia(vec.GetPointFromVector(el.GetCrd()))

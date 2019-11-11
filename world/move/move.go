@@ -8,49 +8,49 @@ import (
 )
 
 type Move struct {
-	chCrd        crd.Crd
-	oldDirection crd.Crd
-	oldDist         float64
-	inertia
+	ChCrd        crd.Crd
+	OldDirection crd.Crd
+	OldDist      float64
+	Inertia
 }
 
-type inertia struct{
-	direction           crd.Crd
-	speed, acceleration float64
+type Inertia struct{
+	Direction           crd.Crd
+	Speed, Acceleration float64
 }
 
-func (i *inertia) SetInertia(direction crd.Crd) {
-	i.direction = direction
-	i.acceleration = _const.SplitDeceleration
-	i.speed = _const.SplitSpeed
+func (i *Inertia) SetInertia(direction crd.Crd) {
+	i.Direction = direction
+	i.Acceleration = _const.SplitDeceleration
+	i.Speed = _const.SplitSpeed
 }
 
 func (m *Move) GetInertia() (direction crd.Crd, speed float64){
-	direction = m.direction
-	speed = m.speed
-	if m.speed > 0 {
-		m.speed -= m.acceleration
+	direction = m.Direction
+	speed = m.Speed
+	if m.Speed > 0 {
+		m.Speed -= m.Acceleration
 	}
-	if m.speed < 0 {
-		m.speed = 0
+	if m.Speed < 0 {
+		m.Speed = 0
 	}
 	return
 }
 
 func (m *Move) GetDirection() crd.Crd {
-	return m.oldDirection
+	return m.OldDirection
 }
 
 func (m *Move) SetCrdByDirection(a alive.Alive, direction crd.Crd, dist float64, changeDirection bool) {
 	if direction == a.GetCrd() {
 		return
 	}
-	if changeDirection || direction != m.oldDirection || m.oldDist != dist{
+	if changeDirection || direction != m.OldDirection || m.OldDist != dist{
 		c := vector.GetCrdWithLength(a.GetCrd(), direction, dist)
-		xDif, yDif := c.X()-a.X(), c.Y()-a.Y()
-		m.chCrd.SetXY(xDif, yDif)
+		xDif, yDif := c.GetX()-a.GetX(), c.GetY()-a.GetY()
+		m.ChCrd.SetXY(xDif, yDif)
 	}
-	m.oldDirection = direction
-	m.oldDist = dist
-	a.SetXY(a.X() + m.chCrd.X(), a.Y() + m.chCrd.Y())
+	m.OldDirection = direction
+	m.OldDist = dist
+	a.SetXY(a.GetX() + m.ChCrd.GetX(), a.GetY() + m.ChCrd.GetY())
 }

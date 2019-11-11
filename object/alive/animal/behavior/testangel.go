@@ -18,7 +18,7 @@ func NewTestAngel(angel float64) animal.Behavior {
 }
 
 func (a *testAngel) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
-	//vec := vector.GetVectorByPoint(self.GetCrd(), crd.NewCrd(self.X()+self.Vision(), self.Y()))
+	//vec := vector.GetVectorByPoint(self.GetCrd(), crd.NewCrd(self.GetX()+self.GetVision(), self.GetY()))
 	//vec.SetAngle(a.angel)
 	//a.direction.SetCrd(vec.GetPointFromVector(self.GetCrd()))
 	cx := 400.0

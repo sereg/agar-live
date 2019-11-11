@@ -13,7 +13,7 @@ func Generate(el alive.Alive, opts ...Option) {
 	for _, o := range opts {
 		o(&opt)
 	}
-	if el.Danger() {
+	if el.GetDanger() {
 		el.SetColor(_const.PoisonColor)
 		el.SetSize(_const.PoisonSize)
 		el.SetViewSize(_const.PoisonSize)

@@ -15,6 +15,7 @@ import (
 
 type aiV1 struct {
 	behavior.Simple
+	Name string
 	mem memory
 }
 
@@ -38,6 +39,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 	right = checkangels.NewLine(geom.NewSegment(crd.NewCrd(w, 0), crd.NewCrd(w, h)))
 	return &aiV1{
 		Simple: behavior.NewSimple(w, h),
+		Name: "aiV1",
 	}
 }
 
@@ -157,29 +159,29 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 			}
 			cr := strategy.action()
 			if strategy.mem {
-				a.mem.set(strategy.priority, tD(self.Speed(), self.Vision(), cycle), reason, cr)
+				a.mem.set(strategy.priority, tD(self.GetSpeed(), self.GetVision(), cycle), reason, cr)
 			}
 			a.SetDir(cr)
 			break
 		}
 	}
-	//if self.Size() < 80 {
+	//if self.GetSize() < 80 {
 	//	self.SetSize(80)
 	//}
 	return a.Dir(), split
 }
 
 func (a *aiV1) edgeObstacle(el animal.Animal) (obstacles []checkangels.Obstacle) {
-	if el.X()-el.Vision() < 0 {
+	if el.GetX()-el.GetVision() < 0 {
 		obstacles = append(obstacles, left)
 	}
-	if el.X()+el.Vision() > a.W() {
+	if el.GetX()+el.GetVision() > a.W() {
 		obstacles = append(obstacles, right)
 	}
-	if el.Y()-el.Vision() < 0 {
+	if el.GetY()-el.GetVision() < 0 {
 		obstacles = append(obstacles, top)
 	}
-	if el.Y()+el.Vision() > a.H() {
+	if el.GetY()+el.GetVision() > a.H() {
 		obstacles = append(obstacles, down)
 	}
 	return
@@ -230,15 +232,15 @@ func dangerous(el animal.Animal, animals []alive.Alive) dangerObj {
 	danObj := dangerObj{}
 	for i := 0; i < len(animals); i++ {
 		el1 := animals[i]
-		if el != nil && el1 != nil && el1.Size()/el.Size() > _const.EatRatio && el1.Group() != el.Group() && !el1.GetDead() {
-			danObj.add(el.GetCrd(), el1.GetCrd(), el.Vision(), el1.Group())
+		if el != nil && el1 != nil && el1.GetSize()/el.GetSize() > _const.EatRatio && el1.GetGroup() != el.GetGroup() && !el1.GetDead() {
+			danObj.add(el.GetCrd(), el1.GetCrd(), el.GetVision(), el1.GetGroup())
 		}
 	}
 	return danObj
 }
 
 func poisons(el animal.Animal, plants []alive.Alive) (poisons []checkangels.Obstacle) {
-	if el.Size()-_const.MinSizeAlive < _const.MinSizeAlive || el.Count() >= _const.SplitMaxCount {
+	if el.GetSize()-_const.MinSizeAlive < _const.MinSizeAlive || el.Count() >= _const.SplitMaxCount {
 		return poisons
 	}
 	poisons = make([]checkangels.Obstacle, 0, len(plants)/10)
@@ -247,7 +249,7 @@ func poisons(el animal.Animal, plants []alive.Alive) (poisons []checkangels.Obst
 		if el == nil || el1 == nil || el1.GetDead() {
 			continue
 		}
-		if el1.Size() < el.Size() && el1.Danger() {
+		if el1.GetSize() < el.GetSize() && el1.GetDanger() {
 			poisons = append(poisons, checkangels.NewPoint(el1))
 		}
 	}
@@ -265,15 +267,15 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 		distFn := func() float64 {
 			if distRes == -1.0 {
 				vec = vector.GetVectorByPoint(el.GetCrd(), el1.GetCrd())
-				distRes = vec.Len() - el.Size()
+				distRes = vec.Len() - el.GetSize()
 			}
 			return distRes
 		}
-		if el != nil && el1 != nil && !el1.Danger() &&
-			el.Size()/el1.Size() > _const.EatRatio &&
-			(mass < el1.Size() || obstacle) && //TODO add equation choice distance or size
-			el1.Group() != el.Group() && !el1.GetDead() && distFn() < dist &&
-			distFn() < el.Vision() {
+		if el != nil && el1 != nil && !el1.GetDanger() &&
+			el.GetSize()/el1.GetSize() > _const.EatRatio &&
+			(mass < el1.GetSize() || obstacle) && //TODO add equation choice distance or size
+			el1.GetGroup() != el.GetGroup() && !el1.GetDead() && distFn() < dist &&
+			distFn() < el.GetVision() {
 			vecAngel := geom.ModuleDegree(vec.GetAngle())
 			reachable, dangerous := dAngeles.Check(vecAngel, distRes)
 			if !reachable && !obstacle {
@@ -289,11 +291,11 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 			}
 			closest = &cr
 			dist = distRes
-			if dist * 1.3 < _const.SplitDist && (el.Size()*_const.SplitRatio)/el1.Size() > _const.EatRatio && !dangerous && animal {
+			if dist * 1.3 < _const.SplitDist && (el.GetSize()*_const.SplitRatio)/el1.GetSize() > _const.EatRatio && !dangerous && animal {
 				split = true
 				break
 			}
-			mass = el1.Size()
+			mass = el1.GetSize()
 		} else {
 			if !obstacle && i > 10 && mass > 0 && !animal && distFn() > _const.GridSize {
 				return

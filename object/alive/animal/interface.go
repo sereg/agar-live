@@ -6,7 +6,7 @@ import (
 )
 
 type Parent interface {
-	Parent() Animal
+	GetParent() Animal
 	SetParent(Animal)
 }
 
@@ -15,7 +15,7 @@ type Children interface {
 	AddChild(Animal)
 	SetCountChildren(int)
 	DeleteChild(int)
-	Children() []Animal
+	GetChildren() []Animal
 }
 
 type Animal interface {
@@ -23,11 +23,11 @@ type Animal interface {
 	Parent
 	Children
 	SetSpeed(float64)
-	Speed() float64
+	GetSpeed() float64
 	SetVision(float64)
-	Vision() float64
+	GetVision() float64
 	SetBehaviour(Behavior)
-	Behaviour() Behavior
+	GetBehaviour() Behavior
 	Eat(a alive.Alive)
 	Action(animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool)
 	Direction() crd.Crd

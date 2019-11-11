@@ -8,40 +8,40 @@ import (
 
 //Crd coordinates
 type Crd struct {
-	x, y float64
+	X, Y float64
 }
 
 //NewCrd return new instance of crd
 func NewCrd(x, y float64) Crd {
-	return Crd{x: math2.Round(x), y: math2.Round(y)}
+	return Crd{X: math2.Round(x), Y: math2.Round(y)}
 }
 
-//SetX set x
+//SetX set X
 func (c *Crd) SetX(x float64) {
-	c.x = math2.Round(x)
+	c.X = math2.Round(x)
 }
 
-//GetX it return x
-func (c Crd) X() float64 {
-	return c.x
+//GetX it return X
+func (c Crd) GetX() float64 {
+	return c.X
 }
 
-//Y set x
+//GetY set X
 func (c *Crd) SetY(y float64) {
-	c.y = math2.Round(y)
+	c.Y = math2.Round(y)
 }
 
-//SetXY set x and y
+//SetXY set X and Y
 func (c *Crd) SetXY(x float64, y float64) {
 	if (x == 0 && y == 0) || (x == 1 && y == 1) {
 		fmt.Println("ff")
 	}
-	c.x, c.y = math2.Round(x), math2.Round(y)
+	c.X, c.Y = math2.Round(x), math2.Round(y)
 }
 
-//GetY it return y
-func (c Crd) Y() float64 {
-	return c.y
+//GetY it return Y
+func (c Crd) GetY() float64 {
+	return c.Y
 }
 
 //GetCrd it return crd
@@ -50,7 +50,7 @@ func (c Crd) GetCrd() Crd {
 }
 
 func (c *Crd) SetCrd(a Crd) {
-	if !math.IsNaN(a.X()) && !math.IsNaN(a.Y()) {
-		c.x, c.y = math2.Round(a.X()), math2.Round(a.Y())
+	if !math.IsNaN(a.GetX()) && !math.IsNaN(a.GetY()) {
+		c.X, c.Y = math2.Round(a.GetX()), math2.Round(a.GetY())
 	}
 }

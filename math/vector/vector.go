@@ -10,13 +10,13 @@ type Vector struct {
 }
 
 func NewVector(crd crd.Crd) Vector {
-	return Vector{x: crd.X(), y: crd.Y()}
+	return Vector{x: crd.GetX(), y: crd.GetY()}
 }
 
 func GetVectorByPoint(a, b crd.Crd) Vector {
 	vec := Vector{}
-	vec.x = b.X() - a.X()
-	vec.y = b.Y() - a.Y()
+	vec.x = b.GetX() - a.GetX()
+	vec.y = b.GetY() - a.GetY()
 	return vec
 }
 
@@ -77,8 +77,8 @@ func (vec *Vector) SetAngle(angle float64) {
 }
 
 func (vec Vector) GetPointFromVector(a crd.Crd) crd.Crd {
-	xr := vec.x + a.X()
-	yr := vec.y + a.Y()
+	xr := vec.x + a.GetX()
+	yr := vec.y + a.GetY()
 	return crd.NewCrd(xr, yr)
 }
 
