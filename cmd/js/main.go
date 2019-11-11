@@ -3,6 +3,7 @@ package main
 import (
 	"agar-life/canvas"
 	"agar-life/world"
+	"fmt"
 	"math/rand"
 	"strconv"
 	"syscall/js"
@@ -18,15 +19,28 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	jsCon := canvas.NewJsConnect()
-	space := world.NewWorld(50, 5, jsCon.GetW(), jsCon.GetH())
-	//space := world.NewWorldTest(2, 2, jsCon.GetW(), jsCon.GetH())
+	w, h := jsCon.GetW(), jsCon.GetH()
+	countPlants := 50
+	countAnimal := 5
+	space := world.NewWorld(countPlants, countAnimal, w, h)
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := &canvas.Animal{Base: *jsCon.NewCanvas()}
 	cycle := getCycleFn(space, fieldPlants, fieldAnimals)
 
 	js.Global().Set("cycle", cycle)
+
 	js.Global().Set("restart", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		space = world.NewWorld(50, 5, jsCon.GetW(), jsCon.GetH())
+		space = world.NewWorld(countPlants, countAnimal, w, h)
+		cycle = getCycleFn(space, fieldPlants, fieldAnimals)
+		js.Global().Set("cycle", cycle)
+		return nil
+	}))
+
+	js.Global().Set("generate", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		fmt.Printf("%+v\r\n", args)
+		countAnimal = args[0].Int()
+		countPlants = args[1].Int()
+		space = world.NewWorld(countPlants, countAnimal, w, h)
 		cycle = getCycleFn(space, fieldPlants, fieldAnimals)
 		js.Global().Set("cycle", cycle)
 		return nil

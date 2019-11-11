@@ -6638,10 +6638,10 @@ elliptic.eddsa = __webpack_require__(!(function webpackMissingModule() { var e =
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, dependencies, deprecated, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_args\":[[\"elliptic@6.5.1\",\"/project\"]],\"_development\":true,\"_from\":\"elliptic@6.5.1\",\"_id\":\"elliptic@6.5.1\",\"_inBundle\":false,\"_integrity\":\"sha512-xvJINNLbTeWQjrl6X+7eQCrIy/YPv5XCpKW6kB5mKvtnGILoLDcySuwomfdzt0BMdLNVnuRNTuzKNHj0bva1Cg==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"elliptic@6.5.1\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"6.5.1\",\"saveSpec\":null,\"fetchSpec\":\"6.5.1\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.1.tgz\",\"_spec\":\"6.5.1\",\"_where\":\"/project\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.4\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.6.0\",\"mocha\":\"^6.1.4\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.1\"}");
+module.exports = JSON.parse("{\"_from\":\"elliptic@^6.0.0\",\"_id\":\"elliptic@6.5.1\",\"_inBundle\":false,\"_integrity\":\"sha512-xvJINNLbTeWQjrl6X+7eQCrIy/YPv5XCpKW6kB5mKvtnGILoLDcySuwomfdzt0BMdLNVnuRNTuzKNHj0bva1Cg==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"elliptic@^6.0.0\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"^6.0.0\",\"saveSpec\":null,\"fetchSpec\":\"^6.0.0\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.1.tgz\",\"_shasum\":\"c380f5f909bf1b9b4428d028cd18d3b0efd6b52b\",\"_spec\":\"elliptic@^6.0.0\",\"_where\":\"/project/node_modules/browserify-sign\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"bundleDependencies\":false,\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"deprecated\":false,\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.4\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.6.0\",\"mocha\":\"^6.1.4\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.1\"}");
 
 /***/ }),
 
@@ -12375,12 +12375,34 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(__webpack_require__(/*! react */ "react"));
+const Const_1 = __webpack_require__(/*! ../const/Const */ "./src/const/Const.ts");
 const icon_1 = __webpack_require__(/*! ./icon/icon */ "./src/components/icon/icon.tsx");
 exports.ControlPanel = (props) => {
     return (React.createElement("div", null,
-        React.createElement("div", { onClick: props.changes }, props.status === 0 /* playing */ ? (React.createElement(icon_1.Play, { width: "50px" })) : (React.createElement(icon_1.Stop, { width: "50px" }))),
-        React.createElement("div", { onClick: props.restart },
-            React.createElement(icon_1.Play, { width: "50px" }))));
+        React.createElement("div", { className: "row" },
+            React.createElement("div", { className: "col-sm" },
+                React.createElement(icon_1.Backward, { width: "50px" })),
+            React.createElement("div", { className: "col-sm", onClick: props.changes }, props.status === 1 /* stop */ ? (React.createElement(icon_1.Play, { width: "50px" })) : (React.createElement(icon_1.Stop, { width: "50px" }))),
+            React.createElement("div", { className: "col-sm" },
+                React.createElement(icon_1.Forward, { width: "50px" }))),
+        React.createElement("div", { className: "row" },
+            React.createElement("div", { className: "col-sm" },
+                React.createElement(icon_1.Save, { width: "50px" })),
+            React.createElement("div", { className: "col-sm" },
+                React.createElement(icon_1.Load, { width: "50px" })),
+            React.createElement("div", { className: "col-sm", onClick: props.restart },
+                React.createElement(icon_1.Refresh, { width: "50px" }))),
+        React.createElement("div", null,
+            React.createElement("fieldset", null,
+                React.createElement("legend", null, "Generate"),
+                React.createElement("p", null,
+                    React.createElement("label", { htmlFor: "input" }, "Count animal"),
+                    React.createElement("input", { value: props.countAnimal, onChange: props.changeCount, type: "text", placeholder: "0", name: Const_1.Animal })),
+                React.createElement("p", null,
+                    React.createElement("label", { htmlFor: "input" }, "Count plant"),
+                    React.createElement("input", { value: props.countPlant, onChange: props.changeCount, type: "text", placeholder: "0", name: Const_1.Plant })),
+                React.createElement("p", null,
+                    React.createElement("button", { type: "submit", onClick: props.generate }, "Generate"))))));
 };
 
 
@@ -12410,6 +12432,47 @@ exports.Stop = (props) => {
     return (react_1.default.createElement("svg", { style: { width: width }, viewBox: "0 0 512 512" },
         react_1.default.createElement("path", { d: "M64 64h160v384h-160zM288 64h160v384h-160z" })));
 };
+exports.Refresh = (props) => {
+    let width = props.width || "20px";
+    return (react_1.default.createElement("svg", { style: { width: width }, viewBox: "0 0 512 512" },
+        react_1.default.createElement("path", { d: "M512 192h-192l71.765-71.765c-36.265-36.263-84.48-56.235-135.765-56.235s-99.5 19.972-135.765 56.235c-36.263 36.265-56.235 84.48-56.235 135.765s19.972 99.5 56.235 135.765c36.265 36.263 84.48 56.235 135.765 56.235s99.5-19.972 135.764-56.236c3.028-3.027 5.93-6.146 8.728-9.334l48.16 42.141c-46.923 53.583-115.832 87.429-192.652 87.429-141.385 0-256-114.615-256-256s114.615-256 256-256c70.693 0 134.684 28.663 181.008 74.992l74.992-74.992v192z" })));
+};
+exports.Backward = (props) => {
+    let width = props.width || "20px";
+    return (react_1.default.createElement("svg", { style: { width: width }, viewBox: "0 0 512 512" },
+        react_1.default.createElement("path", { d: "M288 80v160l160-160v352l-160-160v160l-176-176z" })));
+};
+exports.Forward = (props) => {
+    let width = props.width || "20px";
+    return (react_1.default.createElement("svg", { style: { width: width }, viewBox: "0 0 512 512" },
+        react_1.default.createElement("path", { d: "M256 432v-160l-160 160v-352l160 160v-160l176 176z" })));
+};
+exports.Save = (props) => {
+    let width = props.width || "20px";
+    return (react_1.default.createElement("svg", { style: { width: width }, viewBox: "0 0 512 512" },
+        react_1.default.createElement("path", { d: "M224 288h64v-128h96l-128-128-128 128h96zM320 216v49.356l146.533 54.644-210.533 78.509-210.533-78.509 146.533-54.644v-49.356l-192 72v128l256 96 256-96v-128z" })));
+};
+exports.Load = (props) => {
+    let width = props.width || "20px";
+    return (react_1.default.createElement("svg", { style: { width: width }, viewBox: "0 0 512 512" },
+        react_1.default.createElement("path", { d: "M256 288l128-128h-96v-128h-64v128h-96zM372.363 235.636l-35.87 35.871 130.040 48.493-210.533 78.509-210.533-78.509 130.040-48.493-35.871-35.871-139.636 52.364v128l256 96 256-96v-128z" })));
+};
+
+
+/***/ }),
+
+/***/ "./src/const/Const.ts":
+/*!****************************!*\
+  !*** ./src/const/Const.ts ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Animal = "animal";
+exports.Plant = "plant";
 
 
 /***/ }),
@@ -12450,6 +12513,7 @@ const ReactDOM = __importStar(__webpack_require__(/*! react-dom */ "react-dom"))
 const React = __importStar(__webpack_require__(/*! react */ "react"));
 __webpack_require__(/*! ./scss/main.scss */ "./src/scss/main.scss");
 const wasm_exec_js_1 = __importDefault(__webpack_require__(/*! ./wasm_exec.js */ "./src/wasm_exec.js"));
+const Const_1 = __webpack_require__(/*! ./const/Const */ "./src/const/Const.ts");
 const ControlPanel_1 = __webpack_require__(/*! ./components/ControlPanel */ "./src/components/ControlPanel.tsx");
 class App extends React.Component {
     constructor(props) {
@@ -12479,8 +12543,29 @@ class App extends React.Component {
             window.restart();
             window.cycle();
         };
+        this.changeCount = (e) => {
+            const target = e.target;
+            const name = target.name;
+            let val = target.value * 1;
+            if (name == Const_1.Animal) {
+                this.setState({
+                    countAnimal: val
+                });
+            }
+            if (name == Const_1.Plant) {
+                this.setState({
+                    countPlant: val
+                });
+            }
+        };
+        this.generate = () => {
+            window.generate(this.state.countAnimal, this.state.countPlant);
+            window.cycle();
+        };
         this.state = {
             status: 1 /* stop */,
+            countAnimal: 5,
+            countPlant: 50,
             mod: "",
             inst: ""
         };
@@ -12500,7 +12585,7 @@ class App extends React.Component {
     render() {
         return (React.createElement("div", { className: "row" },
             React.createElement("div", { className: "col-3" },
-                React.createElement(ControlPanel_1.ControlPanel, { changes: this.changeState, restart: this.restart, status: this.state.status })),
+                React.createElement(ControlPanel_1.ControlPanel, { changeCount: this.changeCount, generate: this.generate, changes: this.changeState, restart: this.restart, status: this.state.status, countAnimal: this.state.countAnimal, countPlant: this.state.countPlant })),
             React.createElement("div", { className: "col-9", id: "box" })));
     }
     ;
