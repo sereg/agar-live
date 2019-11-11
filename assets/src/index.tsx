@@ -30,51 +30,58 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     async componentDidMount() {
-        console.log("componentDidMount")
         const go = new Go();
-        let {instance, module} = await WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject)
-        await go.run(instance)
+        let {instance, module} = await WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject);
+        await go.run(instance);
         this.setState({
             mod: module,
             inst: instance
-        })
-        console.log("componentDidMount 2")
+        });
+        window.cycle();
     }
 
     cycle = () => {
         if (this.state.status === Status.stop) {
             return
         }
-        window.cycle()
+        window.cycle();
         window.requestAnimationFrame(() => {
             this.cycle()
         });
-    }
+    };
 
     changeState = () => {
-        let newState = Status.playing
+        let newState = Status.playing;
         if (newState === this.state.status) {
             newState = Status.stop
         }
         this.setState({
             status: newState
-        })
+        });
         window.requestAnimationFrame(() => {
             this.cycle()
         });
-    }
+    };
+
+    restart = () => {
+        window.restart();
+        window.cycle();
+    };
 
     render() {
-        console.log("render")
         return (
             <div className="row">
                 <div className="col-3">
-                    <ControlPanel changes={this.changeState} status={this.state.status}/>
+                    <ControlPanel
+                        changes={this.changeState}
+                        restart={this.restart}
+                        status={this.state.status}
+                    />
                 </div>
                 <div className="col-9" id="box"/>
             </div>
         )
-    }
+    };
 }
 
 ReactDOM.render(<App/>, document.querySelector('#app'));

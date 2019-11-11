@@ -46,7 +46,15 @@ func (j *JS) GetH() float64 {
 	return j.wh.h
 }
 
-func (j *JS) NewCanvas() Base {
+type Canvas interface {
+	Save()
+	Restore()
+	Draw(obj1 object.Object)
+	Refresh()
+	Grid(step float64)
+}
+
+func (j *JS) NewCanvas() *Base {
 	canvas := j.doc.Call("createElement", "canvas")
 	canvas.Set("className", "canvas first")
 	canvas.Set("height", j.wh.h)
@@ -63,7 +71,7 @@ func (j *JS) NewCanvas() Base {
 	})
 	img.Call("addEventListener", "load", addImg)
 	<-wait
-	return Base{canvas: canvas, ctx: ctx, img: img, wh: j.wh}
+	return &Base{canvas: canvas, ctx: ctx, img: img, wh: j.wh}
 }
 
 type Base struct {
