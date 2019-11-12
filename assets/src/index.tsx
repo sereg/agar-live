@@ -16,8 +16,6 @@ interface AppState {
     status: Status;
     countAnimal: number,
     countPlant: number,
-    mod: any;
-    inst: any;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -28,8 +26,6 @@ class App extends React.Component<AppProps, AppState> {
             status: Status.stop,
             countAnimal: 5,
             countPlant: 50,
-            mod: "",
-            inst: ""
         }
     }
 
@@ -37,11 +33,7 @@ class App extends React.Component<AppProps, AppState> {
         const go = new Go();
         let {instance, module} = await WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject);
         await go.run(instance);
-        this.setState({
-            mod: module,
-            inst: instance
-        });
-        window.cycle();
+        await window.cycle();
     }
 
     cycle = () => {
@@ -67,10 +59,33 @@ class App extends React.Component<AppProps, AppState> {
         });
     };
 
-    restart = () => {
-        window.restart();
-        window.cycle();
+    async restart() {
+        await window.restart();
+        await window.cycle();
     };
+
+    async export() {
+        let text = await window.export()
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', "export.json");
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    async import(e: any) {
+        const reader = new FileReader()
+        reader.onload = event => {
+            const text = reader.result
+            window.import(text)
+        }
+        reader.onerror = (e) => {
+            console.error(e)
+        }
+        reader.readAsText(e.target.files[0])
+    }
 
     changeCount = (e: any) => {
         const target = e.target
@@ -102,6 +117,8 @@ class App extends React.Component<AppProps, AppState> {
                         generate={this.generate}
                         changes={this.changeState}
                         restart={this.restart}
+                        export={this.export}
+                        import={this.import}
                         status={this.state.status}
                         countAnimal={this.state.countAnimal}
                         countPlant={this.state.countPlant}

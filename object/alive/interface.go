@@ -13,8 +13,8 @@ type Alive interface {
 	SetGroup(string)
 	GetID() int
 	SetID(int)
-	GetGlueTime() uint64
-	SetGlueTime(uint64)
+	GetGlueTime() uint
+	SetGlueTime(uint)
 	GetDanger() bool
 	SetDanger(bool)
 	GetEdible() bool

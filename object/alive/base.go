@@ -70,9 +70,9 @@ func (b *Base) SetGroup(group string) {
 	b.Group = group
 }
 
-func (b Base) GetGlueTime() uint64 {
+func (b Base) GetGlueTime() uint {
 	return 0
 }
 
-func (b Base) SetGlueTime(cycle uint64) {
+func (b Base) SetGlueTime(cycle uint) {
 }

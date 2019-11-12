@@ -6,5 +6,5 @@ import (
 )
 
 type Behavior interface{
-	Action(self Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool)
+	Action(self Animal, animals []alive.Alive, plants []alive.Alive, cycle uint) (crd.Crd, bool)
 }

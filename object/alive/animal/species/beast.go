@@ -16,6 +16,6 @@ func NewBeast(behavior animal.Behavior) animal.Animal {
 	return &b
 }
 
-func (b *beast) Action(animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
+func (b *beast) Action(animals []alive.Alive, plants []alive.Alive, cycle uint) (crd.Crd, bool) {
 	return b.GetBehaviour().Action(animal.Animal(b), animals, plants, cycle)
 }

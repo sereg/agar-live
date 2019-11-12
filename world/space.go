@@ -15,6 +15,7 @@ import (
 	"agar-life/world/frame"
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
+	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
@@ -22,24 +23,27 @@ import (
 )
 
 type World struct {
-	w, h       float64
-	animal     frame.Frame
-	plant      frame.Frame
-	cycle      uint64
-	gridPlant  grid.Grid //TODO move grid index to frame
-	gridAnimal grid.Grid
-	resurrect  resurrects
-	countPlant, countAnimal int
+	w, h        float64
+	animal      frame.Frame
+	plant       frame.Frame
+	cycle       uint
+	gridPlant   grid.Grid //TODO move grid index to frame
+	gridAnimal  grid.Grid
+	resurrect   resurrects
+	countPlant  uint
+	countAnimal uint
 }
 
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	world := World{
-		w:          w,
-		h:          h,
-		gridPlant:  grid.NewArray(_const.GridSize, w, h),
-		gridAnimal: grid.NewArray(_const.GridSize, w, h),
-		animal:     frame.NewFrame(countAnimal, w, h),
-		plant:      frame.NewFrame(countPlant, w, h),
+		w:           w,
+		h:           h,
+		gridPlant:   grid.NewArray(_const.GridSize, w, h),
+		gridAnimal:  grid.NewArray(_const.GridSize, w, h),
+		animal:      frame.NewFrame(countAnimal, w, h),
+		plant:       frame.NewFrame(countPlant, w, h),
+		countAnimal: uint(countAnimal),
+		countPlant:  uint(countPlant),
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(ai.NewAiv1(w, h))
@@ -116,13 +120,14 @@ func (w *World) Cycle() {
 		}
 	}
 	w.cycle++
+	w.countAnimal++
 }
 
 func grow(el animal.Animal) {
 	if el.GetSize() == el.GetViewSize() {
 		return
 	}
-	if math.Abs(el.GetSize() - el.GetViewSize()) > math.Abs(el.GetGrowSize()) * 2    {
+	if math.Abs(el.GetSize()-el.GetViewSize()) > math.Abs(el.GetGrowSize())*2 {
 		el.SetViewSize(el.GetViewSize() + el.GetGrowSize())
 	} else {
 		el.SetViewSize(el.GetSize())
@@ -149,7 +154,7 @@ func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
 		dis := geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
 		if dis < el.GetSize()+el1.GetSize() {
 			intersected = true
-			sum = vector.Add(sum, vector.GetVectorWithLength(el1.GetCrd(), el.GetCrd(), el.GetSize() + el1.GetSize()))
+			sum = vector.Add(sum, vector.GetVectorWithLength(el1.GetCrd(), el.GetCrd(), el.GetSize()+el1.GetSize()))
 		}
 	}
 	if intersected {
@@ -164,6 +169,39 @@ func (w *World) GetPlant() []alive.Alive {
 		return el
 	}
 	return w.plant.All()
+}
+
+func (w *World) ExportWorld() string {
+	animalExport := w.animal.All()
+	animals := make([]animal.Animal, 0, len(animalExport))
+	for _, el := range animalExport {
+		if el == nil {
+			continue
+		}
+		animals = append(animals, el.(animal.Animal))
+	}
+	plantExport := w.plant.All()
+	plants := make([]plant.Plant, 0, len(plantExport))
+	for _, el := range plantExport {
+		if el == nil {
+			continue
+		}
+		plants = append(plants, el.(plant.Plant))
+	}
+	exp := export{
+		W:           w.w,
+		H:           w.h,
+		Cycle:       w.cycle,
+		Plants:      plants,
+		Animals:     animals,
+		CountPlant:  w.countPlant,
+		CountAnimal: w.countAnimal,
+	}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+	}
+	return string(jData)
 }
 
 func (w *World) GetAnimal() []alive.Alive {

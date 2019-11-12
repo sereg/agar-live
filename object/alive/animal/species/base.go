@@ -15,7 +15,7 @@ type Base struct {
 	move.Move
 	Speed     float64
 	Vision    float64
-	CycleGlue uint64
+	CycleGlue uint
 	Parent    animal.Animal `json:"-"`
 	Children  []animal.Animal
 	Behavior  animal.Behavior
@@ -65,7 +65,7 @@ func (b Base) GetBehaviour() animal.Behavior {
 	return b.Behavior
 }
 
-func (b Base) GetGlueTime() uint64 {
+func (b Base) GetGlueTime() uint {
 	return b.CycleGlue
 }
 
@@ -79,7 +79,7 @@ func (b Base) Count() int {
 	return 1
 }
 
-func (b *Base) SetGlueTime(cycle uint64) {
+func (b *Base) SetGlueTime(cycle uint) {
 	b.CycleGlue = cycle + _const.GlueTime
 }
 
@@ -139,7 +139,7 @@ func (b Base) GetVision() float64 {
 	return b.Vision
 }
 
-func (b *Base) Action(animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
+func (b *Base) Action(animals []alive.Alive, plants []alive.Alive, cycle uint) (crd.Crd, bool) {
 	return crd.Crd{}, false
 }
 

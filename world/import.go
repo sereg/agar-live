@@ -13,13 +13,12 @@ import (
 	"agar-life/world/frame/grid"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 )
 
 type WorldJSON struct {
 	W           float64  `json:"W"`
 	H           float64  `json:"H"`
-	Cycle       uint64   `json:"Cycle"`
+	Cycle       uint   `json:"Cycle"`
 	Plants      []Plant  `json:"Plants"`
 	Animals     []Animal `json:"Animals"`
 	CountPlant  int      `json:"CountPlant"`
@@ -73,7 +72,7 @@ type Animal struct {
 	} `json:"Inertia"`
 	Speed     float64  `json:"Speed"`
 	Vision    float64  `json:"Vision"`
-	CycleGlue uint64   `json:"CycleGlue"`
+	CycleGlue uint   `json:"CycleGlue"`
 	Children  []Animal `json:"Children"`
 	Behavior  struct {
 		Name string `json:"Name"`
@@ -83,38 +82,10 @@ type Animal struct {
 
 type export struct {
 	W, H                    float64
-	Cycle                   uint64
+	Cycle                   uint
 	Plants                  []plant.Plant
 	Animals                 []animal.Animal
-	CountPlant, CountAnimal int
-}
-
-func (w *World) ExportWorld() []byte {
-	animalExport := w.animal.All()
-	animals := make([]animal.Animal, len(animalExport))
-	for k, el := range animalExport {
-		animals[k] = el.(animal.Animal)
-	}
-	plantExport := w.plant.All()
-	plants := make([]plant.Plant, len(plantExport))
-	for k, el := range plantExport {
-		plants[k] = el.(plant.Plant)
-	}
-	exp := export{
-		W:           w.w,
-		H:           w.h,
-		Cycle:       w.cycle,
-		Plants:      plants,
-		Animals:     animals,
-		CountPlant:  w.countPlant,
-		CountAnimal: w.countAnimal,
-	}
-	jData, err := json.MarshalIndent(exp, "", "\t")
-	if err != nil {
-		panic(err)
-	}
-	_ = ioutil.WriteFile("test.json", jData, 0644)
-	return jData
+	CountPlant, CountAnimal uint
 }
 
 func NewWorldFromFile(reader io.Reader) World {

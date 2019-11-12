@@ -25,7 +25,8 @@ func TestExport(t *testing.T) {
 			}
 		}
 	}
-	world.ExportWorld()
+	s := world.ExportWorld()
+	fmt.Println(s)
 }
 
 func TestImport(t *testing.T) {

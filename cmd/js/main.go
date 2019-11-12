@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"syscall/js"
 	"time"
 )
@@ -25,13 +26,13 @@ func main() {
 	space := world.NewWorld(countPlants, countAnimal, w, h)
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := &canvas.Animal{Base: *jsCon.NewCanvas()}
-	cycle := getCycleFn(space, fieldPlants, fieldAnimals)
+	cycle := getCycleFn(&space, fieldPlants, fieldAnimals)
 
 	js.Global().Set("cycle", cycle)
 
 	js.Global().Set("restart", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		space = world.NewWorld(countPlants, countAnimal, w, h)
-		cycle = getCycleFn(space, fieldPlants, fieldAnimals)
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals)
 		js.Global().Set("cycle", cycle)
 		return nil
 	}))
@@ -41,15 +42,28 @@ func main() {
 		countAnimal = args[0].Int()
 		countPlants = args[1].Int()
 		space = world.NewWorld(countPlants, countAnimal, w, h)
-		cycle = getCycleFn(space, fieldPlants, fieldAnimals)
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals)
+		js.Global().Set("cycle", cycle)
+		return nil
+	}))
+
+	js.Global().Set("export", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		test := space.ExportWorld()
+		return test
+	}))
+
+	js.Global().Set("import", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		data := args[0].String()
+		space = world.NewWorldFromFile(strings.NewReader(data))
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals)
 		js.Global().Set("cycle", cycle)
 		return nil
 	}))
 	println("WASM Go Initialized field " +  strconv.Itoa(int(jsCon.GetW())) + " " + strconv.Itoa(int(jsCon.GetH())))
-	select {}
+	select{}
 }
 
-func getCycleFn(space world.World, fieldPlants, fieldAnimals canvas.Canvas) js.Func {
+func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		space.Cycle()
 		plant := space.GetPlant()

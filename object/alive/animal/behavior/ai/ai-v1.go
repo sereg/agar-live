@@ -44,9 +44,9 @@ func NewAiv1(w, h float64) animal.Behavior {
 	}
 }
 
-func tD(speed, distance float64, cycle uint64) uint64 {
+func tD(speed, distance float64, cycle uint) uint {
 	//return 3 + cycle
-	return uint64(distance/speed*0.5) + cycle
+	return uint(distance/speed*0.5) + cycle
 }
 
 type strategy struct {
@@ -57,7 +57,7 @@ type strategy struct {
 	action    func() crd.Crd
 }
 
-func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint64) (crd.Crd, bool) {
+func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint) (crd.Crd, bool) {
 	dangerous := dangerous(self, animals)
 	poisons := poisons(self, plants)
 	edges := a.edgeObstacle(self)

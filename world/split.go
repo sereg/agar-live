@@ -14,7 +14,7 @@ import (
 	gnt "agar-life/world/generate"
 )
 
-func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
+func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint) {
 	if el.GetSize() < _const.MinSizeSplit {
 		return
 	}
@@ -44,7 +44,7 @@ func Split(fr *frame.Frame, el animal.Animal, direction crd.Crd, cycle uint64) {
 	fr.Add(alv)
 }
 
-func Burst(fr *frame.Frame, el animal.Animal, cycle uint64) bool {
+func Burst(fr *frame.Frame, el animal.Animal, cycle uint) bool {
 	burstCount := _const.BurstCount
 	if _const.SplitMaxCount < (el.Count() + burstCount - 1) {
 		burstCount = _const.SplitMaxCount - el.Count()

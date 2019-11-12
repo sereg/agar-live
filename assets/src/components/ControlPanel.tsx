@@ -8,6 +8,8 @@ interface Props {
     countPlant: number
     changes: (event: React.MouseEvent<HTMLDivElement>) => void
     restart: (event: React.MouseEvent<HTMLDivElement>) => void
+    export: (event: React.MouseEvent<HTMLDivElement>) => void
+    import: (event: React.ChangeEvent<HTMLInputElement>) => void
     changeCount: (event: React.ChangeEvent<HTMLInputElement>) => void
     generate: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
@@ -32,11 +34,12 @@ export const ControlPanel = (props: Props) => {
                 </div>
             </div>
             <div className="row">
-                <div className="col-sm">
-                    <Save width="50px"/>
+                <div className="col-sm" onClick={props.export}>
+                    <Save  width="50px"/>
                 </div>
                 <div className="col-sm">
                     <Load width="50px"/>
+                    <input id="file" type="file" onChange={props.import}/>
                 </div>
                 <div className="col-sm" onClick={props.restart}>
                     <Refresh width="50px"/>
