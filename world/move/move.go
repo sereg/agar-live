@@ -11,7 +11,7 @@ type Move struct {
 	ChCrd        crd.Crd
 	OldDirection crd.Crd
 	OldDist      float64
-	Inertia
+	Inertia Inertia
 }
 
 type Inertia struct{
@@ -25,14 +25,24 @@ func (i *Inertia) SetInertia(direction crd.Crd) {
 	i.Speed = _const.SplitSpeed
 }
 
+func (m *Move) SetInertia(direction crd.Crd) {
+	m.Inertia.SetInertia(direction)
+}
+
+func (m *Move) SetInertiaImport(direction crd.Crd, speed, acceleration float64) {
+	m.Inertia.Direction = direction
+	m.Inertia.Speed = speed
+	m.Inertia.Acceleration = acceleration
+}
+
 func (m *Move) GetInertia() (direction crd.Crd, speed float64){
-	direction = m.Direction
-	speed = m.Speed
-	if m.Speed > 0 {
-		m.Speed -= m.Acceleration
+	direction = m.Inertia.Direction
+	speed = m.Inertia.Speed
+	if m.Inertia.Speed > 0 {
+		m.Inertia.Speed -= m.Inertia.Acceleration
 	}
-	if m.Speed < 0 {
-		m.Speed = 0
+	if m.Inertia.Speed < 0 {
+		m.Inertia.Speed = 0
 	}
 	return
 }

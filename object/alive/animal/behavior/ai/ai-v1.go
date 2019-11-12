@@ -20,9 +20,10 @@ type aiV1 struct {
 }
 
 const (
-	running = 100
-	eating  = 50
-	nothing = 9
+	AIV1Name = "aiV1"
+	running  = 100
+	eating   = 50
+	nothing  = 9
 )
 
 var (
@@ -39,7 +40,7 @@ func NewAiv1(w, h float64) animal.Behavior {
 	right = checkangels.NewLine(geom.NewSegment(crd.NewCrd(w, 0), crd.NewCrd(w, h)))
 	return &aiV1{
 		Simple: behavior.NewSimple(w, h),
-		Name: "aiV1",
+		Name:   AIV1Name,
 	}
 }
 

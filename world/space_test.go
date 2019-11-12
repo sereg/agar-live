@@ -5,6 +5,7 @@ import (
 	_const "agar-life/world/const"
 	"fmt"
 	"math"
+	"os"
 	"testing"
 )
 
@@ -24,7 +25,23 @@ func TestExport(t *testing.T) {
 			}
 		}
 	}
-	world.GetWorld()
+	world.ExportWorld()
+}
+
+func TestImport(t *testing.T) {
+	file, err := os.Open("test.json")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	world :=NewWorldFromFile(file)
+	for i := 0; i < 10; i++ {
+		world.Cycle()
+		animalList := world.GetAnimal()
+		for _, v := range animalList {
+			_ = v
+		}
+	}
 }
 
 func cycle() {

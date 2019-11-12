@@ -8,7 +8,7 @@ import (
 type Base struct {
 	object.Base
 	Deed   bool
-	Name   string
+	Group  string
 	ID     int
 	Danger bool
 	Edible bool
@@ -64,10 +64,10 @@ func (b Base) Decrease(){
 }
 
 func (b Base) GetGroup() string{
-	return b.Name
+	return b.Group
 }
-func (b *Base) SetGroup(name string) {
-	b.Name = name
+func (b *Base) SetGroup(group string) {
+	b.Group = group
 }
 
 func (b Base) GetGlueTime() uint64 {

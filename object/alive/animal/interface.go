@@ -34,6 +34,7 @@ type Animal interface {
 	SetCrdByDirection(a alive.Alive, direction crd.Crd, dist float64, changeDirection bool)
 	GetInertia() (direction crd.Crd, speed float64)
 	SetInertia(direction crd.Crd)
+	SetInertiaImport(direction crd.Crd, speed, acceleration float64)
 	Count() int
 }
 
