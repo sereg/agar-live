@@ -12380,7 +12380,7 @@ const icon_1 = __webpack_require__(/*! ./icon/icon */ "./src/components/icon/ico
 exports.ControlPanel = (props) => {
     return (React.createElement("div", null,
         React.createElement("div", { className: "row" },
-            React.createElement("div", { className: "col-sm" },
+            React.createElement("div", { className: "col-sm", onClick: props.backward },
                 React.createElement(icon_1.Backward, { width: "50px" })),
             React.createElement("div", { className: "col-sm", onClick: props.changes }, props.status === 1 /* stop */ ? (React.createElement(icon_1.Play, { width: "50px" })) : (React.createElement(icon_1.Stop, { width: "50px" }))),
             React.createElement("div", { className: "col-sm" },
@@ -12557,7 +12557,9 @@ class App extends React.Component {
         };
         this.generate = () => {
             window.generate(this.state.countAnimal, this.state.countPlant);
-            window.cycle();
+        };
+        this.backward = () => {
+            window.backward();
         };
         this.state = {
             status: 1 /* stop */,
@@ -12576,7 +12578,6 @@ class App extends React.Component {
     restart() {
         return __awaiter(this, void 0, void 0, function* () {
             yield window.restart();
-            yield window.cycle();
         });
     }
     ;
@@ -12608,7 +12609,7 @@ class App extends React.Component {
     render() {
         return (React.createElement("div", { className: "row" },
             React.createElement("div", { className: "col-3" },
-                React.createElement(ControlPanel_1.ControlPanel, { changeCount: this.changeCount, generate: this.generate, changes: this.changeState, restart: this.restart, export: this.export, import: this.import, status: this.state.status, countAnimal: this.state.countAnimal, countPlant: this.state.countPlant })),
+                React.createElement(ControlPanel_1.ControlPanel, { changeCount: this.changeCount, generate: this.generate, changes: this.changeState, restart: this.restart, export: this.export, import: this.import, backward: this.backward, status: this.state.status, countAnimal: this.state.countAnimal, countPlant: this.state.countPlant })),
             React.createElement("div", { className: "col-9", id: "box" })));
     }
     ;

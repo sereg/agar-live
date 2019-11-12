@@ -171,6 +171,10 @@ func (w *World) GetPlant() []alive.Alive {
 	return w.plant.All()
 }
 
+func (w *World) GetCycle() uint {
+	return w.cycle
+}
+
 func (w *World) ExportWorld() string {
 	animalExport := w.animal.All()
 	animals := make([]animal.Animal, 0, len(animalExport))

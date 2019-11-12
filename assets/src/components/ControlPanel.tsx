@@ -9,6 +9,7 @@ interface Props {
     changes: (event: React.MouseEvent<HTMLDivElement>) => void
     restart: (event: React.MouseEvent<HTMLDivElement>) => void
     export: (event: React.MouseEvent<HTMLDivElement>) => void
+    backward: (event: React.MouseEvent<HTMLDivElement>) => void
     import: (event: React.ChangeEvent<HTMLInputElement>) => void
     changeCount: (event: React.ChangeEvent<HTMLInputElement>) => void
     generate: (event: React.MouseEvent<HTMLButtonElement>) => void
@@ -19,7 +20,7 @@ export const ControlPanel = (props: Props) => {
     return (
         <div>
             <div className="row">
-                <div className="col-sm">
+                <div className="col-sm" onClick={props.backward}>
                     <Backward width="50px"/>
                 </div>
                 <div className="col-sm" onClick={props.changes}>

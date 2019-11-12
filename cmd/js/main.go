@@ -3,7 +3,6 @@ package main
 import (
 	"agar-life/canvas"
 	"agar-life/world"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -26,24 +25,28 @@ func main() {
 	space := world.NewWorld(countPlants, countAnimal, w, h)
 	fieldPlants := jsCon.NewCanvas()
 	fieldAnimals := &canvas.Animal{Base: *jsCon.NewCanvas()}
-	cycle := getCycleFn(&space, fieldPlants, fieldAnimals)
+	story := story{}
+	cycle := getCycleFn(&space, fieldPlants, fieldAnimals, &story)
 
 	js.Global().Set("cycle", cycle)
 
 	js.Global().Set("restart", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
 		space = world.NewWorld(countPlants, countAnimal, w, h)
-		cycle = getCycleFn(&space, fieldPlants, fieldAnimals)
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals, &story)
 		js.Global().Set("cycle", cycle)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	}))
 
 	js.Global().Set("generate", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		fmt.Printf("%+v\r\n", args)
+		story.reset()
 		countAnimal = args[0].Int()
 		countPlants = args[1].Int()
 		space = world.NewWorld(countPlants, countAnimal, w, h)
-		cycle = getCycleFn(&space, fieldPlants, fieldAnimals)
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals, &story)
 		js.Global().Set("cycle", cycle)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	}))
 
@@ -53,17 +56,46 @@ func main() {
 	}))
 
 	js.Global().Set("import", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
 		data := args[0].String()
 		space = world.NewWorldFromFile(strings.NewReader(data))
-		cycle = getCycleFn(&space, fieldPlants, fieldAnimals)
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals, &story)
 		js.Global().Set("cycle", cycle)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	}))
+
+	js.Global().Set("backward", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		if len(story.story) == 0 {
+			return nil
+		}
+		data := story.getLast()
+		story.story = story.story[:len(story.story)-1]
+		space = world.NewWorldFromFile(strings.NewReader(data))
+		cycle = getCycleFn(&space, fieldPlants, fieldAnimals, &story)
+		js.Global().Set("cycle", cycle)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
+		return nil
+	}))
+	jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 	println("WASM Go Initialized field " +  strconv.Itoa(int(jsCon.GetW())) + " " + strconv.Itoa(int(jsCon.GetH())))
 	select{}
 }
 
-func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas) js.Func {
+type story struct {
+	story []string
+}
+
+func (s *story) reset() {
+	s.story = []string{}
+}
+
+func (s *story) getLast() string {
+	return s.story[len(s.story) - 1]
+}
+
+
+func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas, story *story) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		space.Cycle()
 		plant := space.GetPlant()
@@ -82,6 +114,12 @@ func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas) js.
 			fieldAnimals.Draw(v)
 		}
 		fieldAnimals.Restore()
+		if space.GetCycle() % 20 == 0 {
+			story.story = append(story.story, space.ExportWorld())
+			if len(story.story) > 20 {
+				story.story = story.story[1:]
+			}
+		}
 		return nil
 	})
 }

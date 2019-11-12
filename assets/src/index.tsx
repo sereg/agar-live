@@ -61,7 +61,6 @@ class App extends React.Component<AppProps, AppState> {
 
     async restart() {
         await window.restart();
-        await window.cycle();
     };
 
     async export() {
@@ -105,7 +104,10 @@ class App extends React.Component<AppProps, AppState> {
 
     generate = () => {
         window.generate(this.state.countAnimal, this.state.countPlant);
-        window.cycle();
+    };
+
+    backward = () => {
+        window.backward();
     };
 
     render() {
@@ -119,6 +121,7 @@ class App extends React.Component<AppProps, AppState> {
                         restart={this.restart}
                         export={this.export}
                         import={this.import}
+                        backward={this.backward}
                         status={this.state.status}
                         countAnimal={this.state.countAnimal}
                         countPlant={this.state.countPlant}
