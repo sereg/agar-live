@@ -1,11 +1,12 @@
 import * as React from 'react';
-import {Animal, Plant, Status} from '../const/Const';
+import {Animal, Plant, Size, Status} from '../const/Const';
 import {Backward, Forward, Load, Play, Refresh, Save, Stop} from './icon/icon';
 
 interface Props {
     status: Status
     countAnimal: number
     countPlant: number
+    sizeElement: number
     changes: (event: React.MouseEvent<HTMLDivElement>) => void
     restart: (event: React.MouseEvent<HTMLDivElement>) => void
     export: (event: React.MouseEvent<HTMLDivElement>) => void
@@ -13,6 +14,7 @@ interface Props {
     import: (event: React.ChangeEvent<HTMLInputElement>) => void
     changeCount: (event: React.ChangeEvent<HTMLInputElement>) => void
     generate: (event: React.MouseEvent<HTMLButtonElement>) => void
+    setSize: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 export const ControlPanel = (props: Props) => {
@@ -71,6 +73,24 @@ export const ControlPanel = (props: Props) => {
                     </p>
                     <p>
                         <button type="submit" onClick={props.generate}>Generate</button>
+                    </p>
+                </fieldset>
+            </div>
+            <div>
+                <fieldset>
+                    <legend>Set size</legend>
+                    <p>
+                        <label htmlFor="input">Size element</label>
+                        <input
+                            value={props.sizeElement}
+                            onChange={props.changeCount}
+                            type="text"
+                            placeholder="0"
+                            name={Size}
+                        />
+                    </p>
+                    <p>
+                        <button type="submit" onClick={props.setSize}>Set</button>
                     </p>
                 </fieldset>
             </div>

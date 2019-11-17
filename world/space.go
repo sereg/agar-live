@@ -269,27 +269,34 @@ type plantType struct {
 	El   Plant
 }
 
-func (w *World) AddFromJSON(data string, x, y float64) {
+func (w *World) AddFromJSON(data string, x, y float64) string {
 	if data == "" {
-		return
+		return ""
 	}
 	var typ ElType
 	err := json.NewDecoder(strings.NewReader(data)).Decode(&typ)
 	if err != nil {
 		println(err)
-		return
+		return ""
 	}
+	var el1 alive.Alive
 	if typ.Type == _const.AnimalTypeAlive {
 		var infoEl animalType
 		err := json.NewDecoder(strings.NewReader(data)).Decode(&infoEl)
 		if err != nil {
 			println(err)
-			return
+			return ""
 		}
 		an := infoEl.El
 		an.X = x
 		an.Y = y
-		el1 := createAnimalFromJSON(an, w.w, w.w, nil)
+		var parent animal.Animal
+		if an.Parent != nil {
+			if parentID := w.getIndexByID(*an.Parent, _const.AnimalTypeAlive); parentID != -1 {
+				parent = w.animal.Get(parentID).(animal.Animal)
+			}
+		}
+		el1 = createAnimalFromJSON(an, w.w, w.w, parent)
 		w.animal.Add(el1)
 	}
 	if typ.Type == _const.PlantTypeAlive {
@@ -297,20 +304,53 @@ func (w *World) AddFromJSON(data string, x, y float64) {
 		err := json.NewDecoder(strings.NewReader(data)).Decode(&infoEl)
 		if err != nil {
 			println(err)
-			return
+			return ""
 		}
 		pl := infoEl.El
 		pl.X = x
 		pl.Y = y
-		el1 := createPlantFromJSON(pl)
+		el1 = createPlantFromJSON(pl)
 		w.plant.Add(el1)
 		w.plant.SetUpdateState(true)
 		w.action = true
 	}
+	exp := struct {
+		Type string
+		El   alive.Alive
+	}{typ.Type, el1}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+	}
+	return string(jData)
 }
 
-func (w *World) SetSizeByID() uint {
-	return w.cycle
+type elInfo struct {
+	ID   int
+	Size float64
+	Type string
+}
+
+func (w *World) SetSize(data string) {
+	var info elInfo
+	err := json.NewDecoder(strings.NewReader(data)).Decode(&info)
+	if err != nil {
+		println(err)
+		return
+	}
+	if index := w.getIndexByID(info.ID, info.Type); index != -1 {
+		var el alive.Alive
+		if info.Type == _const.AnimalTypeAlive {
+			el = w.animal.Get(index)
+		}
+		if info.Type == _const.PlantTypeAlive {
+			el = w.plant.Get(index)
+		}
+		if el == nil {
+			return
+		}
+		el.SetSize(info.Size)
+	}
 }
 
 func (w *World) DeleteByID(id int, typ string) {
@@ -341,9 +381,11 @@ func (w World) getIndexByID(id int, typ string) int {
 	}
 	if typ == _const.AnimalTypeAlive {
 		return getEl(w.animal)
-	} else {
+	}
+	if typ == _const.PlantTypeAlive {
 		return getEl(w.plant)
 	}
+	return -1
 }
 
 func (w *World) GetAnimal() []alive.Alive {

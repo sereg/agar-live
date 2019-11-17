@@ -4,18 +4,32 @@
 import * as ReactDOM from "react-dom";
 import * as React from 'react';
 import Go from './wasm_exec.js';
-import {Animal, Plant, Status} from './const/Const';
+import {Animal, Plant, Size, Status} from './const/Const';
 
 import {ControlPanel} from "./components/ControlPanel";
 
 interface AppProps {
 }
 
+interface el {
+    id: number,
+    size: number,
+    type: string
+}
+
+interface elInfo {
+    Type: string,
+    El: {
+        ID: number,
+        Size: number
+    }
+}
+
 interface AppState {
     status: Status;
     countAnimal: number,
     countPlant: number,
-    selectedElement: string,
+    selectedElement: el,
     tmpElement: string,
 }
 
@@ -27,7 +41,11 @@ class App extends React.Component<AppProps, AppState> {
             status: Status.stop,
             countAnimal: 5,
             countPlant: 50,
-            selectedElement: "",
+            selectedElement: {
+                id: -1,
+                size: 0,
+                type: ""
+            },
             tmpElement: "",
         }
     }
@@ -103,6 +121,15 @@ class App extends React.Component<AppProps, AppState> {
                 countPlant: val
             })
         }
+        if (name == Size) {
+            this.setState({
+                selectedElement: {
+                    id: this.state.selectedElement.id,
+                    type: this.state.selectedElement.type,
+                    size: val
+                }
+            })
+        }
     };
 
     generate = () => {
@@ -113,19 +140,26 @@ class App extends React.Component<AppProps, AppState> {
         window.backward();
     };
 
-    getElement = async (e: any) => {
-        let el = await window.get(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
-        this.setState({
-            selectedElement: el
-        });
-        console.log(el)
+    setSize = async (e: any) => {
+        console.log(JSON.stringify(this.state.selectedElement))
+        await window.setSize(JSON.stringify(this.state.selectedElement))
     }
 
     moveStart = async (e: any) => {
         let el = await window.changePosition(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
         this.setState({
-            tmpElement: el
+            tmpElement: el,
         });
+        if (el != "") {
+            let selectedEl:elInfo = JSON.parse(el)
+            this.setState({
+                selectedElement: {
+                    type: selectedEl.Type,
+                    id: selectedEl.El.ID,
+                    size: selectedEl.El.Size
+                }
+            });
+        }
     }
 
     moveEnd = async (e: any) => {
@@ -133,7 +167,17 @@ class App extends React.Component<AppProps, AppState> {
         if (data == "") {
             return
         }
-        await window.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+        let el = await window.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+        if (el != "") {
+            let selectedEl:elInfo = JSON.parse(el)
+            this.setState({
+                selectedElement: {
+                    type: selectedEl.Type,
+                    id: selectedEl.El.ID,
+                    size: selectedEl.El.Size
+                }
+            });
+        }
     }
 
     render() {
@@ -148,9 +192,11 @@ class App extends React.Component<AppProps, AppState> {
                         export={this.export}
                         import={this.import}
                         backward={this.backward}
+                        setSize={this.setSize}
                         status={this.state.status}
                         countAnimal={this.state.countAnimal}
                         countPlant={this.state.countPlant}
+                        sizeElement={this.state.selectedElement.size}
                     />
                 </div>
                 <div

@@ -7,3 +7,5 @@ export const enum Status {
 export const Animal = "animal";
 
 export const Plant = "plant";
+
+export const Size = "size";

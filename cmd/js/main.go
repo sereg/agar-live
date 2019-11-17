@@ -98,9 +98,9 @@ func main() {
 		story.reset()
 		data := args[0].String()
 		x, y := args[1].Float(), args[2].Float()
-		space.AddFromJSON(data, x, y)
+		info := space.AddFromJSON(data, x, y)
 		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
-		return nil
+		return info
 	}))
 
 	js.Global().Set("add", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
@@ -113,9 +113,8 @@ func main() {
 
 	js.Global().Set("setSize", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		story.reset()
-		id := args[0].Int()
-		size := args[1].Float()
-		_, _ = id, size
+		data := args[0].String()
+		space.SetSize(data)
 		return nil
 	}))
 

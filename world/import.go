@@ -77,7 +77,7 @@ type Animal struct {
 	Behavior  struct {
 		Name string `json:"Name"`
 	} `json:"Behavior"`
-	Parent bool `json:"Parent"`
+	Parent *int `json:"Parent"`
 }
 
 type export struct {
@@ -107,7 +107,7 @@ func NewWorldFromFile(reader io.Reader) World {
 	index := 0
 	for i := 0; i < len(data.Animals); i++ {
 		an := data.Animals[i]
-		if an.Parent {
+		if an.Parent == nil {
 			continue
 		}
 		el := createAnimalFromJSON(an, data.W, data.H, nil)

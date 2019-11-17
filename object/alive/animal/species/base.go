@@ -23,14 +23,15 @@ type Base struct {
 
 type JsonBase struct {
 	Base
-	Parent bool
+	Parent *int
 }
 
 func (b *Base) MarshalJSON() ([]byte, error) {
 	returnObj := JsonBase{}
 	returnObj.Base = *b
 	if b.Parent != nil {
-		returnObj.Parent = true
+		parentID := b.Parent.GetID()
+		returnObj.Parent = &parentID
 	}
 	return json.Marshal(returnObj)
 }

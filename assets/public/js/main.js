@@ -11995,7 +11995,15 @@ exports.ControlPanel = (props) => {
                     React.createElement("label", { htmlFor: "input" }, "Count plant"),
                     React.createElement("input", { value: props.countPlant, onChange: props.changeCount, type: "text", placeholder: "0", name: Const_1.Plant })),
                 React.createElement("p", null,
-                    React.createElement("button", { type: "submit", onClick: props.generate }, "Generate"))))));
+                    React.createElement("button", { type: "submit", onClick: props.generate }, "Generate")))),
+        React.createElement("div", null,
+            React.createElement("fieldset", null,
+                React.createElement("legend", null, "Set size"),
+                React.createElement("p", null,
+                    React.createElement("label", { htmlFor: "input" }, "Size element"),
+                    React.createElement("input", { value: props.sizeElement, onChange: props.changeCount, type: "text", placeholder: "0", name: Const_1.Size })),
+                React.createElement("p", null,
+                    React.createElement("button", { type: "submit", onClick: props.setSize }, "Set"))))));
 };
 
 
@@ -12066,6 +12074,7 @@ exports.Load = (props) => {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Animal = "animal";
 exports.Plant = "plant";
+exports.Size = "size";
 
 
 /***/ }),
@@ -12145,6 +12154,15 @@ class App extends React.Component {
                     countPlant: val
                 });
             }
+            if (name == Const_1.Size) {
+                this.setState({
+                    selectedElement: {
+                        id: this.state.selectedElement.id,
+                        type: this.state.selectedElement.type,
+                        size: val
+                    }
+                });
+            }
         };
         this.generate = () => {
             window.generate(this.state.countAnimal, this.state.countPlant);
@@ -12152,31 +12170,52 @@ class App extends React.Component {
         this.backward = () => {
             window.backward();
         };
-        this.getElement = (e) => __awaiter(this, void 0, void 0, function* () {
-            let el = yield window.get(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-            this.setState({
-                selectedElement: el
-            });
-            console.log(el);
+        this.setSize = (e) => __awaiter(this, void 0, void 0, function* () {
+            console.log(JSON.stringify(this.state.selectedElement));
+            yield window.setSize(JSON.stringify(this.state.selectedElement));
         });
         this.moveStart = (e) => __awaiter(this, void 0, void 0, function* () {
             let el = yield window.changePosition(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
             this.setState({
-                tmpElement: el
+                tmpElement: el,
             });
+            if (el != "") {
+                let selectedEl = JSON.parse(el);
+                this.setState({
+                    selectedElement: {
+                        type: selectedEl.Type,
+                        id: selectedEl.El.ID,
+                        size: selectedEl.El.Size
+                    }
+                });
+            }
         });
         this.moveEnd = (e) => __awaiter(this, void 0, void 0, function* () {
             const data = this.state.tmpElement;
             if (data == "") {
                 return;
             }
-            yield window.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+            let el = yield window.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+            if (el != "") {
+                let selectedEl = JSON.parse(el);
+                this.setState({
+                    selectedElement: {
+                        type: selectedEl.Type,
+                        id: selectedEl.El.ID,
+                        size: selectedEl.El.Size
+                    }
+                });
+            }
         });
         this.state = {
             status: 1 /* stop */,
             countAnimal: 5,
             countPlant: 50,
-            selectedElement: "",
+            selectedElement: {
+                id: -1,
+                size: 0,
+                type: ""
+            },
             tmpElement: "",
         };
     }
@@ -12222,7 +12261,7 @@ class App extends React.Component {
     render() {
         return (React.createElement("div", { className: "row" },
             React.createElement("div", { className: "col-3" },
-                React.createElement(ControlPanel_1.ControlPanel, { changeCount: this.changeCount, generate: this.generate, changes: this.changeState, restart: this.restart, export: this.export, import: this.import, backward: this.backward, status: this.state.status, countAnimal: this.state.countAnimal, countPlant: this.state.countPlant })),
+                React.createElement(ControlPanel_1.ControlPanel, { changeCount: this.changeCount, generate: this.generate, changes: this.changeState, restart: this.restart, export: this.export, import: this.import, backward: this.backward, setSize: this.setSize, status: this.state.status, countAnimal: this.state.countAnimal, countPlant: this.state.countPlant, sizeElement: this.state.selectedElement.size })),
             React.createElement("div", { className: "col-9", onMouseDown: this.moveStart, onMouseUp: this.moveEnd, id: "box" })));
     }
     ;
