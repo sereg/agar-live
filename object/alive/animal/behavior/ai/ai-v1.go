@@ -263,6 +263,9 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 	obstacle := true
 	for i := 0; i < len(els); i++ {
 		el1 := els[i]
+		if el1 == nil {
+			continue
+		}
 		distRes := -1.0
 		var vec vector.Vector
 		distFn := func() float64 {

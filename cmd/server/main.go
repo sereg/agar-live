@@ -4,9 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"github.com/NYTimes/gziphandler"
+	_  "github.com/bradrydzewski/go-mimetype"
 	"io/ioutil"
 	"log"
+	"mime"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -17,7 +21,7 @@ type staticHandler struct {
 }
 
 func (m *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	prefix := "../../assets/public"
+	prefix := "./assets/public"
 	path := r.URL.Path
 	if path == "/" {
 		path = prefix + "/index.html"
@@ -25,8 +29,9 @@ func (m *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		path = prefix + path
 	}
 	data, err := ioutil.ReadFile(path)
-	fmt.Println(path)
 	if err == nil {
+		mimeType := getMimeType(path)
+		w.Header().Set("Content-Type", mimeType)
 		_, _ = w.Write(data)
 	} else {
 		w.WriteHeader(404)
@@ -34,7 +39,17 @@ func (m *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getMimeType(path string) string{
+	ext := filepath.Ext(path)
+	return mime.TypeByExtension(ext)
+}
+
 func main() {
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(dir)
 	flag.Parse()
 	log.Printf("listening on %q...", *listen)
 	http.Handle("/", gziphandler.GzipHandler(new(staticHandler)))

@@ -3,7 +3,6 @@
 //https://icomoon.io/app/#/select
 import * as ReactDOM from "react-dom";
 import * as React from 'react';
-import './scss/main.scss';
 import Go from './wasm_exec.js';
 import {Animal, Plant, Status} from './const/Const';
 
@@ -16,6 +15,8 @@ interface AppState {
     status: Status;
     countAnimal: number,
     countPlant: number,
+    selectedElement: string,
+    tmpElement: string,
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -26,6 +27,8 @@ class App extends React.Component<AppProps, AppState> {
             status: Status.stop,
             countAnimal: 5,
             countPlant: 50,
+            selectedElement: "",
+            tmpElement: "",
         }
     }
 
@@ -110,6 +113,29 @@ class App extends React.Component<AppProps, AppState> {
         window.backward();
     };
 
+    getElement = async (e: any) => {
+        let el = await window.get(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+        this.setState({
+            selectedElement: el
+        });
+        console.log(el)
+    }
+
+    moveStart = async (e: any) => {
+        let el = await window.changePosition(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+        this.setState({
+            tmpElement: el
+        });
+    }
+
+    moveEnd = async (e: any) => {
+        const data = this.state.tmpElement
+        if (data == "") {
+            return
+        }
+        await window.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+    }
+
     render() {
         return (
             <div className="row">
@@ -127,7 +153,12 @@ class App extends React.Component<AppProps, AppState> {
                         countPlant={this.state.countPlant}
                     />
                 </div>
-                <div className="col-9" id="box"/>
+                <div
+                    className="col-9"
+                    onMouseDown={this.moveStart}
+                    onMouseUp={this.moveEnd}
+                    id="box"
+                />
             </div>
         )
     };

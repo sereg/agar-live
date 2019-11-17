@@ -10,18 +10,23 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@ngtools/webpack": "^8.3.19",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
     "css-loader": "^3.2.0",
     "golang-wasm-async-loader": "^0.4.1",
     "node-sass": "^4.13.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
     "sass-loader": "^8.0.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.2",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "bootstrap": "4.3.1",
@@ -30,9 +35,11 @@
     "crypto": "^1.0.1",
     "hash.js": "^1.1.7",
     "md5": "^2.2.1",
+    "mini-css-extract-plugin": "^0.8.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-file-reader": "^1.1.4",
+    "scss-loader": "0.0.1",
     "sha": "^3.0.0",
     "sha.js": "^2.4.11",
     "util": "^0.12.1"

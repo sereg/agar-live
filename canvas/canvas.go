@@ -29,7 +29,7 @@ func NewJsConnect() JS {
 	jc.doc = jc.window.Get("document")
 	jc.body = jc.doc.Get("body")
 	jc.box = jc.doc.Call("getElementById", "box")
-	jc.wh.h = jc.window.Get("innerHeight").Float() - 5
+	jc.wh.h = jc.window.Get("innerHeight").Float() - 10
 	jc.wh.w = jc.box.Get("offsetWidth").Float() - 20
 	return jc
 }
@@ -54,9 +54,9 @@ type Canvas interface {
 	Grid(step float64)
 }
 
-func (j *JS) NewCanvas() *Base {
+func (j *JS) NewCanvas(class string) *Base {
 	canvas := j.doc.Call("createElement", "canvas")
-	canvas.Set("className", "canvas first")
+	canvas.Set("className", fmt.Sprintf("canvas %s", class))
 	canvas.Set("height", j.wh.h)
 	canvas.Set("width", j.wh.w)
 	j.box.Call("appendChild", canvas)

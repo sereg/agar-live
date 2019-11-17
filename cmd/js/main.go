@@ -9,6 +9,7 @@ import (
 	"syscall/js"
 	"time"
 )
+
 //set GOARCH=wasm
 //set GOOS=js
 //go src -o ./assets/lib.wasm cmd/js/main.go
@@ -23,8 +24,8 @@ func main() {
 	countPlants := 50
 	countAnimal := 5
 	space := world.NewWorld(countPlants, countAnimal, w, h)
-	fieldPlants := jsCon.NewCanvas()
-	fieldAnimals := &canvas.Animal{Base: *jsCon.NewCanvas()}
+	fieldPlants := jsCon.NewCanvas("first")
+	fieldAnimals := &canvas.Animal{Base: *jsCon.NewCanvas("second")}
 	story := story{}
 	cycle := getCycleFn(&space, fieldPlants, fieldAnimals, &story)
 
@@ -77,9 +78,56 @@ func main() {
 		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 		return nil
 	}))
+
+	js.Global().Set("get", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
+		x, y := args[0].Float(), args[1].Float()
+		info := space.GetID(x, y)
+		return info
+	}))
+
+	js.Global().Set("changePosition", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
+		x, y := args[0].Float(), args[1].Float()
+		info := space.GetEl(x, y)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
+		return info
+	}))
+
+	js.Global().Set("addFromJSON", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
+		data := args[0].String()
+		x, y := args[1].Float(), args[2].Float()
+		space.AddFromJSON(data, x, y)
+		jsCon.GetWindow().Call("requestAnimationFrame", cycle)
+		return nil
+	}))
+
+	js.Global().Set("add", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
+		typ := args[0].String()
+		x, y := args[1].Float(), args[2].Float()
+		_, _, _ = typ, x, y
+		return nil
+	}))
+
+	js.Global().Set("setSize", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
+		id := args[0].Int()
+		size := args[1].Float()
+		_, _ = id, size
+		return nil
+	}))
+
+	js.Global().Set("delete", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		story.reset()
+		id := args[0].Int()
+		_ = id
+		return nil
+	}))
 	jsCon.GetWindow().Call("requestAnimationFrame", cycle)
-	println("WASM Go Initialized field " +  strconv.Itoa(int(jsCon.GetW())) + " " + strconv.Itoa(int(jsCon.GetH())))
-	select{}
+	println("WASM Go Initialized field " + strconv.Itoa(int(jsCon.GetW())) + " " + strconv.Itoa(int(jsCon.GetH())))
+	select {}
 }
 
 type story struct {
@@ -91,15 +139,14 @@ func (s *story) reset() {
 }
 
 func (s *story) getLast() string {
-	return s.story[len(s.story) - 1]
+	return s.story[len(s.story)-1]
 }
-
 
 func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas, story *story) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		space.Cycle()
 		plant := space.GetPlant()
-		if len(plant) > 0 {//TODO rewrite method, return special marker of not update
+		if len(plant) > 0 { //TODO rewrite method, return special marker of not update
 			fieldPlants.Save()
 			fieldPlants.Refresh()
 			for _, v := range plant {
@@ -114,7 +161,7 @@ func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas, sto
 			fieldAnimals.Draw(v)
 		}
 		fieldAnimals.Restore()
-		if space.GetCycle() % 20 == 0 {
+		if space.GetCycle()%20 == 0 {
 			story.story = append(story.story, space.ExportWorld())
 			if len(story.story) > 20 {
 				story.story = story.story[1:]
@@ -123,4 +170,3 @@ func getCycleFn(space *world.World, fieldPlants, fieldAnimals canvas.Canvas, sto
 		return nil
 	})
 }
-

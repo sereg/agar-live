@@ -16,10 +16,10 @@ import (
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
 	"encoding/json"
-	"fmt"
 	"math"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type World struct {
@@ -32,6 +32,7 @@ type World struct {
 	resurrect   resurrects
 	countPlant  uint
 	countAnimal uint
+	action      bool
 }
 
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
@@ -71,9 +72,11 @@ func poison() bool {
 
 func (w *World) Cycle() {
 	first := true
-	if w.cycle > 0 {
+	if w.cycle > 0 && !w.action {
 		first = false
 		w.plant.SetUpdateState(false)
+	} else {
+		w.action = false
 	}
 	removeList := rmList{}
 	for i := 0; i < len(w.animal.All()); i++ {
@@ -163,7 +166,7 @@ func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
 	return dir
 }
 
-func (w *World) GetPlant() []alive.Alive {
+func (w World) GetPlant() []alive.Alive {
 	var el []alive.Alive
 	if !w.plant.UpdateState() {
 		return el
@@ -171,41 +174,176 @@ func (w *World) GetPlant() []alive.Alive {
 	return w.plant.All()
 }
 
-func (w *World) GetCycle() uint {
+func (w World) GetCycle() uint {
 	return w.cycle
 }
 
-func (w *World) ExportWorld() string {
-	animalExport := w.animal.All()
-	animals := make([]animal.Animal, 0, len(animalExport))
-	for _, el := range animalExport {
-		if el == nil {
-			continue
+type Alive struct {
+	ID   int
+	Size float64
+	Typ  string
+}
+
+func (w World) GetID(x, y float64) string {
+	id, typ := w.get(x, y)
+	if id == -1 {
+		return ""
+	}
+	var el alive.Alive
+	if typ == _const.AnimalTypeAlive {
+		el = w.animal.Get(id)
+	} else {
+		el = w.plant.Get(id)
+	}
+	exp := Alive{ID: el.GetID(), Size: el.GetSize(), Typ: typ}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+		return ""
+	}
+	return string(jData)
+}
+
+func (w World) get(x, y float64) (int, string) {
+	radius := float64(_const.PoisonSize)
+	cr := crd.NewCrd(x, y)
+	for radius < 200 {
+		inGrid := func(fr *frame.Frame, gr grid.Grid) int {
+			idInt, _ := gr.GetObjInRadius(x, y, radius, radius, -1)
+			for _, index := range idInt {
+				el1 := fr.Get(index)
+				dist := geom.GetDistanceByCrd(cr, el1.GetCrd())
+				if dist < el1.GetSize() {
+					return index
+				}
+			}
+			return -1
 		}
-		animals = append(animals, el.(animal.Animal))
-	}
-	plantExport := w.plant.All()
-	plants := make([]plant.Plant, 0, len(plantExport))
-	for _, el := range plantExport {
-		if el == nil {
-			continue
+		if index := inGrid(&w.animal, w.gridAnimal); index != -1 {
+			return index, _const.AnimalTypeAlive
 		}
-		plants = append(plants, el.(plant.Plant))
+		if radius == float64(_const.PoisonSize) {
+			if index := inGrid(&w.plant, w.gridPlant); index != -1 {
+				return index, _const.PlantTypeAlive
+			}
+		}
+		radius += 50
 	}
-	exp := export{
-		W:           w.w,
-		H:           w.h,
-		Cycle:       w.cycle,
-		Plants:      plants,
-		Animals:     animals,
-		CountPlant:  w.countPlant,
-		CountAnimal: w.countAnimal,
+	return -1, ""
+}
+
+type ElType struct {
+	Type string
+}
+
+func (w *World) GetEl(x, y float64) string {
+	id, typ := w.get(x, y)
+	if id == -1 {
+		return ""
 	}
+	var el alive.Alive
+	if typ == _const.AnimalTypeAlive {
+		el = w.animal.Get(id)
+	} else {
+		el = w.plant.Get(id)
+	}
+	exp := struct {
+		Type string
+		El   alive.Alive
+	}{typ, el}
 	jData, err := json.MarshalIndent(exp, "", "\t")
 	if err != nil {
 		println(err)
 	}
+	w.deleteBYIndex(id, typ)
 	return string(jData)
+}
+
+type animalType struct {
+	Type string
+	El   Animal
+}
+
+type plantType struct {
+	Type string
+	El   Plant
+}
+
+func (w *World) AddFromJSON(data string, x, y float64) {
+	if data == "" {
+		return
+	}
+	var typ ElType
+	err := json.NewDecoder(strings.NewReader(data)).Decode(&typ)
+	if err != nil {
+		println(err)
+		return
+	}
+	if typ.Type == _const.AnimalTypeAlive {
+		var infoEl animalType
+		err := json.NewDecoder(strings.NewReader(data)).Decode(&infoEl)
+		if err != nil {
+			println(err)
+			return
+		}
+		an := infoEl.El
+		an.X = x
+		an.Y = y
+		el1 := createAnimalFromJSON(an, w.w, w.w, nil)
+		w.animal.Add(el1)
+	}
+	if typ.Type == _const.PlantTypeAlive {
+		var infoEl plantType
+		err := json.NewDecoder(strings.NewReader(data)).Decode(&infoEl)
+		if err != nil {
+			println(err)
+			return
+		}
+		pl := infoEl.El
+		pl.X = x
+		pl.Y = y
+		el1 := createPlantFromJSON(pl)
+		w.plant.Add(el1)
+		w.plant.SetUpdateState(true)
+		w.action = true
+	}
+}
+
+func (w *World) SetSizeByID() uint {
+	return w.cycle
+}
+
+func (w *World) DeleteByID(id int, typ string) {
+	w.deleteBYIndex(w.getIndexByID(id, typ), typ)
+}
+
+func (w *World) deleteBYIndex(index int, typ string) {
+	if index == -1 {
+		return
+	}
+	if typ == _const.AnimalTypeAlive {
+		w.animal.Delete(index)
+	} else {
+		w.plant.Delete(index)
+		w.plant.SetUpdateState(true)
+	}
+	w.action = true
+}
+
+func (w World) getIndexByID(id int, typ string) int {
+	getEl := func(fr frame.Frame) int {
+		for index, el := range fr.All() {
+			if el.GetID() == id {
+				return index
+			}
+		}
+		return -1
+	}
+	if typ == _const.AnimalTypeAlive {
+		return getEl(w.animal)
+	} else {
+		return getEl(w.plant)
+	}
 }
 
 func (w *World) GetAnimal() []alive.Alive {
@@ -324,9 +462,6 @@ func (w *World) fixLimit(el animal.Animal) {
 	}
 	if y > w.h {
 		y = w.h - 1
-	}
-	if (x == 0 && y == 0) || (x == 1 && y == 1) {
-		fmt.Println("ff")
 	}
 	if x != el.GetX() || y != el.GetY() {
 		el.SetXY(x, y)

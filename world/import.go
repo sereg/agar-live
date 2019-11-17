@@ -131,6 +131,39 @@ func NewWorldFromFile(reader io.Reader) World {
 	return world
 }
 
+func (w *World) ExportWorld() string {
+	animalExport := w.animal.All()
+	animals := make([]animal.Animal, 0, len(animalExport))
+	for _, el := range animalExport {
+		if el == nil {
+			continue
+		}
+		animals = append(animals, el.(animal.Animal))
+	}
+	plantExport := w.plant.All()
+	plants := make([]plant.Plant, 0, len(plantExport))
+	for _, el := range plantExport {
+		if el == nil {
+			continue
+		}
+		plants = append(plants, el.(plant.Plant))
+	}
+	exp := export{
+		W:           w.w,
+		H:           w.h,
+		Cycle:       w.cycle,
+		Plants:      plants,
+		Animals:     animals,
+		CountPlant:  w.countPlant,
+		CountAnimal: w.countAnimal,
+	}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+	}
+	return string(jData)
+}
+
 func createPlantFromJSON(an Plant) plant.Plant {
 	var el plant.Plant
 	if an.Danger {
