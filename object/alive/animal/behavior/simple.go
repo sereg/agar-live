@@ -51,14 +51,14 @@ func NewSimple(w, h float64) Simple {
 }
 
 func (s *Simple) SetDirection(self animal.Animal, direction crd.Crd) {
-	s.direction = vector.GetCrdWithLength(self.GetCrd(), s.direction, self.Vision())
+	s.direction = vector.GetCrdWithLength(self.GetCrd(), s.direction, self.GetVision())
 }
 
 func (s *Simple) Action(self animal.Animal, animals, plants []alive.Alive, cycle uint64, dAngeles checkangels.Angels) (crd.Crd, bool) {
-	if s.direction.X() == 0 && s.direction.Y() == 0 {
+	if s.direction.GetX() == 0 && s.direction.GetY() == 0 {
 		//s.direction =  crd.NewCrd(float64(math2.Random(0, int(s.w))), float64(math2.Random(0, int(s.h))))
 	}
-	vec := vector.GetVectorWithLength(self.GetCrd(), s.direction, self.Vision())
+	vec := vector.GetVectorWithLength(self.GetCrd(), s.direction, self.GetVision())
 	if change() {
 		part := 6.0
 		addAngel := randomFloat(-1 * math.Pi / part, math.Pi / part)

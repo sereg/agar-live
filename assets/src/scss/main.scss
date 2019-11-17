@@ -1,5 +1,4 @@
 @import '~bootstrap/scss/bootstrap.scss';
-//@import '~font-awesome/css/font-awesome.min.css';
 
 body {
   height: 100%;
@@ -11,10 +10,21 @@ body {
   font-family: Arial, Helvetica, sans-serif
 }
 
+#box {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .canvas {
-  position: absolute;
-  .first {
+  position: relative;
+  &.first {
     z-index: 1;
+  }
+  &.second{
+    left: 0;
+    top: 0;
+    position: absolute;
+    z-index: 2;
   }
 }
 

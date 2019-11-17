@@ -2,6 +2,9 @@ package _const
 
 //EatRatio ratio when one object can eat another
 const (
+	AnimalTypeAlive = "animal"
+	PlantTypeAlive = "plant"
+
 	FoodSize       = 3
 	AliveStartSize = 10
 	GrowTime       = 10

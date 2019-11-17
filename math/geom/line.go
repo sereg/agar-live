@@ -40,7 +40,7 @@ func NewLine(a, b Point) Line {
 
 func NewLineCrd(a, b crd.Crd) Line {
 	var slope float64
-	ax, ay, bx, by := a.X(), a.Y(), b.X(), b.Y()
+	ax, ay, bx, by := a.GetX(), a.GetY(), b.GetX(), b.GetY()
 	if (bx - ax) == 0 {
 		bx += 0.01
 	}

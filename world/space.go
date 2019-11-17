@@ -15,36 +15,41 @@ import (
 	"agar-life/world/frame"
 	"agar-life/world/frame/grid"
 	gnt "agar-life/world/generate"
-	"fmt"
-	"io"
+	"encoding/json"
 	"math"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type World struct {
-	w, h       float64
-	animal     frame.Frame
-	plant      frame.Frame
-	cycle      uint64
-	gridPlant  grid.Grid //TODO move grid index to frame
-	gridAnimal grid.Grid
-	resurrect  resurrects
+	w, h        float64
+	animal      frame.Frame
+	plant       frame.Frame
+	cycle       uint
+	gridPlant   grid.Grid //TODO move grid index to frame
+	gridAnimal  grid.Grid
+	resurrect   resurrects
+	countPlant  uint
+	countAnimal uint
+	action      bool
 }
 
 func NewWorld(countPlant, countAnimal int, w, h float64) World {
 	world := World{
-		w:          w,
-		h:          h,
-		gridPlant:  grid.NewArray(_const.GridSize, w, h),
-		gridAnimal: grid.NewArray(_const.GridSize, w, h),
-		animal:     frame.NewFrame(countAnimal, w, h),
-		plant:      frame.NewFrame(countPlant, w, h),
+		w:           w,
+		h:           h,
+		gridPlant:   grid.NewArray(_const.GridSize, w, h),
+		gridAnimal:  grid.NewArray(_const.GridSize, w, h),
+		animal:      frame.NewFrame(countAnimal, w, h),
+		plant:       frame.NewFrame(countPlant, w, h),
+		countAnimal: uint(countAnimal),
+		countPlant:  uint(countPlant),
 	}
 	for i := 0; i < countAnimal; i++ {
 		el := species.NewBeast(ai.NewAiv1(w, h))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(_const.AliveStartSize))
-		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
+		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.animal.Set(i, el)
 	}
 	for i := 0; i < countPlant; i++ {
@@ -55,39 +60,7 @@ func NewWorld(countPlant, countAnimal int, w, h float64) World {
 			el = sp.NewPlant()
 		}
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)))
-		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
-		world.plant.Set(i, el)
-	}
-	return world
-}
-
-func NewWorldFromFile(reader io.Reader) World {
-	w, h := 1000.0, 1000.0
-	countAnimal := 0
-	countPlant := 0
-	world := World{
-		w:          w,
-		h:          h,
-		gridPlant:  grid.NewArray(_const.GridSize, w, h),
-		gridAnimal: grid.NewArray(_const.GridSize, w, h),
-		animal:     frame.NewFrame(countAnimal, w, h),
-		plant:      frame.NewFrame(countPlant, w, h),
-	}
-	for i := 0; i < countAnimal; i++ {
-		el := species.NewBeast(ai.NewAiv1(w, h))
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(_const.AliveStartSize))
-		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
-		world.animal.Set(i, el)
-	}
-	for i := 0; i < countPlant; i++ {
-		var el plant.Plant
-		if poison() {
-			el = sp.NewPoison()
-		} else {
-			el = sp.NewPlant()
-		}
-		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)))
-		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
+		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.plant.Set(i, el)
 	}
 	return world
@@ -99,9 +72,11 @@ func poison() bool {
 
 func (w *World) Cycle() {
 	first := true
-	if w.cycle > 0 {
+	if w.cycle > 0 && !w.action {
 		first = false
 		w.plant.SetUpdateState(false)
+	} else {
+		w.action = false
 	}
 	removeList := rmList{}
 	for i := 0; i < len(w.animal.All()); i++ {
@@ -115,7 +90,7 @@ func (w *World) Cycle() {
 		closestPlant := append(w.forIntersect(el, closest[:inner], idC[:inner], &w.plant, &removeList), closest[inner:]...)
 		var direction crd.Crd
 		split := false
-		dist := el.Speed()
+		dist := el.GetSpeed()
 		if directionL, speed := el.GetInertia(); speed > 0 {
 			direction, dist = directionL, speed
 			el.SetCrdByDirection(el, direction, dist, first)
@@ -129,7 +104,7 @@ func (w *World) Cycle() {
 		}
 		w.fixLimit(el)
 		grow(el)
-		if el.Size() < el.ViewSize() && el.GrowSize() >= 0 {
+		if el.GetSize() < el.GetViewSize() && el.GetGrowSize() >= 0 {
 
 		}
 	}
@@ -138,50 +113,51 @@ func (w *World) Cycle() {
 	w.gridAnimal.Reset()
 	for i := 0; i < len(w.animal.All()); i++ {
 		el := w.animal.Get(i)
-		w.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
+		w.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 	}
 	if w.plant.UpdateState() {
 		w.gridPlant.Reset()
 		for i := 0; i < len(w.plant.All()); i++ {
 			el := w.plant.Get(i)
-			w.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
+			w.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		}
 	}
 	w.cycle++
+	w.countAnimal++
 }
 
 func grow(el animal.Animal) {
-	if el.Size() == el.ViewSize() {
+	if el.GetSize() == el.GetViewSize() {
 		return
 	}
-	if math.Abs(el.Size() - el.ViewSize()) > math.Abs(el.GrowSize()) * 2    {
-		el.SetViewSize(el.ViewSize() + el.GrowSize())
+	if math.Abs(el.GetSize()-el.GetViewSize()) > math.Abs(el.GetGrowSize())*2 {
+		el.SetViewSize(el.GetViewSize() + el.GetGrowSize())
 	} else {
-		el.SetViewSize(el.Size())
+		el.SetViewSize(el.GetSize())
 	}
 }
 
 func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
 	var parent animal.Animal
-	if parent = el.Parent(); parent == nil {
+	if parent = el.GetParent(); parent == nil {
 		return dir
 	}
 	intersected := false
 	sum := vector.GetVectorByPoint(el.GetCrd(), el.GetCrd())
-	for _, v := range parent.Children() {
+	for _, v := range parent.GetChildren() {
 		var el1 animal.Animal
-		if v.ID() == el.ID() {
+		if v.GetID() == el.GetID() {
 			el1 = parent
 		} else {
 			el1 = v
 		}
-		if el.GlueTime() <= w.cycle && el1.GlueTime() <= w.cycle {
+		if el.GetGlueTime() <= w.cycle && el1.GetGlueTime() <= w.cycle {
 			continue
 		}
 		dis := geom.GetDistanceByCrd(el.GetCrd(), el1.GetCrd())
-		if dis < el.Size()+el1.Size() {
+		if dis < el.GetSize()+el1.GetSize() {
 			intersected = true
-			sum = vector.Add(sum, vector.GetVectorWithLength(el1.GetCrd(), el.GetCrd(), el.Size() + el1.Size()))
+			sum = vector.Add(sum, vector.GetVectorWithLength(el1.GetCrd(), el.GetCrd(), el.GetSize()+el1.GetSize()))
 		}
 	}
 	if intersected {
@@ -190,12 +166,226 @@ func (w *World) fixNeighborhood(el animal.Animal, dir crd.Crd) crd.Crd {
 	return dir
 }
 
-func (w *World) GetPlant() []alive.Alive {
+func (w World) GetPlant() []alive.Alive {
 	var el []alive.Alive
 	if !w.plant.UpdateState() {
 		return el
 	}
 	return w.plant.All()
+}
+
+func (w World) GetCycle() uint {
+	return w.cycle
+}
+
+type Alive struct {
+	ID   int
+	Size float64
+	Typ  string
+}
+
+func (w World) GetID(x, y float64) string {
+	id, typ := w.get(x, y)
+	if id == -1 {
+		return ""
+	}
+	var el alive.Alive
+	if typ == _const.AnimalTypeAlive {
+		el = w.animal.Get(id)
+	} else {
+		el = w.plant.Get(id)
+	}
+	exp := Alive{ID: el.GetID(), Size: el.GetSize(), Typ: typ}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+		return ""
+	}
+	return string(jData)
+}
+
+func (w World) get(x, y float64) (int, string) {
+	radius := float64(_const.PoisonSize)
+	cr := crd.NewCrd(x, y)
+	for radius < 200 {
+		inGrid := func(fr *frame.Frame, gr grid.Grid) int {
+			idInt, _ := gr.GetObjInRadius(x, y, radius, radius, -1)
+			for _, index := range idInt {
+				el1 := fr.Get(index)
+				dist := geom.GetDistanceByCrd(cr, el1.GetCrd())
+				if dist < el1.GetSize() {
+					return index
+				}
+			}
+			return -1
+		}
+		if index := inGrid(&w.animal, w.gridAnimal); index != -1 {
+			return index, _const.AnimalTypeAlive
+		}
+		if radius == float64(_const.PoisonSize) {
+			if index := inGrid(&w.plant, w.gridPlant); index != -1 {
+				return index, _const.PlantTypeAlive
+			}
+		}
+		radius += 50
+	}
+	return -1, ""
+}
+
+type ElType struct {
+	Type string
+}
+
+func (w *World) GetEl(x, y float64) string {
+	id, typ := w.get(x, y)
+	if id == -1 {
+		return ""
+	}
+	var el alive.Alive
+	if typ == _const.AnimalTypeAlive {
+		el = w.animal.Get(id)
+	} else {
+		el = w.plant.Get(id)
+	}
+	exp := struct {
+		Type string
+		El   alive.Alive
+	}{typ, el}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+	}
+	w.deleteBYIndex(id, typ)
+	return string(jData)
+}
+
+type animalType struct {
+	Type string
+	El   Animal
+}
+
+type plantType struct {
+	Type string
+	El   Plant
+}
+
+func (w *World) AddFromJSON(data string, x, y float64) string {
+	if data == "" {
+		return ""
+	}
+	var typ ElType
+	err := json.NewDecoder(strings.NewReader(data)).Decode(&typ)
+	if err != nil {
+		println(err)
+		return ""
+	}
+	var el1 alive.Alive
+	if typ.Type == _const.AnimalTypeAlive {
+		var infoEl animalType
+		err := json.NewDecoder(strings.NewReader(data)).Decode(&infoEl)
+		if err != nil {
+			println(err)
+			return ""
+		}
+		an := infoEl.El
+		an.X = x
+		an.Y = y
+		var parent animal.Animal
+		if an.Parent != nil {
+			if parentID := w.getIndexByID(*an.Parent, _const.AnimalTypeAlive); parentID != -1 {
+				parent = w.animal.Get(parentID).(animal.Animal)
+			}
+		}
+		el1 = createAnimalFromJSON(an, w.w, w.w, parent)
+		w.animal.Add(el1)
+	}
+	if typ.Type == _const.PlantTypeAlive {
+		var infoEl plantType
+		err := json.NewDecoder(strings.NewReader(data)).Decode(&infoEl)
+		if err != nil {
+			println(err)
+			return ""
+		}
+		pl := infoEl.El
+		pl.X = x
+		pl.Y = y
+		el1 = createPlantFromJSON(pl)
+		w.plant.Add(el1)
+		w.plant.SetUpdateState(true)
+		w.action = true
+	}
+	exp := struct {
+		Type string
+		El   alive.Alive
+	}{typ.Type, el1}
+	jData, err := json.MarshalIndent(exp, "", "\t")
+	if err != nil {
+		println(err)
+	}
+	return string(jData)
+}
+
+type elInfo struct {
+	ID   int
+	Size float64
+	Type string
+}
+
+func (w *World) SetSize(data string) {
+	var info elInfo
+	err := json.NewDecoder(strings.NewReader(data)).Decode(&info)
+	if err != nil {
+		println(err)
+		return
+	}
+	if index := w.getIndexByID(info.ID, info.Type); index != -1 {
+		var el alive.Alive
+		if info.Type == _const.AnimalTypeAlive {
+			el = w.animal.Get(index)
+		}
+		if info.Type == _const.PlantTypeAlive {
+			el = w.plant.Get(index)
+		}
+		if el == nil {
+			return
+		}
+		el.SetSize(info.Size)
+	}
+}
+
+func (w *World) DeleteByID(id int, typ string) {
+	w.deleteBYIndex(w.getIndexByID(id, typ), typ)
+}
+
+func (w *World) deleteBYIndex(index int, typ string) {
+	if index == -1 {
+		return
+	}
+	if typ == _const.AnimalTypeAlive {
+		w.animal.Delete(index)
+	} else {
+		w.plant.Delete(index)
+		w.plant.SetUpdateState(true)
+	}
+	w.action = true
+}
+
+func (w World) getIndexByID(id int, typ string) int {
+	getEl := func(fr frame.Frame) int {
+		for index, el := range fr.All() {
+			if el.GetID() == id {
+				return index
+			}
+		}
+		return -1
+	}
+	if typ == _const.AnimalTypeAlive {
+		return getEl(w.animal)
+	}
+	if typ == _const.PlantTypeAlive {
+		return getEl(w.plant)
+	}
+	return -1
 }
 
 func (w *World) GetAnimal() []alive.Alive {
@@ -230,7 +420,7 @@ func (w *World) remove(m rmList) {
 		v := m.list[i]
 		index, fr := v.index, v.fr
 		if el, ok := fr.Get(index).(animal.Animal); ok {
-			if el.Parent() == nil && len(el.Children()) == 0 {
+			if el.GetParent() == nil && len(el.GetChildren()) == 0 {
 				w.resurrect.add(fr, fr.Get(index), w.cycle)
 			}
 		} else {
@@ -259,12 +449,12 @@ func (w *World) forIntersect(
 		}
 		died := false
 		if el != nil && el1 != nil && !el1.GetDead() {
-			if (el.Size()/el1.Size() > _const.EatRatio || (el.Group() == el1.Group() &&
-				el1.GlueTime() <= w.cycle && el.GlueTime() <= w.cycle)) && !el1.Danger() && dist() < el.Size() {
+			if (el.GetSize()/el1.GetSize() > _const.EatRatio || (el.GetGroup() == el1.GetGroup() &&
+				el1.GetGlueTime() <= w.cycle && el.GetGlueTime() <= w.cycle)) && !el1.GetDanger() && dist() < el.GetSize() {
 				died = true
 				el.Eat(el1)
 			}
-			if !died && el1.Danger() && el1.Size() < el.Size() && dist() < el.Size() {
+			if !died && el1.GetDanger() && el1.GetSize() < el.GetSize() && dist() < el.GetSize() {
 				if Burst(&w.animal, el, w.cycle) {
 					died = true
 				}
@@ -290,7 +480,7 @@ func removeFromInt(a []int, i int) []int {
 }
 
 func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, int, []alive.Alive) {
-	idInt, inner := gr.GetObjInRadius(el.X(), el.Y(), el.Vision(), el.Size(), ind)
+	idInt, inner := gr.GetObjInRadius(el.GetX(), el.GetY(), el.GetVision(), el.GetSize(), ind)
 	closest := make([]alive.Alive, len(idInt))
 	j := 0
 	for i := 0; i < len(idInt); i++ {
@@ -302,7 +492,7 @@ func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int,
 }
 
 func (w *World) fixLimit(el animal.Animal) {
-	x, y := el.X(), el.Y()
+	x, y := el.GetX(), el.GetY()
 	if x < 0 {
 		x = 1
 	}
@@ -315,10 +505,7 @@ func (w *World) fixLimit(el animal.Animal) {
 	if y > w.h {
 		y = w.h - 1
 	}
-	if (x == 0 && y == 0) || (x == 1 && y == 1) {
-		fmt.Println("ff")
-	}
-	if x != el.X() || y != el.Y() {
+	if x != el.GetX() || y != el.GetY() {
 		el.SetXY(x, y)
 	}
 }
@@ -338,7 +525,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 		//el := species.NewBeast(behavior.NewSimple(w, h))
 		//gnt.Generate(el, gnt.WorldWH(w, h), gnt.SetGroup("a"+strconv.Itoa(i)), gnt.SetSize(6))
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("a"+strconv.Itoa(i)), gnt.Size(size), gnt.Crd(gnt.FixCrd(x, y)))
-		world.gridAnimal.Set(el.X(), el.Y(), el.Size(), i)
+		world.gridAnimal.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.animal.Set(i, el)
 	}
 	crPlant := func(i int, x, y float64, poison bool) {
@@ -349,7 +536,7 @@ func NewWorldTest(countPlant, countAnimal int, w, h float64) World {
 			el = sp.NewPlant()
 		}
 		gnt.Generate(el, gnt.WorldWH(w, h), gnt.Name("p"+strconv.Itoa(i)), gnt.Crd(gnt.FixCrd(x, y)))
-		world.gridPlant.Set(el.X(), el.Y(), el.Size(), i)
+		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)
 		world.plant.Set(i, el)
 	}
 	//ratio := 6.0

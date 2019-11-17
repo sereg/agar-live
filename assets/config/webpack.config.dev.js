@@ -13,10 +13,6 @@ module.exports = {
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
 
-    // entry: {
-    //     'go': './src/wasm_exec.js'
-    // },
-
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
         extensions: [".ts", ".tsx"]
@@ -24,7 +20,7 @@ module.exports = {
 
     output: {
         path: helpers.root('public/js'),
-        publicPath: '/',
+        publicPath: '/public/',
         filename: '[name].js',
         chunkFilename: '[id].chunk.js'
     },
@@ -34,17 +30,6 @@ module.exports = {
             {
                 test: /\.go$/,
                 loader: 'golang-wasm-async-loader'
-            },
-            {
-                test: /\.s[ac]ss$/i,
-                use: [
-                    // Creates `style` nodes from JS strings
-                    'style-loader',
-                    // Translates CSS into CommonJS
-                    'css-loader',
-                    // Compiles Sass to CSS
-                    'sass-loader',
-                ],
             },
             {
                 test: /\.ts(x?)$/,

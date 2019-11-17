@@ -7,54 +7,54 @@ import (
 //Base is basic realization on object alive
 type Base struct {
 	object.Base
-	deed bool
-	name string
-	id int
-	danger bool
-	edible bool
+	Deed   bool
+	Group  string
+	ID     int
+	Danger bool
+	Edible bool
 }
-//Danger it returns is danger of the object
-func (b Base)Danger() bool{
-	return b.danger
+//GetDanger it returns is Danger of the object
+func (b Base) GetDanger() bool{
+	return b.Danger
 }
-//Edible it returns is edibility
-func (b Base) Edible() bool{
-	return b.edible
+//GetEdible it returns is edibility
+func (b Base) GetEdible() bool{
+	return b.Edible
 }
-//SetDanger set danger
+//SetDanger set Danger
 func (b *Base)SetDanger(st bool) {
-	b.danger = st
+	b.Danger = st
 }
-//SetEdible set edible
+//SetEdible set Edible
 func (b *Base) SetEdible(st bool) {
-	b.edible = st
+	b.Edible = st
 }
 
-//ID it gets id
-func (b Base) ID() int{
-	return b.id
+//GetID it gets ID
+func (b Base) GetID() int{
+	return b.ID
 }
 
-//SetID it sets id
+//SetID it sets ID
 func (b *Base) SetID(id int){
-	b.id = id
+	b.ID = id
 }
 
 //Die it kills the object
 func (b *Base) Die(){
-	b.deed = true
+	b.Deed = true
 	b.SetHidden(true)
 }
 
 //Revive it revives the object
 func (b *Base) Revive(){
-	b.deed = false
+	b.Deed = false
 	b.SetHidden(false)
 }
 
 //GetDead it returns status of the object
 func (b Base) GetDead() bool {
-	return b.deed
+	return b.Deed
 }
 
 func (b Base) Grow() {
@@ -63,16 +63,16 @@ func (b Base) Grow() {
 func (b Base) Decrease(){
 }
 
-func (b Base) Group() string{
-	return b.name
+func (b Base) GetGroup() string{
+	return b.Group
 }
-func (b *Base) SetGroup(name string) {
-	b.name = name
+func (b *Base) SetGroup(group string) {
+	b.Group = group
 }
 
-func (b Base) GlueTime() uint64 {
+func (b Base) GetGlueTime() uint {
 	return 0
 }
 
-func (b Base) SetGlueTime(cycle uint64) {
+func (b Base) SetGlueTime(cycle uint) {
 }

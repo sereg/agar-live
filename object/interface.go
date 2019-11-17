@@ -4,20 +4,20 @@ import "agar-life/math/crd"
 
 //Object the base interface for all objects
 type Object interface {
-	Color() string
+	GetColor() string
 	SetColor(string)
-	Size() float64
+	GetSize() float64
 	SetSize(size float64)
-	ViewSize() float64
+	GetViewSize() float64
 	SetViewSize(size float64)
-	GrowSize() float64
+	GetGrowSize() float64
 	GetCrd() crd.Crd
 	SetCrd(crd.Crd)
 	SetX(float64)
 	SetY(float64)
 	SetXY(float64, float64)
-	X() float64
-	Y() float64
-	Hidden() bool
+	GetX() float64
+	GetY() float64
+	GetHidden() bool
 	SetHidden(bool)
 }

@@ -22,11 +22,14 @@ func NewFrame(count int, w, h float64) Frame {
 }
 
 func (f *Frame) Delete(index int) {
+	if len(f.el) <= index {
+		return
+	}
 	if el, ok := f.el[index].(animal.Animal); ok {
-		if parent := el.Parent(); parent != nil {
-			parent.DeleteChild(el.ID())
+		if parent := el.GetParent(); parent != nil {
+			parent.DeleteChild(el.GetID())
 		}
-		if children := el.Children(); len(children) > 0 {
+		if children := el.GetChildren(); len(children) > 0 {
 			parent := el.Child(0)
 			parent.SetParent(nil)
 			parent.SetBehaviour(ai.NewAiv1(f.w, f.h))
@@ -41,10 +44,16 @@ func (f *Frame) Delete(index int) {
 }
 
 func (f Frame) Get(index int) alive.Alive {
+	if len(f.el) <= index {
+		return nil
+	}
 	return f.el[index]
 }
 
 func (f *Frame) Set(index int, el alive.Alive) {
+	if len(f.el) <= index {
+		return
+	}
 	el.SetID(f.sec())
 	f.el[index] = el
 }
