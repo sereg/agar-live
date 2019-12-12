@@ -3,6 +3,7 @@
 //https://icomoon.io/app/#/select
 import * as ReactDOM from "react-dom";
 import * as React from 'react';
+import {init, Universe} from './wasm.js';
 import Go from './wasm_exec.js';
 import {Animal, Plant, Size, Status} from './const/Const';
 
@@ -31,6 +32,7 @@ interface AppState {
     countPlant: number,
     selectedElement: el,
     tmpElement: string,
+    action: Universe,
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -38,30 +40,29 @@ class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
         this.state = {
+            tmpElement: "",
+            action: new Universe(),
             status: Status.stop,
             countAnimal: 5,
             countPlant: 50,
             selectedElement: {
-                id: -1,
+                id: 0,
                 size: 0,
-                type: ""
-            },
-            tmpElement: "",
+                type: "string"
+            }
         }
     }
 
     async componentDidMount() {
-        const go = new Go();
-        let {instance, module} = await WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject);
-        await go.run(instance);
-        await window.cycle();
+        await init();
+        await this.state.action.cycle();
     }
 
     cycle = () => {
         if (this.state.status === Status.stop) {
             return
         }
-        window.cycle();
+        this.state.action.cycle();
         window.requestAnimationFrame(() => {
             this.cycle()
         });
@@ -81,11 +82,11 @@ class App extends React.Component<AppProps, AppState> {
     };
 
     async restart() {
-        await window.restart();
+        await this.state.action.restart();
     };
 
     async export() {
-        let text = await window.export()
+        let text = await this.state.action.export();
         const element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
         element.setAttribute('download', "export.json");
@@ -96,21 +97,22 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     async import(e: any) {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = event => {
-            const text = reader.result
-            window.import(text)
-        }
+            // @ts-ignore
+            const text: string = reader.result;
+            this.state.action.import(text);
+        };
         reader.onerror = (e) => {
             console.error(e)
-        }
+        };
         reader.readAsText(e.target.files[0])
     }
 
     changeCount = (e: any) => {
-        const target = e.target
-        const name = target.name
-        let val = target.value * 1
+        const target = e.target;
+        const name = target.name;
+        let val = target.value * 1;
         if (name == Animal) {
             this.setState({
                 countAnimal: val
@@ -132,26 +134,28 @@ class App extends React.Component<AppProps, AppState> {
         }
     };
 
-    generate = () => {
-        window.generate(this.state.countAnimal, this.state.countPlant);
+    generate = async () => {
+        await this.state.action.generate(this.state.countAnimal, this.state.countPlant);
     };
 
-    backward = () => {
-        window.backward();
+    backward = async () => {
+        await this.state.action.backward();
     };
 
     setSize = async (e: any) => {
-        console.log(JSON.stringify(this.state.selectedElement))
-        await window.setSize(JSON.stringify(this.state.selectedElement))
-    }
+        console.log(JSON.stringify(this.state.selectedElement));
+        await this.state.action.setSize(JSON.stringify(this.state.selectedElement));
+    };
 
     moveStart = async (e: any) => {
-        let el = await window.changePosition(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+        let el = await this.state.action.changePosition(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
         this.setState({
-            tmpElement: el,
+            tmpElement: el
         });
+        // @ts-ignore
         if (el != "") {
-            let selectedEl:elInfo = JSON.parse(el)
+            // @ts-ignore
+            let selectedEl: elInfo = JSON.parse(el);
             this.setState({
                 selectedElement: {
                     type: selectedEl.Type,
@@ -160,16 +164,17 @@ class App extends React.Component<AppProps, AppState> {
                 }
             });
         }
-    }
+    };
 
     moveEnd = async (e: any) => {
-        const data = this.state.tmpElement
+        const data = this.state.tmpElement;
         if (data == "") {
             return
         }
-        let el = await window.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+        let el = await this.state.action.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+        // @ts-ignore
         if (el != "") {
-            let selectedEl:elInfo = JSON.parse(el)
+            let selectedEl: elInfo = JSON.parse(el);
             this.setState({
                 selectedElement: {
                     type: selectedEl.Type,
@@ -178,7 +183,7 @@ class App extends React.Component<AppProps, AppState> {
                 }
             });
         }
-    }
+    };
 
     render() {
         return (
