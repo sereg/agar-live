@@ -1,7 +1,6 @@
 package world
 
 import (
-	"agar-life/object/alive/animal"
 	_const "agar-life/world/const"
 	"fmt"
 	"math"
@@ -14,28 +13,35 @@ func TestCycle(t *testing.T) {
 }
 
 func TestExport(t *testing.T) {
-	world := NewWorld(80, 10, 500, 500)
-	loop:for i := 0; i < 10000; i++ {
-		world.Cycle()
-		animalList := world.GetAnimal()
-		for _, v := range animalList {
-			el := v.(animal.Animal)
-			if el.GetParent() != nil {
-				break loop
-			}
-		}
-	}
-	s := world.ExportWorld()
-	fmt.Println(s)
-}
-
-func TestImport(t *testing.T) {
-	file, err := os.Open("test.json")
+	//world := NewWorld(80, 10, 500, 500)
+	file, err := os.Open("/home/serega/Downloads/export.json")
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
-	world :=NewWorldFromFile(file)
+	world := NewWorldFromFile(file)
+	//loop:
+	for i := 0; i < 10000; i++ {
+		world.Cycle()
+		//animalList := world.GetAnimal()
+		//for _, v := range animalList {
+		//el := v.(animal.Animal)
+		//if el.GetParent() != nil {
+		//	break loop
+		//}
+		//}
+	}
+	//s := world.ExportWorld()
+	//fmt.Println(s)
+}
+
+func TestImport(t *testing.T) {
+	file, err := os.Open("/home/serega/Downloads/export3.json")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	world := NewWorldFromFile(file)
 	for i := 0; i < 10; i++ {
 		world.Cycle()
 		animalList := world.GetAnimal()
@@ -66,19 +72,19 @@ func Te1stLog(t *testing.T) {
 	}
 }
 func reduce(i float64) float64 {
-	return (_const.StartSpeed - math.Log(i * _const.SpeedRatio)) / 10
+	return (_const.StartSpeed - math.Log(i*_const.SpeedRatio)) / 10
 }
 
 //s= v0*t + 0.5*a*t^2
-func Tes1tReduceSpeed(t *testing.T){
+func Tes1tReduceSpeed(t *testing.T) {
 	dist := 0.0
 	tt := 60.0
 	v := 5.0
 	//a := getAcceleration(v, tt, dist)
 	a := 0.1
-	for i:= 0.0; i < tt; i++{
+	for i := 0.0; i < tt; i++ {
 		dist += v
-		v -=a
+		v -= a
 		fmt.Println(i)
 		fmt.Println(v)
 		fmt.Println(dist)
@@ -92,9 +98,9 @@ func Tes1tReduceSpeed(t *testing.T){
 
 //a=(s-v0*t)/(0.5*t*t)
 func getAcceleration(v0, t, s float64) float64 {
-	return math.Abs((s-v0*t) / (0.5*t*t))
+	return math.Abs((s - v0*t) / (0.5 * t * t))
 }
 
-func getDist(v0, t, a float64) float64{
+func getDist(v0, t, a float64) float64 {
 	return v0*t + 0.5*a*t*t
 }

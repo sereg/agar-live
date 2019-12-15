@@ -274,6 +274,32 @@ class App extends React.Component {
                 this.cycle();
             });
         };
+        this.restart = () => __awaiter(this, void 0, void 0, function* () {
+            yield this.state.action.restart();
+        });
+        this.export = () => __awaiter(this, void 0, void 0, function* () {
+            let text = yield this.state.action.export();
+            console.log(text);
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', "export.json");
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        });
+        this.import = (e) => __awaiter(this, void 0, void 0, function* () {
+            const reader = new FileReader();
+            reader.onload = event => {
+                // @ts-ignore
+                const text = reader.result;
+                this.state.action.import(text);
+            };
+            reader.onerror = (e) => {
+                console.error(e);
+            };
+            reader.readAsText(e.target.files[0]);
+        });
         this.changeCount = (e) => {
             const target = e.target;
             const name = target.name;
@@ -313,9 +339,7 @@ class App extends React.Component {
             this.setState({
                 tmpElement: el
             });
-            // @ts-ignore
             if (el != "") {
-                // @ts-ignore
                 let selectedEl = JSON.parse(el);
                 this.setState({
                     selectedElement: {
@@ -332,7 +356,6 @@ class App extends React.Component {
                 return;
             }
             let el = yield this.state.action.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-            // @ts-ignore
             if (el != "") {
                 let selectedEl = JSON.parse(el);
                 this.setState({
@@ -361,38 +384,6 @@ class App extends React.Component {
         return __awaiter(this, void 0, void 0, function* () {
             yield wasm_js_1.init();
             yield this.state.action.cycle();
-        });
-    }
-    restart() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.state.action.restart();
-        });
-    }
-    ;
-    export() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let text = yield this.state.action.export();
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-            element.setAttribute('download', "export.json");
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        });
-    }
-    import(e) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const reader = new FileReader();
-            reader.onload = event => {
-                // @ts-ignore
-                const text = reader.result;
-                this.state.action.import(text);
-            };
-            reader.onerror = (e) => {
-                console.error(e);
-            };
-            reader.readAsText(e.target.files[0]);
         });
     }
     render() {
@@ -443,7 +434,7 @@ class Universe {
      * @returns {string}
      */
     async export() {
-        return await window.export();
+        return window.export();
     }
     /**
      * @param {string} text
@@ -465,7 +456,7 @@ class Universe {
      * @param {string} params
      */
     async setSize(params) {
-        await window.setSize(JSON.stringify(this.state.selectedElement));
+        await window.setSize(params);
     }
     /**
      * @param {number} x
@@ -482,7 +473,7 @@ class Universe {
      * @returns {string}
      */
     async addFromJSON(data, x, y) {
-        await window.addFromJSON(data, x, y);
+        return window.addFromJSON(data, x, y);
     }
 }
 

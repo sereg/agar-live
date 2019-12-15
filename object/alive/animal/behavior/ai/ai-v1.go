@@ -57,6 +57,8 @@ type strategy struct {
 	action    func() crd.Crd
 }
 
+
+
 func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.Alive, cycle uint) (crd.Crd, bool) {
 	dangerous := dangerous(self, animals)
 	poisons := poisons(self, plants)
@@ -67,7 +69,7 @@ func (a *aiV1) Action(self animal.Animal, animals []alive.Alive, plants []alive.
 	var dAngeles checkangels.Angels
 	dAngelesFn := func() checkangels.Angels {
 		if dAngeles.Angel() == 0 {
-			dAngeles = checkangels.CheckAngels(self, append(edges, poisons...))
+			dAngeles = checkangels.CheckAngels(self, append(poisons, edges...))
 		}
 		return dAngeles
 	}
@@ -190,10 +192,10 @@ func (a *aiV1) edgeObstacle(el animal.Animal) (obstacles []checkangels.Obstacle)
 
 func closestFn(self animal.Animal, animals, plants []alive.Alive, dAngeles checkangels.Angels) (closest *crd.Crd, split bool) {
 	closestFnAn := func() (closest *crd.Crd, split bool) {
-		return getClosest(self, animals, true, dAngeles)
+		return getClosest(self, animals, true, 1, dAngeles)
 	}
 	closestFnPl := func() (closest *crd.Crd, split bool) {
-		return getClosest(self, plants, false, dAngeles)
+		return getClosest(self, plants, false, 1, dAngeles)
 	}
 	if closest, split := closestFnAn(); closest == nil {
 		return closestFnPl()
@@ -257,7 +259,7 @@ func poisons(el animal.Animal, plants []alive.Alive) (poisons []checkangels.Obst
 	return
 }
 
-func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles checkangels.Angels) (closest *crd.Crd, split bool) {
+func getClosest(el animal.Animal, els []alive.Alive, animal bool, repeat int, dAngeles checkangels.Angels) (closest *crd.Crd, split bool) {
 	dist := 9e+5
 	mass := 0.0
 	obstacle := true
@@ -292,6 +294,20 @@ func getClosest(el animal.Animal, els []alive.Alive, animal bool, dAngeles check
 				angel := dAngeles.ClosestAvailable(vecAngel)
 				vec.SetAngle(angel)
 				cr = vec.GetPointFromVector(el.GetCrd())
+				if rabl := func() bool {
+					if repeat > 5 {
+						return false
+					}
+					cCrd := el.GetCrd()
+					el.SetCrd(cr)
+					defer el.SetCrd(cCrd)
+					if cl, _ := getClosest(el, []alive.Alive{el1}, animal, repeat + 1, dAngeles); cl == nil || *cl != el1.GetCrd() {
+						return false
+					}
+					return true
+				}(); !rabl {
+					continue
+				}
 			}
 			closest = &cr
 			dist = distRes

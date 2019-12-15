@@ -126,7 +126,9 @@ func main() {
 	}))
 	jsCon.GetWindow().Call("requestAnimationFrame", cycle)
 	println("WASM Go Initialized field " + strconv.Itoa(int(jsCon.GetW())) + " " + strconv.Itoa(int(jsCon.GetH())))
-	select {}
+	select {
+		case <-time.After(999999 * time.Second):
+	}
 }
 
 type story struct {

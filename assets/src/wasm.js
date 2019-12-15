@@ -22,7 +22,7 @@ export class Universe {
      * @returns {string}
      */
     async export() {
-        return await window.export();
+        return window.export();
     }
     /**
      * @param {string} text
@@ -44,7 +44,7 @@ export class Universe {
      * @param {string} params
      */
     async setSize(params) {
-        await window.setSize(JSON.stringify(this.state.selectedElement));
+        await window.setSize(params);
     }
     /**
      * @param {number} x
@@ -61,6 +61,6 @@ export class Universe {
      * @returns {string}
      */
     async addFromJSON(data, x, y) {
-        await window.addFromJSON(data, x, y);
+        return window.addFromJSON(data, x, y);
     }
 }

@@ -481,11 +481,17 @@ func removeFromInt(a []int, i int) []int {
 
 func getClosest(gr grid.Grid, el animal.Animal, fr frame.Frame, ind int) ([]int, int, []alive.Alive) {
 	idInt, inner := gr.GetObjInRadius(el.GetX(), el.GetY(), el.GetVision(), el.GetSize(), ind)
-	closest := make([]alive.Alive, len(idInt))
+	closest := make([]alive.Alive, 0, len(idInt))
+	was := map[int]struct{}{}
 	j := 0
 	for i := 0; i < len(idInt); i++ {
 		id := idInt[i]
-		closest[j] = fr.Get(id)
+		if _, ok := was[id]; ok {
+			continue
+		} else {
+			//was[id] = struct{}{}
+		}
+		closest = append(closest, fr.Get(id))
 		j++
 	}
 	return idInt, inner, closest

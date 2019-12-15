@@ -107,7 +107,7 @@ func NewWorldFromFile(reader io.Reader) World {
 	index := 0
 	for i := 0; i < len(data.Animals); i++ {
 		an := data.Animals[i]
-		if an.Parent == nil {
+		if an.Parent != nil {
 			continue
 		}
 		el := createAnimalFromJSON(an, data.W, data.H, nil)
@@ -123,6 +123,8 @@ func NewWorldFromFile(reader io.Reader) World {
 			}
 		}
 	}
+	world.action = true
+	world.plant.SetUpdateState(true)
 	for i := 0; i < len(data.Plants); i++ {
 		el := createPlantFromJSON(data.Plants[i])
 		world.gridPlant.Set(el.GetX(), el.GetY(), el.GetSize(), i)

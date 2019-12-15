@@ -4,7 +4,6 @@
 import * as ReactDOM from "react-dom";
 import * as React from 'react';
 import {init, Universe} from './wasm.js';
-import Go from './wasm_exec.js';
 import {Animal, Plant, Size, Status} from './const/Const';
 
 import {ControlPanel} from "./components/ControlPanel";
@@ -81,12 +80,13 @@ class App extends React.Component<AppProps, AppState> {
         });
     };
 
-    async restart() {
+    restart = async () => {
         await this.state.action.restart();
     };
 
-    async export() {
+    export = async () => {
         let text = await this.state.action.export();
+        console.log(text);
         const element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
         element.setAttribute('download', "export.json");
@@ -96,7 +96,7 @@ class App extends React.Component<AppProps, AppState> {
         document.body.removeChild(element);
     }
 
-    async import(e: any) {
+    import = async (e: any) => {
         const reader = new FileReader();
         reader.onload = event => {
             // @ts-ignore
@@ -152,9 +152,7 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({
             tmpElement: el
         });
-        // @ts-ignore
         if (el != "") {
-            // @ts-ignore
             let selectedEl: elInfo = JSON.parse(el);
             this.setState({
                 selectedElement: {
@@ -172,7 +170,6 @@ class App extends React.Component<AppProps, AppState> {
             return
         }
         let el = await this.state.action.addFromJSON(data, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-        // @ts-ignore
         if (el != "") {
             let selectedEl: elInfo = JSON.parse(el);
             this.setState({

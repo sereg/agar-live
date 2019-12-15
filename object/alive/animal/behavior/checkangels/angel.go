@@ -142,17 +142,11 @@ func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 			}
 			calculateLine()
 			if intersect, dist := v.check(el.GetCrd(), el.GetSize(), line1, line2, line3); intersect {
-				rangAng[keyRange{dirAngel, dirAngel - addInrAngel}] = rangeAngels{
-					dangerous: v.dangerous(),
-					dist:      dist,
-				}
+				addToRange(rangAng, dirAngel, dirAngel - addInrAngel, dist, v.dangerous())
 				if dirAngel == first || dirAngel-addInrAngel == 0 {
-					rangAng[keyRange{first, first - addInrAngel}] = rangeAngels{
-						dangerous: v.dangerous(),
-						dist:      dist,
-					}
+					addToRange(rangAng, first, first - addInrAngel, dist, v.dangerous())
 				}
-				break
+				//break
 			}
 		}
 		dirAngel -= addInrAngel
@@ -162,6 +156,22 @@ func CheckAngels(el animal.Animal, obstacles []Obstacle) (ang Angels) {
 	ang.rangeAngels = rangAng
 	ang.first = first
 	return ang
+}
+
+func addToRange(m mapRange, start, end int, dist float64, dangerous bool) {
+	if v, ok := m[keyRange{start, end}]; ok {
+		if v.dist > dist {
+			m[keyRange{start, end}] = rangeAngels{
+				dangerous: dangerous,
+				dist:      dist,
+			}
+		}
+		return
+	}
+	m[keyRange{start, end}] = rangeAngels{
+		dangerous: dangerous,
+		dist:      dist,
+	}
 }
 
 type quarter struct {
