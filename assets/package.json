@@ -15,7 +15,7 @@
     "@types/react-dom": "^16.9.4",
     "css-loader": "^3.2.0",
     "golang-wasm-async-loader": "^0.4.1",
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "sass-loader": "^8.0.0",
     "source-map-loader": "^0.2.4",
